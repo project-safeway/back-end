@@ -1,4 +1,4 @@
-package entity;
+package com.safeway.tech.entity;
 
 import com.safeway.tech.enums.caminhoEnum;
 import lombok.Getter;

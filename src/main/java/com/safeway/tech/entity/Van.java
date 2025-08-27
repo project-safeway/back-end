@@ -1,4 +1,4 @@
-package entity;
+package com.safeway.tech.entity;
 
 import lombok.Getter;
 import lombok.Setter;

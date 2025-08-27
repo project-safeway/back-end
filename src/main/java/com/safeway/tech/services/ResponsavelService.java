@@ -1,7 +1,7 @@
-package services;
+package com.safeway.tech.services;
 
+import com.safeway.tech.entity.Responsavel;
 import com.safeway.tech.repository.ResponsavelRepository;
-import entity.Responsavel;
 import org.springframework.stereotype.Service;
 
 @Service
