@@ -1,7 +1,7 @@
-package services;
+package com.safeway.tech.services;
 
+import com.safeway.tech.entity.Responsavel;
 import com.safeway.tech.repository.ResponsavelRepository;
-import entity.Responsavel;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -26,9 +26,6 @@ public class ResponsavelService {
          Responsavel responsavel1 = getById(responsavel.getId());
          responsavel1.setNome(responsavel.getNome());
          responsavel1.setEndereco(responsavel.getEndereco());
-         responsavel1.setEmail(responsavel.getEmail());
-         responsavel1.setSenha(responsavel.getSenha());
-         responsavel1.setTelefone(responsavel.getTelefone());
 
          return repository.save(responsavel1);
      }
