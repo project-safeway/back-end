@@ -22,7 +22,7 @@ public class UsuariosService {
         return usuario;
     }
 
-    public Usuarios salvarUsuario(Usuarios usuario) {
+    public Usuario salvarUsuario(Usuario usuario) {
         return repository.save(usuario);
     }
 

@@ -1,6 +1,6 @@
 package com.safeway.tech.enums;
 
-public enum caminhoEnum {
+public enum TipoViagemEnum {
     SO_IDA,
     SO_VOLTA,
     IDA_VOLTA;

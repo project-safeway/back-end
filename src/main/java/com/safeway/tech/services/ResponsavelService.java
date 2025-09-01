@@ -26,9 +26,6 @@ public class ResponsavelService {
          Responsavel responsavel1 = getById(responsavel.getId());
          responsavel1.setNome(responsavel.getNome());
          responsavel1.setEndereco(responsavel.getEndereco());
-         responsavel1.setEmail(responsavel.getEmail());
-         responsavel1.setSenha(responsavel.getSenha());
-         responsavel1.setTelefone(responsavel.getTelefone());
 
          return repository.save(responsavel1);
      }
