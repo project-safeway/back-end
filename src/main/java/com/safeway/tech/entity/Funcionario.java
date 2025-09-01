@@ -6,6 +6,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
@@ -22,8 +23,8 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "responsaveis")
-public class Responsavel implements Serializable {
+@Table(name = "funcionarios")
+public class Funcionario implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -36,20 +37,16 @@ public class Responsavel implements Serializable {
     @Size(min = 14, max = 14)
     private String cpf;
 
-    @Column(length = 9, nullable = false)
-    @Size(min = 11, max = 11)
-    private String tel1;
-
-    @Column(length = 9)
-    @Size(min = 11, max = 11)
-    private String tel2;
-
-    @OneToMany(mappedBy = "responsavel")
-    private List<Aluno> alunos;
-
     @OneToOne
-    @JoinColumn(name = "fkEndereco")
+    @JoinColumn(name = "fkEndereco", nullable = false)
     private Endereco endereco;
+
+    @ManyToOne
+    @JoinColumn(name = "fkTransporte", nullable = false)
+    private Transporte transporte;
+
+    @OneToMany(mappedBy = "funcionario")
+    private List<Pagamento> pagamentos;
 
     @CreationTimestamp
     private LocalDateTime criadoEm;
@@ -77,32 +74,24 @@ public class Responsavel implements Serializable {
         this.cpf = cpf;
     }
 
-    public String getTel1() {
-        return tel1;
-    }
-
-    public void setTel1(String tel1) {
-        this.tel1 = tel1;
-    }
-
-    public String getTel2() {
-        return tel2;
-    }
-
-    public void setTel2(String tel2) {
-        this.tel2 = tel2;
-    }
-
-    public List<Aluno> getAlunos() {
-        return alunos;
-    }
-
     public Endereco getEndereco() {
         return endereco;
     }
 
     public void setEndereco(Endereco endereco) {
         this.endereco = endereco;
+    }
+
+    public Transporte getTransporte() {
+        return transporte;
+    }
+
+    public void setTransporte(Transporte transporte) {
+        this.transporte = transporte;
+    }
+
+    public List<Pagamento> getPagamentos() {
+        return pagamentos;
     }
 
     public LocalDateTime getCriadoEm() {
