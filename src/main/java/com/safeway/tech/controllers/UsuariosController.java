@@ -1,6 +1,6 @@
-package com.safeway.tech.controller;
+package com.safeway.tech.controllers;
 
-import com.safeway.tech.entity.Usuarios;
+import com.safeway.tech.models.Usuarios;
 import com.safeway.tech.services.UsuariosService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -37,6 +37,4 @@ public class UsuariosController {
     public Usuarios alterarUsuario(@RequestBody Usuarios novoUsuario,@PathVariable int idUsuario){
         return usuariosService.alterarUsuario(novoUsuario, idUsuario);
     }
-
-
 }

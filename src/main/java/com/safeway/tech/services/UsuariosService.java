@@ -1,10 +1,9 @@
 package com.safeway.tech.services;
 
-import com.safeway.tech.entity.Usuarios;
+import com.safeway.tech.models.Usuarios;
 import com.safeway.tech.repository.UsuariosRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -22,7 +21,7 @@ public class UsuariosService {
         return usuario;
     }
 
-    public Usuario salvarUsuario(Usuario usuario) {
+    public Usuarios salvarUsuario(Usuarios usuario) {
         return repository.save(usuario);
     }
 
