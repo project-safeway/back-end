@@ -1,4 +1,4 @@
-package com.safeway.tech.entity;
+package com.safeway.tech.models;
 
 import com.safeway.tech.enums.TipoViagemEnum;
 import jakarta.persistence.Entity;

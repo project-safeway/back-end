@@ -1,4 +1,4 @@
-package com.safeway.tech.entity;
+package com.safeway.tech.models;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -21,24 +21,22 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "despesas")
-public class Despesa implements Serializable {
+@Table(name = "pagamentos")
+public class Pagamento implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "idTransporte", nullable = false)
-    private Transporte transporte;
+    @JoinColumn(name = "idFuncionario", nullable = false)
+    private Funcionario funcionario;
 
-    private LocalDate dtDespesa;
+    @Column(nullable = false)
+    private LocalDate dtPagamento;
 
-    @Column(precision = 7, scale = 2)
-    private BigDecimal valorDespesa;
-
-    @Column(length = 45)
-    private String descricao;
+    @Column(precision = 7, scale = 2, nullable = false)
+    private BigDecimal valorPagamento;
 
     @CreationTimestamp
     private LocalDateTime criadoEm;
@@ -50,36 +48,28 @@ public class Despesa implements Serializable {
         return id;
     }
 
-    public Transporte getTransporte() {
-        return transporte;
+    public Funcionario getFuncionario() {
+        return funcionario;
     }
 
-    public void setTransporte(Transporte transporte) {
-        this.transporte = transporte;
+    public void setFuncionario(Funcionario funcionario) {
+        this.funcionario = funcionario;
     }
 
-    public LocalDate getDtDespesa() {
-        return dtDespesa;
+    public LocalDate getDtPagamento() {
+        return dtPagamento;
     }
 
-    public void setDtDespesa(LocalDate dtDespesa) {
-        this.dtDespesa = dtDespesa;
+    public void setDtPagamento(LocalDate dtPagamento) {
+        this.dtPagamento = dtPagamento;
     }
 
-    public BigDecimal getValorDespesa() {
-        return valorDespesa;
+    public BigDecimal getValorPagamento() {
+        return valorPagamento;
     }
 
-    public void setValorDespesa(BigDecimal valorDespesa) {
-        this.valorDespesa = valorDespesa;
-    }
-
-    public String getDescricao() {
-        return descricao;
-    }
-
-    public void setDescricao(String descricao) {
-        this.descricao = descricao;
+    public void setValorPagamento(BigDecimal valorPagamento) {
+        this.valorPagamento = valorPagamento;
     }
 
     public LocalDateTime getCriadoEm() {

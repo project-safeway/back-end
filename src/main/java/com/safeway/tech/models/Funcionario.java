@@ -1,4 +1,4 @@
-package com.safeway.tech.entity;
+package com.safeway.tech.models;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -7,41 +7,46 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.io.Serializable;
-import java.math.BigDecimal;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "mensalidades")
-public class Mensalidade implements Serializable {
+@Table(name = "funcionarios")
+public class Funcionario implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private LocalDate dtMensalidade;
+    @Column(length = 45, nullable = false)
+    private String nome;
 
-    @Column(precision = 7, scale = 2, nullable = false)
-    private BigDecimal valorMensalidade;
+    @Column(length = 14, nullable = false, unique = true)
+    @Size(min = 14, max = 14)
+    private String cpf;
 
-    private Boolean pagamentoEfetuado;
-
-    @ManyToOne
-    @JoinColumn(name = "fkAluno", nullable = false)
-    private Aluno aluno;
+    @OneToOne
+    @JoinColumn(name = "fkEndereco", nullable = false)
+    private Endereco endereco;
 
     @ManyToOne
     @JoinColumn(name = "fkTransporte", nullable = false)
     private Transporte transporte;
+
+    @OneToMany(mappedBy = "funcionario")
+    private List<Pagamento> pagamentos;
 
     @CreationTimestamp
     private LocalDateTime criadoEm;
@@ -53,36 +58,28 @@ public class Mensalidade implements Serializable {
         return id;
     }
 
-    public LocalDate getDtMensalidade() {
-        return dtMensalidade;
+    public String getNome() {
+        return nome;
     }
 
-    public void setDtMensalidade(LocalDate dtMensalidade) {
-        this.dtMensalidade = dtMensalidade;
+    public void setNome(String nome) {
+        this.nome = nome;
     }
 
-    public BigDecimal getValorMensalidade() {
-        return valorMensalidade;
+    public String getCpf() {
+        return cpf;
     }
 
-    public void setValorMensalidade(BigDecimal valorMensalidade) {
-        this.valorMensalidade = valorMensalidade;
+    public void setCpf(String cpf) {
+        this.cpf = cpf;
     }
 
-    public Boolean getPagamentoEfetuado() {
-        return pagamentoEfetuado;
+    public Endereco getEndereco() {
+        return endereco;
     }
 
-    public void setPagamentoEfetuado(Boolean pagamentoEfetuado) {
-        this.pagamentoEfetuado = pagamentoEfetuado;
-    }
-
-    public Aluno getAluno() {
-        return aluno;
-    }
-
-    public void setAluno(Aluno aluno) {
-        this.aluno = aluno;
+    public void setEndereco(Endereco endereco) {
+        this.endereco = endereco;
     }
 
     public Transporte getTransporte() {
@@ -91,6 +88,10 @@ public class Mensalidade implements Serializable {
 
     public void setTransporte(Transporte transporte) {
         this.transporte = transporte;
+    }
+
+    public List<Pagamento> getPagamentos() {
+        return pagamentos;
     }
 
     public LocalDateTime getCriadoEm() {

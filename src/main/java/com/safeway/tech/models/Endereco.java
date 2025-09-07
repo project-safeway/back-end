@@ -1,4 +1,4 @@
-package com.safeway.tech.entity;
+package com.safeway.tech.models;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
