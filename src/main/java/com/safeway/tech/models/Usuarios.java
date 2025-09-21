@@ -1,4 +1,4 @@
-package com.safeway.tech.entity;
+package com.safeway.tech.models;
 
 import com.safeway.tech.enums.UserRole;
 import jakarta.persistence.Column;
@@ -24,7 +24,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Entity
 @Table(name = "usuarios")
-public class Usuario implements Serializable {
+public class Usuarios implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -46,6 +46,9 @@ public class Usuario implements Serializable {
     @Column(length = 45, nullable = false, unique = true)
     private String email;
 
+    @Column(length = 45, nullable = false, unique = true)
+    private String senha;
+
     @Enumerated(EnumType.STRING)
     private UserRole role; // Admin ou Common
 
@@ -62,6 +65,8 @@ public class Usuario implements Serializable {
 
     @UpdateTimestamp
     private LocalDateTime atualizadoEm;
+
+
 
     public Long getIdUsuario() {
         return idUsuario;
@@ -102,6 +107,10 @@ public class Usuario implements Serializable {
     public String getEmail() {
         return email;
     }
+
+    public String getSenha() { return senha; }
+
+    public void setSenha(String senha) { this.senha = senha; }
 
     public void setEmail(String email) {
         this.email = email;

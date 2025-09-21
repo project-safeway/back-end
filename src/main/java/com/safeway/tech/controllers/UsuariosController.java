@@ -1,6 +1,6 @@
-package com.safeway.tech.controller;
+package com.safeway.tech.controllers;
 
-import com.safeway.tech.entity.Usuario;
+import com.safeway.tech.models.Usuarios;
 import com.safeway.tech.services.UsuariosService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -14,17 +14,17 @@ public class UsuariosController {
     private UsuariosService usuariosService;
 
     @PostMapping
-    public Usuario salvarUsuario(@RequestBody Usuario usuario){
+    public Usuarios salvarUsuario(@RequestBody Usuarios usuario){
         return usuariosService.salvarUsuario(usuario);
     }
 
     @GetMapping
-    public List<Usuario> listarUsuarios() {
+    public List<Usuarios> listarUsuarios() {
         return usuariosService.listarUsuarios();
     }
 
     @GetMapping("/{idUsuario}")
-    public Usuario retornarUm(@PathVariable int idUsuario){
+    public Usuarios retornarUm(@PathVariable int idUsuario){
         return usuariosService.retornarUm(idUsuario);
     }
 
@@ -34,9 +34,7 @@ public class UsuariosController {
     }
 
     @PutMapping("/{idUsuario}")
-    public Usuario alterarUsuario(@RequestBody Usuario novoUsuario,@PathVariable int idUsuario){
+    public Usuarios alterarUsuario(@RequestBody Usuarios novoUsuario,@PathVariable int idUsuario){
         return usuariosService.alterarUsuario(novoUsuario, idUsuario);
     }
-
-
 }
