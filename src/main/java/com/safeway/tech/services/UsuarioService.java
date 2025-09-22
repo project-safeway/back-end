@@ -1,16 +1,16 @@
 package com.safeway.tech.services;
 
 import com.safeway.tech.models.Usuario;
-import com.safeway.tech.repository.UsuariosRepository;
+import com.safeway.tech.repository.UsuarioRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
-public class UsuariosService {
+public class UsuarioService {
     @Autowired
-    private UsuariosRepository repository;
+    private UsuarioRepository repository;
 
     public List<Usuario> listarUsuarios() {
         return repository.findAll();
