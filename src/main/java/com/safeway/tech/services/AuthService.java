@@ -1,7 +1,7 @@
 package com.safeway.tech.services;
 
 import com.safeway.tech.dto.RegisterRequest;
-import com.safeway.tech.models.Usuarios;
+import com.safeway.tech.models.Usuario;
 import com.safeway.tech.enums.UserRole;
 import com.safeway.tech.repository.UsuariosRepository;
 import org.springframework.stereotype.Service;
@@ -23,10 +23,10 @@ public class AuthService {
             throw new RuntimeException("Email já cadastrado");
         }
 
-        Usuarios usuario = new Usuarios();
+        Usuario usuario = new Usuario();
         usuario.setNome(request.getNome());
         usuario.setEmail(request.getEmail());
-        usuario.setSenha(request.getSenha());
+        usuario.setPasswordHash(request.getSenha()); // Precisa alterar para hash aqui dps
         usuario.setRole(UserRole.COMMON);
         usuario.setTel1("00000000000");
 
@@ -39,7 +39,7 @@ public class AuthService {
         }
 
         return repository.findByEmail(email)
-                .map(usuario -> usuario.getSenha().equals(senha))
+                .map(usuario -> usuario.getPasswordHash().equals(senha)) // Precisa alterar para hash aqui dps
                 .orElse(false);
     }
 }
