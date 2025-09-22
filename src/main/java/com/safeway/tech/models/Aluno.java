@@ -20,7 +20,7 @@ import java.util.List;
 @Table(name = "alunos")
 @Data
 @NoArgsConstructor @AllArgsConstructor
-public class Aluno {
+public class Aluno extends Auditable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long idAluno;

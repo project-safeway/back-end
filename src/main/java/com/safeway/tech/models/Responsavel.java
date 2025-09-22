@@ -19,7 +19,7 @@ import java.util.List;
 @Table(name = "responsaveis")
 @Data
 @NoArgsConstructor @AllArgsConstructor
-public class Responsavel {
+public class Responsavel extends Auditable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long idResponsavel;
