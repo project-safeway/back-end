@@ -19,7 +19,7 @@ import lombok.NoArgsConstructor;
 @Table(name = "usuarios")
 @Data
 @NoArgsConstructor @AllArgsConstructor
-public class Usuario {
+public class Usuario extends Auditable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long idUsuario;

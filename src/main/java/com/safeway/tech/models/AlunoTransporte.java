@@ -22,7 +22,7 @@ import java.util.List;
 @Table(name = "alunos_transportes")
 @Data
 @NoArgsConstructor @AllArgsConstructor
-public class AlunoTransporte {
+public class AlunoTransporte extends Auditable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long idAlunoTransporte;

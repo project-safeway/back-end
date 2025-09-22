@@ -17,7 +17,7 @@ import java.util.List;
 @Table(name = "transportes")
 @Data
 @NoArgsConstructor @AllArgsConstructor
-public class Transporte {
+public class Transporte extends Auditable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long idTransporte;

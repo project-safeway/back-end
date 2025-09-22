@@ -18,7 +18,7 @@ import java.util.Date;
 @Table(name = "mensalidades")
 @Data
 @NoArgsConstructor @AllArgsConstructor
-public class Mensalidade {
+public class Mensalidade extends Auditable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long idMensalidade;
