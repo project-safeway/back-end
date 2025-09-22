@@ -1,6 +1,5 @@
 package com.safeway.tech.models;
 
-import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -9,95 +8,27 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
+import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
 
-import java.io.Serializable;
 import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
+import java.util.Date;
 
-@NoArgsConstructor
-@AllArgsConstructor
 @Entity
 @Table(name = "mensalidades")
-public class Mensalidade implements Serializable {
-
+@Data
+@NoArgsConstructor @AllArgsConstructor
+public class Mensalidade extends Auditable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Long idMensalidade;
 
-    private LocalDate dtMensalidade;
+    @ManyToOne
+    @JoinColumn(name = "fkAlunoTransporte", nullable = false)
+    private AlunoTransporte alunoTransporte;
 
-    @Column(precision = 7, scale = 2, nullable = false)
+    private Date dataMensalidade;
     private BigDecimal valorMensalidade;
-
-    private Boolean pagamentoEfetuado;
-
-    @ManyToOne
-    @JoinColumn(name = "fkAluno", nullable = false)
-    private Aluno aluno;
-
-    @ManyToOne
-    @JoinColumn(name = "fkTransporte", nullable = false)
-    private Transporte transporte;
-
-    @CreationTimestamp
-    private LocalDateTime criadoEm;
-
-    @UpdateTimestamp
-    private LocalDateTime atualizadoEm;
-
-    public Long getId() {
-        return id;
-    }
-
-    public LocalDate getDtMensalidade() {
-        return dtMensalidade;
-    }
-
-    public void setDtMensalidade(LocalDate dtMensalidade) {
-        this.dtMensalidade = dtMensalidade;
-    }
-
-    public BigDecimal getValorMensalidade() {
-        return valorMensalidade;
-    }
-
-    public void setValorMensalidade(BigDecimal valorMensalidade) {
-        this.valorMensalidade = valorMensalidade;
-    }
-
-    public Boolean getPagamentoEfetuado() {
-        return pagamentoEfetuado;
-    }
-
-    public void setPagamentoEfetuado(Boolean pagamentoEfetuado) {
-        this.pagamentoEfetuado = pagamentoEfetuado;
-    }
-
-    public Aluno getAluno() {
-        return aluno;
-    }
-
-    public void setAluno(Aluno aluno) {
-        this.aluno = aluno;
-    }
-
-    public Transporte getTransporte() {
-        return transporte;
-    }
-
-    public void setTransporte(Transporte transporte) {
-        this.transporte = transporte;
-    }
-
-    public LocalDateTime getCriadoEm() {
-        return criadoEm;
-    }
-
-    public LocalDateTime getAtualizadoEm() {
-        return atualizadoEm;
-    }
+    private Boolean pagamentoEfetuado = false;
 }
+

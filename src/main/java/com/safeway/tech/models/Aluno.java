@@ -7,117 +7,42 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
+import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
 
-import java.io.Serializable;
-import java.time.LocalDateTime;
 import java.util.Date;
+import java.util.List;
 
-@NoArgsConstructor
-@AllArgsConstructor
 @Entity
 @Table(name = "alunos")
-public class Aluno implements Serializable {
-
+@Data
+@NoArgsConstructor @AllArgsConstructor
+public class Aluno extends Auditable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Long idAluno;
 
-    @Column(length = 45, nullable = false)
+    @ManyToOne
+    @JoinColumn(name = "fkResponsavel", nullable = false)
+    private Responsavel responsavel;
+
+    @ManyToOne
+    @JoinColumn(name = "fkEscola", nullable = false)
+    private Escola escola;
+
+    @Column(nullable = false)
     private String nome;
 
-    @Column(length = 45, nullable = false)
+    @Column(nullable = false)
     private String professor;
 
     private Date dtNascimento;
     private Integer serie;
-
-    @Column(length = 10, nullable = false)
     private String sala;
 
-    @ManyToOne
-    @JoinColumn(name = "fkResponsavel")
-    private Responsavel responsavel;
-
-    @ManyToOne
-    @JoinColumn(name = "fkEscola")
-    private Escola escola;
-
-    @CreationTimestamp
-    private LocalDateTime criadoEm;
-
-    @UpdateTimestamp
-    private LocalDateTime atualizadoEm;
-
-    public Long getId() {
-        return id;
-    }
-
-    public String getNome() {
-        return nome;
-    }
-
-    public void setNome(String nome) {
-        this.nome = nome;
-    }
-
-    public String getProfessor() {
-        return professor;
-    }
-
-    public void setProfessor(String professor) {
-        this.professor = professor;
-    }
-
-    public Date getDtNascimento() {
-        return dtNascimento;
-    }
-
-    public void setDtNascimento(Date dtNascimento) {
-        this.dtNascimento = dtNascimento;
-    }
-
-    public Integer getSerie() {
-        return serie;
-    }
-
-    public void setSerie(Integer serie) {
-        this.serie = serie;
-    }
-
-    public String getSala() {
-        return sala;
-    }
-
-    public void setSala(String sala) {
-        this.sala = sala;
-    }
-
-    public Responsavel getResponsavel() {
-        return responsavel;
-    }
-
-    public void setResponsavel(Responsavel responsavel) {
-        this.responsavel = responsavel;
-    }
-
-    public Escola getEscola() {
-        return escola;
-    }
-
-    public void setEscola(Escola escola) {
-        this.escola = escola;
-    }
-
-    public LocalDateTime getCriadoEm() {
-        return criadoEm;
-    }
-
-    public LocalDateTime getAtualizadoEm() {
-        return atualizadoEm;
-    }
+    @OneToMany(mappedBy = "aluno")
+    private List<AlunoTransporte> alunosTransportes;
 }

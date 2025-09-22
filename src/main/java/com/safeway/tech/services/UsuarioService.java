@@ -1,27 +1,27 @@
 package com.safeway.tech.services;
 
-import com.safeway.tech.models.Usuarios;
-import com.safeway.tech.repository.UsuariosRepository;
+import com.safeway.tech.models.Usuario;
+import com.safeway.tech.repository.UsuarioRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
-public class UsuariosService {
+public class UsuarioService {
     @Autowired
-    private UsuariosRepository repository;
+    private UsuarioRepository repository;
 
-    public List<Usuarios> listarUsuarios() {
+    public List<Usuario> listarUsuarios() {
         return repository.findAll();
     }
 
-    public Usuarios retornarUm(int indice){
-        Usuarios usuario = repository.findById(indice).orElseThrow(RuntimeException::new);
+    public Usuario retornarUm(int indice){
+        Usuario usuario = repository.findById(indice).orElseThrow(RuntimeException::new);
         return usuario;
     }
 
-    public Usuarios salvarUsuario(Usuarios usuario) {
+    public Usuario salvarUsuario(Usuario usuario) {
         return repository.save(usuario);
     }
 
@@ -29,8 +29,8 @@ public class UsuariosService {
         repository.deleteById(idUsuario);
     }
 
-    public Usuarios alterarUsuario(Usuarios novoUsuario,int indice){
-        Usuarios usuario = repository.findById(indice).orElseThrow(RuntimeException::new);
+    public Usuario alterarUsuario(Usuario novoUsuario,int indice){
+        Usuario usuario = repository.findById(indice).orElseThrow(RuntimeException::new);
         usuario.setNome(novoUsuario.getNome());
         usuario.setEmail(novoUsuario.getEmail());
         usuario.setTel1(novoUsuario.getTel1());
