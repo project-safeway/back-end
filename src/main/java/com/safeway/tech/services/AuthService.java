@@ -49,6 +49,8 @@ public class AuthService {
         usuario.setRole(UserRole.COMMON);
         usuario.setTel1("00000000000");
 
+        // Coloquei apenas para teste, mas o certo vai ser ele ser vinculado a um transporte de alguma outra forma
+        // Ainda verificar isso
         Optional<Transporte> transporte = transporteRepository.findByPlaca(request.getPlacaTransporte());
         if (transporte.isEmpty()) {
             throw new BadCredentialsException("Trasnporte não encontrado");
