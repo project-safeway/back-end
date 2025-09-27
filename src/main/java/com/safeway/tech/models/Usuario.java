@@ -14,6 +14,9 @@ import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
+
+import java.util.UUID;
 
 @Entity
 @Table(name = "usuarios")
@@ -21,8 +24,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor @AllArgsConstructor
 public class Usuario extends Auditable {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long idUsuario;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private UUID idUsuario;
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "fkTransporte", nullable = false)
@@ -50,4 +53,8 @@ public class Usuario extends Auditable {
 
     @Column(length = 15)
     private String tel2;
+
+    public boolean isLoginCorrect(String senha, PasswordEncoder passwordEncoder) {
+        return passwordEncoder.matches(senha, this.passwordHash);
+    }
 }

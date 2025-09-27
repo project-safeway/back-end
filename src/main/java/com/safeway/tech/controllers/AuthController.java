@@ -29,11 +29,8 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequest request) {
         try {
-            boolean autenticado = authService.autenticar(request.getEmail(), request.getSenha());
-            if (autenticado) {
-                return ResponseEntity.ok("Login realizado com sucesso");
-            }
-            return ResponseEntity.badRequest().body("Credenciais inválidas");
+            AuthResponse autenticado = authService.autenticar(request.getEmail(), request.getSenha());
+            return ResponseEntity.ok(autenticado);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }

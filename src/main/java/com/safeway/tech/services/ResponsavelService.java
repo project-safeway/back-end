@@ -23,7 +23,7 @@ public class ResponsavelService {
      }
 
      public Responsavel atualizar(Responsavel responsavel){
-         Responsavel responsavel1 = getById(responsavel.getId());
+         Responsavel responsavel1 = getById(responsavel.getIdResponsavel());
          responsavel1.setNome(responsavel.getNome());
          responsavel1.setEndereco(responsavel.getEndereco());
 

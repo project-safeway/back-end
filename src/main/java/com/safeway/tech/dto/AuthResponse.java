@@ -8,8 +8,6 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 public class AuthResponse {
-    private String idToken;
     private String accessToken;
-    private String refreshToken;
-    private Integer expiresIn;
+    private Long expiresIn;
 }
