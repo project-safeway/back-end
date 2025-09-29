@@ -1,0 +1,13 @@
+services:
+  mysql:
+    image: mysql
+    container_name: safeway-mysql
+    ports:
+      - "3306:3306"
+    expose:
+      - "3306"
+    environment:
+      - MYSQL_USER=safeway
+      - MYSQL_PASSWORD=urubu100
+      - MYSQL_DATABASE=safewaydb
+      - MYSQL_ROOT_PASSWORD=urubu100
