@@ -22,7 +22,7 @@ import java.util.List;
 public class Responsavel extends Auditable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long idResponsavel;
+    private int idResponsavel;
 
     @ManyToOne
     @JoinColumn(name = "fkEndereco", nullable = false)
