@@ -34,29 +34,25 @@ public class AuthService {
     private TransporteRepository transporteRepository;
 
     public void register(RegisterRequest request) {
-        if (request.getNome() == null || request.getEmail() == null || request.getSenha() == null) {
-            throw new RuntimeException("Todos os campos são obrigatórios");
-        }
-
-        if (usuarioRepository.findByEmail(request.getEmail()).isPresent()) {
+        if (usuarioRepository.findByEmail(request.email()).isPresent()) {
             throw new RuntimeException("Email já cadastrado");
         }
 
         Usuario usuario = new Usuario();
-        usuario.setNome(request.getNome());
-        usuario.setEmail(request.getEmail());
-        usuario.setPasswordHash(passwordEncoder.encode(request.getSenha()));
-        usuario.setRole(UserRole.COMMON);
-        usuario.setTel1("00000000000");
+        usuario.setNome(request.nome());
+        usuario.setEmail(request.email());
+        usuario.setPasswordHash(passwordEncoder.encode(request.senha()));
+        usuario.setRole(UserRole.ADMIN); // Tem que estudar essa regra aqui
+        usuario.setTel1(request.telefone());
 
-        // Coloquei apenas para teste, mas o certo vai ser ele ser vinculado a um transporte de alguma outra forma
-        // Ainda verificar isso
-        Optional<Transporte> transporte = transporteRepository.findByPlaca(request.getPlacaTransporte());
-        if (transporte.isEmpty()) {
-            throw new BadCredentialsException("Trasnporte não encontrado");
-        } else {
-            usuario.setTransporte(transporte.get());
-        }
+        Transporte transporte = new Transporte();
+        transporte.setPlaca(request.transporte().placa());
+        transporte.setModelo(request.transporte().modelo());
+        transporte.setCapacidade(request.transporte().capacidade());
+
+        Transporte transporteSalvo = transporteRepository.save(transporte);
+
+        usuario.setTransporte(transporteSalvo);
 
         usuarioRepository.save(usuario);
     }
