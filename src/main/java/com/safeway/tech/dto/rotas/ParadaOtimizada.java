@@ -1,12 +1,10 @@
 package com.safeway.tech.dto.rotas;
 
 public record ParadaOtimizada(
-        String servicoId,
-        Coordenada localizacao,
+        String idParada,
+        Localizacao localizacao,
         String horarioChegada,
-        String horarioSaida,
-        Integer esperaSegundos,
-        Double distanciaAnteriorMetros,
-        Long tempoViagemAnteriorSegundos
+        Double distanciaAteAqui,
+        Long tempoViagem
 ) {
 }

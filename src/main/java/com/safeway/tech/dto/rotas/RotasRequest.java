@@ -1,8 +1,10 @@
 package com.safeway.tech.dto.rotas;
 
+import java.util.List;
+
 public record RotasRequest(
         Veiculo veiculo,
-        PontosParada pontosParada,
+        List<PontoParada> pontosParada,
         Boolean otimizarOrdem
 ) {
 }

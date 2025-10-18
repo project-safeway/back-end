@@ -15,31 +15,51 @@ import java.util.concurrent.Executors;
 public class RotasCompostasService {
 
     private List<RotasService> provedores;
-    private final ExecutorService executor = Executors.newFixedThreadPool(2);
+
+    public RotasCompostasService(List<RotasService> provedores) {
+        this.provedores = provedores;
+        if (provedores != null && !provedores.isEmpty()) {
+            System.out.println("RotasCompostasService inicializado com " + provedores.size() + " provedor(es)");
+            provedores.forEach(p -> System.out.println("  - " + p.nomeProvedor()));
+        } else {
+            System.err.println("⚠️ AVISO: Nenhum provedor de rotas foi encontrado!");
+        }
+    }
 
     public RotasResponse otimizarMelhorRota(RotasRequest request) {
-        List<CompletableFuture<RotasResponse>> futures = provedores.stream()
-                .map(provedor -> CompletableFuture.supplyAsync(() -> {
+        if (provedores == null || provedores.isEmpty()) {
+            throw new RuntimeException(
+                    "Nenhum provedor de rotas disponível. " +
+                            "Verifique se AdaptadorOtimizacaoGoogle está configurado como @Service"
+            );
+        }
+
+        return provedores.stream()
+                .map(provedor -> {
                     try {
+                        System.out.println("Chamando provedor: " + provedor.nomeProvedor());
+                        long startTime = System.currentTimeMillis();
                         RotasResponse response = provedor.otimizarRota(request);
+                        long endTime = System.currentTimeMillis();
+                        System.out.println("Provedor " + provedor.nomeProvedor() + " respondeu em " + (endTime - startTime) + "ms");
                         return response;
                     } catch (Exception e) {
                         System.err.println("Provedor " + provedor.nomeProvedor() + " falhou: " + e.getMessage());
                         return null;
                     }
-                }, executor))
-                .toList();
-
-        return futures.stream()
-                .map(CompletableFuture::join)
+                })
                 .filter(Objects::nonNull)
                 .min(Comparator.comparingDouble(RotasResponse::distanciaTotal))
-                .orElseThrow(() -> new RuntimeException("Nenhuma rota otimizada disponível"));
+                .orElseThrow(() -> new RuntimeException("Nenhuma rota disponível de nenhum provedor"));
     }
 
     public RotasResponse otimizarComProvedor(String nomeProvedor, RotasRequest request) {
+        if (provedores == null || provedores.isEmpty()) {
+            throw new RuntimeException("Nenhum provedor de rotas disponível");
+        }
+
         return provedores.stream()
-                .filter(provedor -> provedor.nomeProvedor().equalsIgnoreCase(nomeProvedor))
+                .filter(p -> p.nomeProvedor().equalsIgnoreCase(nomeProvedor))
                 .findFirst()
                 .orElseThrow(() -> new IllegalArgumentException("Provedor não encontrado: " + nomeProvedor))
                 .otimizarRota(request);
