@@ -16,21 +16,20 @@ public class UsuarioService {
         return repository.findAll();
     }
 
-    public Usuario retornarUm(int indice){
-        Usuario usuario = repository.findById(indice).orElseThrow(RuntimeException::new);
-        return usuario;
+    public Usuario retornarUm(Long idUsuario){
+        return repository.findById(idUsuario).orElseThrow(RuntimeException::new);
     }
 
     public Usuario salvarUsuario(Usuario usuario) {
         return repository.save(usuario);
     }
 
-    public void excluir(Integer idUsuario) {
+    public void excluir(Long idUsuario) {
         repository.deleteById(idUsuario);
     }
 
-    public Usuario alterarUsuario(Usuario novoUsuario,int indice){
-        Usuario usuario = repository.findById(indice).orElseThrow(RuntimeException::new);
+    public Usuario alterarUsuario(Usuario novoUsuario, Long idUsuario){
+        Usuario usuario = repository.findById(idUsuario).orElseThrow(RuntimeException::new);
         usuario.setNome(novoUsuario.getNome());
         usuario.setEmail(novoUsuario.getEmail());
         usuario.setTel1(novoUsuario.getTel1());
@@ -38,4 +37,3 @@ public class UsuarioService {
         return repository.save(usuario);
     }
 }
-
