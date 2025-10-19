@@ -7,6 +7,8 @@ import com.safeway.tech.models.Usuario;
 import com.safeway.tech.enums.UserRole;
 import com.safeway.tech.repository.TransporteRepository;
 import com.safeway.tech.repository.UsuarioRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -21,6 +23,8 @@ import java.util.Optional;
 @Service
 public class AuthService {
 
+    private static final Logger log = LoggerFactory.getLogger(AuthService.class);
+
     @Autowired
     private JwtEncoder jwtEncoder;
 
@@ -34,12 +38,21 @@ public class AuthService {
     private TransporteRepository transporteRepository;
 
     public void register(RegisterRequest request) {
-        if (request.getNome() == null || request.getEmail() == null || request.getSenha() == null) {
-            throw new RuntimeException("Todos os campos são obrigatórios");
+        // Campos obrigatórios já validados pelo @Valid no controller
+        log.info("Tentativa de registro para email: {}", request.getEmail());
+
+        if (usuarioRepository.existsByEmail(request.getEmail())) {
+            log.warn("Email já cadastrado: {}", request.getEmail());
+            throw new RuntimeException("Email já cadastrado");
         }
 
-        if (usuarioRepository.findByEmail(request.getEmail()).isPresent()) {
-            throw new RuntimeException("Email já cadastrado");
+        Transporte transporteEncontrado = null;
+        if (request.getPlacaTransporte() != null && !request.getPlacaTransporte().isBlank()) {
+            String placaNormalizada = request.getPlacaTransporte().trim().toUpperCase();
+            transporteEncontrado = transporteRepository.findByPlaca(placaNormalizada).orElse(null);
+            if (transporteEncontrado == null) {
+                log.warn("Placa informada, porém transporte não encontrado: {}", request.getPlacaTransporte());
+            }
         }
 
         Usuario usuario = new Usuario();
@@ -47,29 +60,31 @@ public class AuthService {
         usuario.setEmail(request.getEmail());
         usuario.setPasswordHash(passwordEncoder.encode(request.getSenha()));
         usuario.setRole(UserRole.COMMON);
-        usuario.setTel1("00000000000");
-
-        // Coloquei apenas para teste, mas o certo vai ser ele ser vinculado a um transporte de alguma outra forma
-        // Ainda verificar isso
-        Optional<Transporte> transporte = transporteRepository.findByPlaca(request.getPlacaTransporte());
-        if (transporte.isEmpty()) {
-            throw new BadCredentialsException("Trasnporte não encontrado");
-        } else {
-            usuario.setTransporte(transporte.get());
-        }
+        usuario.setTel1(request.getTel1());
+        usuario.setTransporte(transporteEncontrado); // pode ser null
 
         usuarioRepository.save(usuario);
+        log.info("Usuário registrado com sucesso: {}", request.getEmail());
     }
 
     public AuthResponse autenticar(String email, String senha) {
+        log.info("Tentativa de login para email: {}", email);
         Optional<Usuario> usuario = usuarioRepository.findByEmail(email);
 
-        if (usuario.isEmpty() || !usuario.get().isLoginCorrect(senha, passwordEncoder)) {
+        if (usuario.isEmpty()) {
+            log.warn("Usuário não encontrado: {}", email);
             throw new BadCredentialsException("Email ou senha inválidos");
         }
 
+        if (!usuario.get().isLoginCorrect(senha, passwordEncoder)) {
+            log.warn("Senha incorreta para: {}", email);
+            throw new BadCredentialsException("Email ou senha inválidos");
+        }
+
+        log.info("Login bem-sucedido para: {}", email);
+
         Instant now = Instant.now();
-        Long expiresIn = 60 * 60 * 23L;
+        long expiresIn = 60 * 60 * 23L; // em segundos
 
         JwtClaimsSet claims = JwtClaimsSet.builder()
                 .issuer("safeway-tech")

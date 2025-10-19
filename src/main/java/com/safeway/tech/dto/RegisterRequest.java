@@ -21,6 +21,5 @@ public class RegisterRequest {
     @NotBlank(message = "Telefone é obrigatório")
     private String tel1;
 
-    @NotBlank(message = "Placa do transporte é obrigatória")
     private String placaTransporte;
 }
