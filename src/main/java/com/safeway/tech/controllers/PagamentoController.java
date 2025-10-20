@@ -47,9 +47,9 @@ public class PagamentoController {
 
 
     // Listar todos os pagamentos de todos os funcionários
-    @GetMapping
-    public ResponseEntity<List<Pagamento>> listarPagamentos(){
-        pagamentoService.listarPagamentos();
+    @GetMapping("/cobrador/{id}")
+    public ResponseEntity<List<Pagamento>> listarPagamentos(@PathVariable Long id){
+        pagamentoService.listarPagamentos(id);
         return null;
     }
 
