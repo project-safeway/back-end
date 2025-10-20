@@ -3,6 +3,7 @@ package com.safeway.tech.services;
 import com.safeway.tech.dto.PagamentoRequest;
 import com.safeway.tech.models.Funcionario;
 import com.safeway.tech.models.Pagamento;
+import com.safeway.tech.models.Usuario;
 import com.safeway.tech.repository.PagamentoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -16,7 +17,11 @@ public class PagamentoService {
     @Autowired
     private PagamentoRepository pagamentoRepository;
 
+    @Autowired
     private FuncionarioService funcionarioService;
+
+    @Autowired
+    private UsuarioService usuarioService;
 
     public Pagamento registrarPagamento(PagamentoRequest request){
 
@@ -45,13 +50,27 @@ public class PagamentoService {
         return pagamentos;
     }
 
-    public List<Pagamento> listarPagamentos() {
-
+    // Aqui vai ser melhor mudar para paginação
+    public List<Pagamento> listarPagamentos(Long id) {
+        Usuario usuario = usuarioService.retornarUm(id);
+        List<Pagamento> pagamentos = pagamentoRepository.findPagamentosByUsuario(usuario);
+        return pagamentos;
     }
 
     public Pagamento atualizarPagamento(PagamentoRequest request, Long id) {
+        Pagamento pagamento = buscarPagamento(id);
+
+        pagamento.setDataPagamento(request.dataPagamento());
+        pagamento.setValorPagamento(request.valorPagamento());
+
+        Funcionario funcionario = funcionarioService.buscarPorId(request.idFuncionario());
+
+        pagamento.setFuncionario(funcionario);
+        pagamento = pagamentoRepository.save(pagamento);
+        return pagamento;
     }
 
     public void deletarPagamento(Long id) {
+        pagamentoRepository.deleteById(id);
     }
 }
