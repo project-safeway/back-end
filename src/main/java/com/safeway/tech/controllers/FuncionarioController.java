@@ -15,6 +15,13 @@ import java.util.List;
 @RequestMapping("/funcionario")
 public class FuncionarioController {
 
+    /*
+
+        TODO - Implementar as validações necessárias no endpoint de atualização de funcionário.
+        (Vale mais a pena criarmos um novo dto para usar as anotações?)
+
+     */
+
     @Autowired
     private FuncionarioService funcionarioService;
 
@@ -25,22 +32,26 @@ public class FuncionarioController {
     }
 
     @GetMapping
-    public List<Funcionario> listarFuncionarios(){
-        return funcionarioService.listarFuncionarios();
+    public ResponseEntity<List<Funcionario>> listarFuncionarios(){
+        List<Funcionario> funcionarios = funcionarioService.listarFuncionarios();
+        return ResponseEntity.status(HttpStatus.OK).body(funcionarios);
     }
 
-    @GetMapping("/{idFuncionario}")
-    public Funcionario retornarUm(@PathVariable long idFuncionario){
-        return funcionarioService.getById(idFuncionario);
+    @GetMapping("/{id}")
+    public ResponseEntity<Funcionario> retornarUm(@PathVariable Long id){
+        Funcionario funcionario = funcionarioService.buscarPorId(id);
+        return ResponseEntity.status(HttpStatus.OK).body(funcionario);
     }
 
-    @DeleteMapping("/{idFuncionario}")
-    public void excluirFuncionario(@PathVariable long idFuncionario){
-        funcionarioService.excluir(idFuncionario);
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> excluirFuncionario(@PathVariable Long id){
+        funcionarioService.excluir(id);
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
-    @PutMapping("/{idFuncionario}")
-    public Funcionario alterarFuncionario(@RequestBody Funcionario novoFuncionario,@PathVariable long idFuncionario){
-        return funcionarioService.alterarFuncionario(novoFuncionario,idFuncionario);
+    @PutMapping("/{id}")
+    public ResponseEntity<Funcionario> alterarFuncionario(@RequestBody FuncionarioRequest request,@PathVariable Long id){
+        Funcionario funcionario = funcionarioService.alterarFuncionario(request, id);
+        return ResponseEntity.status(HttpStatus.OK).body(funcionario);
     }
 }

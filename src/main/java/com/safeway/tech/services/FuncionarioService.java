@@ -24,8 +24,9 @@ public class FuncionarioService {
     @Autowired
     private EnderecoRepository enderecoRepository;
 
-    public Funcionario getById(long idFuncionario){
-        return funcionarioRepository.findById(idFuncionario).orElseThrow(RuntimeException::new);
+    public Funcionario buscarPorId(Long id){
+        return funcionarioRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Funcionário não encontrado"));
     }
 
     public Funcionario salvarFuncionario(FuncionarioRequest request){
@@ -57,18 +58,28 @@ public class FuncionarioService {
         return funcionarioRepository.findAll();
     }
 
-    public void excluir(long idFuncionario){
-        funcionarioRepository.delete(getById(idFuncionario));
+    public void excluir(Long id){
+        Funcionario funcionario = funcionarioRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Funcionário não encontrado"));
+        funcionarioRepository.delete(funcionario);
     }
 
-    public Funcionario alterarFuncionario(Funcionario funcionario, long idFuncionario){
-        Funcionario funcionario1 = getById(funcionario.getIdFuncionario());
-        funcionario1.setTransporte(funcionario.getTransporte());
-        funcionario1.setEndereco(funcionario.getEndereco());
-        funcionario1.setNome(funcionario.getNome());
-        funcionario1.setCpf(funcionario.getCpf());
-        funcionario1.setPagamentos(funcionario.getPagamentos());
-        System.out.println("Funcionario Atualizado!");
-        return funcionarioRepository.save(funcionario1);
+    public Funcionario alterarFuncionario(FuncionarioRequest request, Long id){
+        Funcionario funcionario = funcionarioRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Funcionário não encontrado"));
+
+        funcionario.setNome(request.nome());
+        funcionario.setCpf(request.cpf());
+
+        Endereco endereco = funcionario.getEndereco();
+        endereco.setRua(request.endereco().rua());
+        endereco.setNumero(request.endereco().numero());
+        endereco.setCidade(request.endereco().cidade());
+        endereco.setCep(request.endereco().cep());
+        enderecoRepository.save(endereco);
+
+        funcionario.setEndereco(endereco);
+
+        return funcionarioRepository.save(funcionario);
     }
 }
