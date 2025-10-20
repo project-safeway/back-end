@@ -39,32 +39,32 @@ public class AuthService {
 
     public void register(RegisterRequest request) {
         // Campos obrigatórios já validados pelo @Valid no controller
-        log.info("Tentativa de registro para email: {}", request.getEmail());
+        log.info("Tentativa de registro para email: {}", request.email());
 
-        if (usuarioRepository.existsByEmail(request.getEmail())) {
-            log.warn("Email já cadastrado: {}", request.getEmail());
+        if (usuarioRepository.existsByEmail(request.email())) {
+            log.warn("Email já cadastrado: {}", request.email());
             throw new RuntimeException("Email já cadastrado");
         }
 
         Transporte transporteEncontrado = null;
-        if (request.getPlacaTransporte() != null && !request.getPlacaTransporte().isBlank()) {
-            String placaNormalizada = request.getPlacaTransporte().trim().toUpperCase();
+        if (request.transporte().placa() != null && !request.transporte().placa().isBlank()) {
+            String placaNormalizada = request.transporte().placa().trim().toUpperCase();
             transporteEncontrado = transporteRepository.findByPlaca(placaNormalizada).orElse(null);
             if (transporteEncontrado == null) {
-                log.warn("Placa informada, porém transporte não encontrado: {}", request.getPlacaTransporte());
+                log.warn("Placa informada, porém transporte não encontrado: {}", request.transporte().placa());
             }
         }
 
         Usuario usuario = new Usuario();
-        usuario.setNome(request.getNome());
-        usuario.setEmail(request.getEmail());
-        usuario.setPasswordHash(passwordEncoder.encode(request.getSenha()));
+        usuario.setNome(request.nome());
+        usuario.setEmail(request.email());
+        usuario.setPasswordHash(passwordEncoder.encode(request.senha()));
         usuario.setRole(UserRole.COMMON);
-        usuario.setTel1(request.getTel1());
+        usuario.setTel1(request.telefone());
         usuario.setTransporte(transporteEncontrado); // pode ser null
 
         usuarioRepository.save(usuario);
-        log.info("Usuário registrado com sucesso: {}", request.getEmail());
+        log.info("Usuário registrado com sucesso: {}", request.email());
     }
 
     public AuthResponse autenticar(String email, String senha) {
