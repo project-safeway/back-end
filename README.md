@@ -21,3 +21,6 @@ O backend fornece APIs para gestão de chamadas dos alunos, controle de pagament
     - Spring Web
     - Spring Data JPA
 - [Maven](https://maven.apache.org/) para gerenciamento de dependências
+
+## Para API do Google Maps
+Se for usar a API do Google, configure GOOGLE_APPLICATION_CREDENTIALS (caminho do JSON) ou GOOGLE_ACCESS_TOKEN; caso contrário, o client só falha ao invocar a API.

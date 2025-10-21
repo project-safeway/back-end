@@ -31,17 +31,17 @@ public class UsuarioController {
     }
 
     @GetMapping("/{idUsuario}")
-    public Usuario retornarUm(@PathVariable int idUsuario){
+    public Usuario retornarUm(@PathVariable Long idUsuario){
         return usuarioService.retornarUm(idUsuario);
     }
 
     @DeleteMapping("/{idUsuario}")
-    public void excluir(@PathVariable Integer idUsuario) {
+    public void excluir(@PathVariable Long idUsuario) {
         usuarioService.excluir(idUsuario);
     }
 
     @PutMapping("/{idUsuario}")
-    public Usuario alterarUsuario(@RequestBody Usuario novoUsuario,@PathVariable int idUsuario){
+    public Usuario alterarUsuario(@RequestBody Usuario novoUsuario,@PathVariable Long idUsuario){
         return usuarioService.alterarUsuario(novoUsuario, idUsuario);
     }
 }

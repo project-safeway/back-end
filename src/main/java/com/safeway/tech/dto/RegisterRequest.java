@@ -2,25 +2,23 @@ package com.safeway.tech.dto;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
-import lombok.Getter;
-import lombok.Setter;
+import jakarta.validation.constraints.NotNull;
 
-@Getter
-@Setter
-public class RegisterRequest {
-    @NotBlank(message = "Nome é obrigatório")
-    private String nome;
+public record RegisterRequest(
+        @NotBlank(message = "Nome é obrigatório")
+        String nome,
 
-    @NotBlank(message = "Email é obrigatório")
-    @Email(message = "Email inválido")
-    private String email;
+        @NotBlank(message = "Email é obrigatório")
+        @Email(message = "Email inválido")
+        String email,
 
-    @NotBlank(message = "Senha é obrigatória")
-    private String senha;
+        @NotBlank(message = "Senha é obrigatória")
+        String senha,
 
-    @NotBlank(message = "Telefone é obrigatório")
-    private String tel1;
+        @NotBlank(message = "Telefone é obrigatório")
+        String telefone,
 
-    @NotBlank(message = "Placa do transporte é obrigatória")
-    private String placaTransporte;
+        @NotNull(message = "Dados do transporte são obrigatórios")
+        TransporteRequest transporte
+) {
 }

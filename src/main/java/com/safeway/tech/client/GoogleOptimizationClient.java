@@ -10,7 +10,6 @@ import com.safeway.tech.dto.rotas.PontoParada;
 import com.safeway.tech.dto.rotas.RotasRequest;
 import com.safeway.tech.dto.rotas.Veiculo;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
@@ -25,9 +24,9 @@ public class GoogleOptimizationClient {
     private final WebClient cliente;
     private final ObjectMapper mapper = new ObjectMapper();
     private final String projetoId;
-    private final GoogleCredentials credenciais;
+    private GoogleCredentials credenciais; // tornar opcional em dev
 
-    public GoogleOptimizationClient(WebClient.Builder builder, @Value("${google.projectId}") String projetoId) {
+    public GoogleOptimizationClient(WebClient.Builder builder, @Value("${google.projectId:dev-local}") String projetoId) {
         this.cliente = builder
                 .baseUrl("https://routeoptimization.googleapis.com")
                 .build();
@@ -36,8 +35,9 @@ public class GoogleOptimizationClient {
         try {
             this.credenciais = inicializarCredenciais();
         } catch (IOException e) {
-            throw new RuntimeException("Falha ao inicializar as credenciais do Google. " +
-                    "Certifique-se de que GOOGLE_APPLICATION_CREDENTIALS está definido para o caminho do arquivo JSON da conta de serviço.", e);
+            // Em dev, permite iniciar sem credenciais; exigiremos apenas ao usar a API
+            System.err.println("Aviso: credenciais do Google não inicializadas. Defina GOOGLE_APPLICATION_CREDENTIALS ou GOOGLE_ACCESS_TOKEN para usar a API. Detalhe: " + e.getMessage());
+            this.credenciais = null;
         }
     }
 
@@ -117,11 +117,20 @@ public class GoogleOptimizationClient {
 
     private String getTokenAcesso() {
         try {
-            credenciais.refreshIfExpired();
-            return credenciais.getAccessToken().getTokenValue();
+            if (credenciais != null) {
+                credenciais.refreshIfExpired();
+                return credenciais.getAccessToken().getTokenValue();
+            }
+
+            String envToken = System.getenv("GOOGLE_ACCESS_TOKEN");
+            if (envToken != null && !envToken.isEmpty()) {
+                System.out.println("Usando token de acesso do ambiente.");
+                return envToken;
+            }
+
+            throw new RuntimeException("Credenciais do Google ausentes. Defina GOOGLE_APPLICATION_CREDENTIALS com o caminho do JSON da service account ou GOOGLE_ACCESS_TOKEN com um token válido.");
         } catch (IOException e) {
             System.err.println("Erro ao obter o token de acesso: " + e.getMessage());
-
             String envToken = System.getenv("GOOGLE_ACCESS_TOKEN");
             if (envToken != null && !envToken.isEmpty()) {
                 System.out.println("Usando token de acesso do ambiente.");
