@@ -6,6 +6,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -37,6 +38,6 @@ public class Transporte extends Auditable {
     @OneToMany(mappedBy = "transporte")
     private List<Despesa> despesas;
 
-    @OneToMany(mappedBy = "transporte")
-    private List<Usuario> usuarios;
+    @OneToOne(mappedBy = "transporte")
+    private Usuario usuario;
 }

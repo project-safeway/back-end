@@ -1,43 +1,57 @@
 package com.safeway.tech.services;
 
+import com.safeway.tech.dto.TransporteRequest;
 import com.safeway.tech.models.Transporte;
+import com.safeway.tech.models.Usuario;
 import com.safeway.tech.repository.TransporteRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-
 @Service
 public class TransporteService {
-    private TransporteRepository repository;
+    @Autowired
+    private TransporteRepository transporteRepository;
 
-    public Transporte getById(long idTransporte){
-        return  repository.findById(idTransporte).orElseThrow(() -> new RuntimeException());
+    @Autowired
+    private UsuarioService usuarioService;
+
+    public Transporte getById(Long idTransporte){
+        return  transporteRepository.findById(idTransporte)
+                .orElseThrow(() -> new RuntimeException("Transporte não encontrado"));
     }
 
-    public Transporte salvarTransporte(Transporte transporte){
-        Transporte transporte1 = repository.save(transporte);
-        System.out.println("Transporte cadastrado!");
-        return transporte1;
+    public Transporte cadastrarTransporte(TransporteRequest request){
+        transporteRepository.findByPlaca(request.placa()).ifPresent(t -> {
+            throw new RuntimeException("Transporte com placa já cadastrada");
+        });
+
+        Transporte transporte = new Transporte();
+        transporte.setPlaca(request.placa());
+        transporte.setModelo(request.modelo());
+        transporte.setCapacidade(request.capacidade());
+
+        // Todo adicionar o link com o usuário
+
+        return transporteRepository.save(transporte);
     }
 
-    public List<Transporte> listarTransportes(){
-        return repository.findAll();
+    public Transporte buscarTransportePorUsuário(Long idUsuario){
+        Usuario usuario = usuarioService.retornarUm(idUsuario);
+        return transporteRepository.findByUsuario(usuario)
+                .orElseThrow(() -> new RuntimeException("O usuário não possui nenhum transporte associado"));
     }
 
-    public void excluirTransporte(long idTransporte){
-        repository.delete(getById(idTransporte));
+    public void excluirTransporte(Long idTransporte){
+        transporteRepository.deleteById(idTransporte);
     }
 
-    public Transporte alterarTransporte(Transporte transporte, int idTransporte){
-     Transporte transporte1 = getById(transporte.getIdTransporte());
-     transporte1.setPlaca(transporte.getPlaca());
-     transporte1.setModelo(transporte.getModelo());
-     transporte1.setCapacidade(transporte.getCapacidade());
-     transporte1.setFuncionarios(transporte.getFuncionarios());
-     transporte1.setAlunosTransportes(transporte.getAlunosTransportes());
-     transporte1.setDespesas(transporte.getDespesas());
-     System.out.println("Transporte Atualizado!");
-     return repository.save(transporte1);
+    public Transporte alterarTransporte(TransporteRequest request, Long id){
+     Transporte transporte = getById(id);
+
+     transporte.setPlaca(request.placa());
+     transporte.setModelo(request.modelo());
+     transporte.setCapacidade(request.capacidade());
+
+     return transporteRepository.save(transporte);
     }
 }

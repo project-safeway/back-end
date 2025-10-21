@@ -11,8 +11,8 @@ import java.util.List;
 public class ResponsavelService {
     private ResponsavelRepository repository;
 
-     public Responsavel getById(int id){
-         return repository.findById((long) id).orElseThrow(() -> new RuntimeException());
+     public Responsavel getById(Long id){
+         return repository.findById(id).orElseThrow(() -> new RuntimeException());
      }
 
 
@@ -30,12 +30,12 @@ public class ResponsavelService {
         return repository.findById((long) idResponsavel).orElseThrow(RuntimeException::new);
     }
 
-     public void excluir(int id){
+     public void excluir(Long id){
           repository.delete(getById(id));
      }
 
-     public Responsavel alterarResponsavel(Responsavel responsavel,int idResponsavel){
-         Responsavel responsavel1 = getById(responsavel.getIdResponsavel());
+     public Responsavel alterarResponsavel(Responsavel responsavel,Long idResponsavel){
+         Responsavel responsavel1 = getById(idResponsavel);
          responsavel1.setNome(responsavel.getNome());
          responsavel1.setEndereco(responsavel.getEndereco());
          responsavel1.setResponsavelSub(responsavel.getResponsavelSub());

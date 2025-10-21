@@ -35,7 +35,7 @@ public class ResponsavelController {
     }
 
     @PutMapping("/{idResponsavel}")
-    public Responsavel alterarResponsavel(@RequestBody Responsavel novoResponsavel,@PathVariable int idResponsavel){
+    public Responsavel alterarResponsavel(@RequestBody Responsavel novoResponsavel,@PathVariable Long idResponsavel){
         return responsavelService.alterarResponsavel(novoResponsavel, idResponsavel);
     }
 }

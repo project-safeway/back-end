@@ -40,9 +40,6 @@ public class Responsavel extends Auditable {
     private String tel2;
     private String responsavelSub;
 
-    @OneToMany(mappedBy = "responsavel")
+    @OneToMany(mappedBy = "alunos")
     private List<Aluno> alunos;
-
-    @OneToMany(mappedBy = "responsavel")
-    private List<Usuario> usuarios;
 }

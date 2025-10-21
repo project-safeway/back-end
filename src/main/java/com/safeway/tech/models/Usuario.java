@@ -10,6 +10,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -25,13 +26,9 @@ public class Usuario extends Auditable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long idUsuario;
 
-    @ManyToOne(optional = true)
-    @JoinColumn(name = "fkTransporte", nullable = true)
+    @OneToOne
+    @JoinColumn(name = "fkTransporte", nullable = false)
     private Transporte transporte;
-
-    @ManyToOne
-    @JoinColumn(name = "fkResponsavel")
-    private Responsavel responsavel;
 
     @Column(nullable = false, length = 100)
     private String nome;
