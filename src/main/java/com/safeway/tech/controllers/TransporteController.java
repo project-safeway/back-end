@@ -9,7 +9,7 @@ import com.safeway.tech.services.TransporteService;
 import java.util.List;
 
 @RestController
-@RequestMapping("/Transporte")
+@RequestMapping("/transporte")
 public class TransporteController {
     @Autowired
     private TransporteService transporteService;

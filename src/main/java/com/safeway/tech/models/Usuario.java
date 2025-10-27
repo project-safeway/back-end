@@ -16,19 +16,17 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-import java.util.UUID;
-
 @Entity
 @Table(name = "usuarios")
 @Data
 @NoArgsConstructor @AllArgsConstructor
 public class Usuario extends Auditable {
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID idUsuario;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long idUsuario;
 
-    @ManyToOne(optional = false)
-    @JoinColumn(name = "fkTransporte", nullable = false)
+    @ManyToOne(optional = true)
+    @JoinColumn(name = "fkTransporte", nullable = true)
     private Transporte transporte;
 
     @ManyToOne
