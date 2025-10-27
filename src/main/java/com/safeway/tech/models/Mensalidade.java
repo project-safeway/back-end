@@ -24,8 +24,8 @@ public class Mensalidade extends Auditable {
     private Long idMensalidade;
 
     @ManyToOne
-    @JoinColumn(name = "fkAlunoTransporte", nullable = false)
-    private AlunoTransporte alunoTransporte;
+    @JoinColumn(name = "fkAluno", nullable = false)
+    private Aluno aluno;
 
     private Date dataMensalidade;
     private BigDecimal valorMensalidade;

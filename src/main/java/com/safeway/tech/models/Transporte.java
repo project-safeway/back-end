@@ -33,9 +33,6 @@ public class Transporte extends Auditable {
     private List<Funcionario> funcionarios;
 
     @OneToMany(mappedBy = "transporte")
-    private List<AlunoTransporte> alunosTransportes;
-
-    @OneToMany(mappedBy = "transporte")
     private List<Despesa> despesas;
 
     @OneToOne(mappedBy = "transporte")

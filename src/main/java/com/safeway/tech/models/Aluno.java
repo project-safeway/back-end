@@ -13,6 +13,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -44,5 +45,5 @@ public class Aluno extends Auditable {
     private String sala;
 
     @OneToMany(mappedBy = "aluno")
-    private List<AlunoTransporte> alunosTransportes;
+    private List<Mensalidade> mensalidades = new ArrayList<>();
 }

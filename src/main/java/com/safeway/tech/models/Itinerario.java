@@ -1,6 +1,7 @@
 package com.safeway.tech.models;
 
 import com.safeway.tech.enums.TipoViagemEnum;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -15,33 +16,38 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalTime;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
 @Entity
-@Table(name = "alunos_transportes")
+@Table(name = "itinerario")
 @Data
 @NoArgsConstructor @AllArgsConstructor
-public class AlunoTransporte extends Auditable {
+public class Itinerario extends Auditable {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long idAlunoTransporte;
-
-    @ManyToOne
-    @JoinColumn(name = "fkAluno", nullable = false)
-    private Aluno aluno;
+    private Long idItinerario;
 
     @ManyToOne
     @JoinColumn(name = "fkTransporte", nullable = false)
     private Transporte transporte;
 
+    private String nome;
+    private LocalTime horarioInicio;
+    private LocalTime horarioFim;
+
     @Enumerated(EnumType.STRING)
     private TipoViagemEnum tipoViagem;
 
-    private Date dataInicio;
-    private Date dataFim;
+    private Boolean ativo = true;
 
-    @OneToMany(mappedBy = "alunoTransporte")
-    private List<Mensalidade> mensalidades;
+    @OneToMany(mappedBy = "itinerario", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ItinerarioAluno> alunos = new ArrayList<>();
+
+    @OneToMany(mappedBy = "itinerario", cascade = CascadeType.ALL)
+    private List<Chamada> chamadas = new ArrayList<>();
 }
 
