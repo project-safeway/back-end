@@ -15,6 +15,7 @@ import java.util.Date;
 @Entity
 @Table(name = "pagamentos")
 @Data
+@EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor @AllArgsConstructor
 @Getter
 @Setter

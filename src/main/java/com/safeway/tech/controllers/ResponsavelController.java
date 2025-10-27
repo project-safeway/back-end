@@ -1,7 +1,6 @@
 package com.safeway.tech.controllers;
 
 import com.safeway.tech.models.Responsavel;
-import com.safeway.tech.models.Usuario;
 import com.safeway.tech.services.ResponsavelService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -25,17 +24,17 @@ public class ResponsavelController {
     }
 
     @GetMapping("/{idResponsavel}")
-    public Responsavel retornarUm(@PathVariable int idResponsavel){
+    public Responsavel retornarUm(@PathVariable Long idResponsavel){
         return responsavelService.retornarUm(idResponsavel);
     }
 
     @DeleteMapping("/{idResponsavel}")
-    public void excluir(@PathVariable int idResponsavel) {
+    public void excluir(@PathVariable Long idResponsavel) {
         responsavelService.excluir(idResponsavel);
     }
 
     @PutMapping("/{idResponsavel}")
-    public Responsavel alterarResponsavel(@RequestBody Responsavel novoResponsavel,@PathVariable int idResponsavel){
+    public Responsavel alterarResponsavel(@RequestBody Responsavel novoResponsavel,@PathVariable Long idResponsavel){
         return responsavelService.alterarResponsavel(novoResponsavel, idResponsavel);
     }
 }

@@ -9,6 +9,7 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 import java.util.List;
@@ -16,6 +17,7 @@ import java.util.List;
 @Entity
 @Table(name = "transportes")
 @Data
+@EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor @AllArgsConstructor
 public class Transporte extends Auditable {
     @Id
@@ -32,7 +34,7 @@ public class Transporte extends Auditable {
     private List<Funcionario> funcionarios;
 
     @OneToMany(mappedBy = "transporte")
-    private List<AlunoTransporte> alunosTransportes;
+    private List<Aluno> alunosTransportes;
 
     @OneToMany(mappedBy = "transporte")
     private List<Despesa> despesas;

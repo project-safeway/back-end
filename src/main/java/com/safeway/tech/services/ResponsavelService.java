@@ -11,10 +11,9 @@ import java.util.List;
 public class ResponsavelService {
     private ResponsavelRepository repository;
 
-     public Responsavel getById(int id){
-         return repository.findById((long) id).orElseThrow(() -> new RuntimeException());
+     public Responsavel getById(Long id){
+         return repository.findById(id).orElseThrow(RuntimeException::new);
      }
-
 
      public Responsavel salvarResponsavel(Responsavel responsavel){
          Responsavel responsavel1 = repository.save(responsavel);
@@ -26,19 +25,18 @@ public class ResponsavelService {
         return repository.findAll();
     }
 
-    public Responsavel retornarUm(int idResponsavel){
-        return repository.findById((long) idResponsavel).orElseThrow(RuntimeException::new);
+    public Responsavel retornarUm(Long idResponsavel){
+        return repository.findById(idResponsavel).orElseThrow(RuntimeException::new);
     }
 
-     public void excluir(int id){
+     public void excluir(Long id){
           repository.delete(getById(id));
      }
 
-     public Responsavel alterarResponsavel(Responsavel responsavel,int idResponsavel){
+     public Responsavel alterarResponsavel(Responsavel responsavel,Long idResponsavel){
          Responsavel responsavel1 = getById(responsavel.getIdResponsavel());
          responsavel1.setNome(responsavel.getNome());
          responsavel1.setEndereco(responsavel.getEndereco());
-         responsavel1.setResponsavelSub(responsavel.getResponsavelSub());
          responsavel1.setAlunos(responsavel.getAlunos());
          System.out.println("Responsavel Atualizado!");
          return repository.save(responsavel1);

@@ -17,9 +17,10 @@ public class Endereco extends Auditable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long idEndereco;
-
-    private String rua;
-    private String cep;
+    private String logradouro;
     private String numero;
+    private String complemento;
+    private String bairro;
     private String cidade;
+    private String cep;
 }
