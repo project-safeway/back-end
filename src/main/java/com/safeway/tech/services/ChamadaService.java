@@ -13,6 +13,7 @@ public class ChamadaService {
     @Autowired
     private ChamadaRepository chamadaRepository;
 
+    @Autowired
     private ItinerarioService itinerarioService;
 
     public Chamada buscarChamadaPorId(Long id) {
