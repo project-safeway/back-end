@@ -7,6 +7,8 @@ import com.safeway.tech.repository.ItinerarioRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class ItinerarioService {
 
@@ -19,6 +21,10 @@ public class ItinerarioService {
     public Itinerario buscarItinerarioPorId(Long id) {
         return itinerarioRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Itinerário não encontrado"));
+    }
+
+    public List<Itinerario> buscarTodosItinerarios(Long idTransporte) {
+        return itinerarioRepository.findAllByTransporteId(idTransporte);
     }
 
     public Itinerario criarItinerario(ItinerarioRequest request) {
