@@ -84,4 +84,9 @@ public class AlunoService {
 
         return aluno.getIdAluno();
     }
+
+    public Aluno buscarAlunoPorId(Long id) {
+        return alunoRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Aluno não encontrado"));
+    }
 }

@@ -62,4 +62,7 @@ public class Aluno extends Auditable {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "fkTransporte", nullable = true)
     private Transporte transporte;
+
+    @OneToMany(mappedBy = "aluno", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ItinerarioAluno> itinerarios = new ArrayList<>();
 }
