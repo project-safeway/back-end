@@ -45,4 +45,7 @@ public class Itinerario extends Auditable {
 
     @OneToMany(mappedBy = "itinerario", orphanRemoval = true)
     private List<ItinerarioAluno> alunos = new ArrayList<>();
+
+    @OneToMany(mappedBy = "itinerario")
+    private List<Chamada> chamadas = new ArrayList<>();
 }

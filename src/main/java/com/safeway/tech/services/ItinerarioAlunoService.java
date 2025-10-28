@@ -28,7 +28,7 @@ public class ItinerarioAlunoService {
     @Autowired
     private AlunoService alunoService;
 
-    public ItinerarioAluno findById(Long id){
+    public ItinerarioAluno buscarPorId(Long id){
         return itinerarioAlunoRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Itinerário do Aluno não encontrado"));
     }
@@ -51,6 +51,11 @@ public class ItinerarioAlunoService {
         itinerarioAluno.setOrdemEmbarque(nextOrdem);
 
         return itinerarioAlunoRepository.save(itinerarioAluno);
+    }
+
+    public void removerAluno(Long itinerarioAlunoId) {
+        ItinerarioAluno itinerarioAluno = buscarPorId(itinerarioAlunoId);
+        itinerarioAlunoRepository.delete(itinerarioAluno);
     }
 
     @Transactional
