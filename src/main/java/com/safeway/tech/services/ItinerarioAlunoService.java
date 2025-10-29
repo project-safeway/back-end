@@ -5,16 +5,14 @@ import com.safeway.tech.models.Aluno;
 import com.safeway.tech.models.Itinerario;
 import com.safeway.tech.models.ItinerarioAluno;
 import com.safeway.tech.repository.ItinerarioAlunoRepository;
+import com.safeway.tech.repository.ItinerarioRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 public class ItinerarioAlunoService {
@@ -23,76 +21,77 @@ public class ItinerarioAlunoService {
     private ItinerarioAlunoRepository itinerarioAlunoRepository;
 
     @Autowired
-    private ItinerarioService itinerarioService;
+    private ItinerarioRepository itinerarioRepository;
 
     @Autowired
     private AlunoService alunoService;
 
-    public ItinerarioAluno buscarPorId(Long id){
-        return itinerarioAlunoRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Itinerário do Aluno não encontrado"));
-    }
+    /**
+     * Adiciona um aluno a um itinerário existente
+     */
+    @Transactional
+    public void adicionarAluno(Long itinerarioId, ItinerarioAlunoRequest request) {
+        Itinerario itinerario = itinerarioRepository.findById(itinerarioId)
+                .orElseThrow(() -> new RuntimeException("Itinerário não encontrado"));
 
-    public ItinerarioAluno cadastrarAluno(ItinerarioAlunoRequest request) {
-        Itinerario itinerario = itinerarioService.buscarItinerarioPorId(request.itinerarioId());
         Aluno aluno = alunoService.buscarAlunoPorId(request.alunoId());
 
-        List<ItinerarioAluno> atuais = itinerarioAlunoRepository.findByItinerario(itinerario.getId());
-        for (ItinerarioAluno ia : atuais) {
-            if (ia.getAluno().getIdAluno().equals(aluno.getIdAluno())) {
-                throw new RuntimeException("Aluno já cadastrado no itinerário");
-            }
-        }
+        // Evita duplicidade
+        itinerarioAlunoRepository.findByItinerarioIdAndAlunoId(itinerarioId, aluno.getIdAluno())
+                .ifPresent(a -> {
+                    throw new RuntimeException("Aluno já está vinculado a este itinerário");
+                });
 
-        ItinerarioAluno itinerarioAluno = new ItinerarioAluno();
-        itinerarioAluno.setItinerario(itinerario);
-        itinerarioAluno.setAluno(aluno);
-        int nextOrdem = atuais.getLast().getOrdemEmbarque() + 1;
-        itinerarioAluno.setOrdemEmbarque(nextOrdem);
+        ItinerarioAluno entity = new ItinerarioAluno();
+        entity.setItinerario(itinerario);
+        entity.setAluno(aluno);
+        entity.setOrdemEmbarque(request.ordemEmbarque());
 
-        return itinerarioAlunoRepository.save(itinerarioAluno);
-    }
-
-    public void removerAluno(Long itinerarioAlunoId) {
-        ItinerarioAluno itinerarioAluno = buscarPorId(itinerarioAlunoId);
-        itinerarioAlunoRepository.delete(itinerarioAluno);
+        itinerarioAlunoRepository.save(entity);
     }
 
     @Transactional
-    public void reordenarAlunos(Long itinerarioId, List<Long> alunoIds) {
-        List<ItinerarioAluno> atuais = itinerarioAlunoRepository.findByItinerario(itinerarioId);
+    public void removerAluno(Long itinerarioId, Long alunoId) {
+        ItinerarioAluno entity = itinerarioAlunoRepository
+                .findByItinerarioIdAndAlunoId(itinerarioId, alunoId)
+                .orElseThrow(() -> new RuntimeException("Aluno não encontrado no itinerário"));
 
-        Map<Long, ItinerarioAluno> map = new LinkedHashMap<>();
-        for (ItinerarioAluno ia : atuais) {
-            map.put(ia.getAluno().getIdAluno(), ia);
-        }
+        itinerarioAlunoRepository.delete(entity);
+    }
 
-        List<ItinerarioAluno> novaOrdem = new ArrayList<>();
+    @Transactional
+    public void sincronizarAlunos(Itinerario itinerario, List<ItinerarioAlunoRequest> novos) {
+        // Remove todos os vínculos anteriores
+        itinerarioAlunoRepository.deleteAllByItinerarioId(itinerario.getId());
+
+        // Cria novos vínculos
+        List<ItinerarioAluno> entidades = novos.stream().map(dto -> {
+            ItinerarioAluno ia = new ItinerarioAluno();
+            ia.setItinerario(itinerario);
+            ia.setAluno(alunoService.buscarAlunoPorId(dto.alunoId()));
+            ia.setOrdemEmbarque(dto.ordemEmbarque());
+            return ia;
+        }).toList();
+
+        itinerarioAlunoRepository.saveAll(entidades);
+    }
+
+    @Transactional
+    public void reordenar(Long itinerarioId, List<Long> novaOrdemAlunoIds) {
+        List<ItinerarioAluno> atuais = itinerarioAlunoRepository.findByItinerarioId(itinerarioId);
+
+        Map<Long, ItinerarioAluno> map = atuais.stream()
+                .collect(Collectors.toMap(a -> a.getAluno().getIdAluno(), a -> a));
+
         int ordem = 1;
-        Set<Long> processado = new HashSet<>();
-
-        if (alunoIds != null) {
-            for (Long alunoId : alunoIds) {
-                ItinerarioAluno ia = map.get(alunoId);
-                if (ia != null) {
-                    ia.setOrdemEmbarque(ordem++);
-                    novaOrdem.add(ia);
-                    processado.add(alunoId);
-                }
-            }
-        }
-
-        for (ItinerarioAluno ia : atuais) {
-            Long idAluno = ia.getAluno().getIdAluno();
-            if (!processado.contains(idAluno)) {
+        for (Long id : novaOrdemAlunoIds) {
+            ItinerarioAluno ia = map.get(id);
+            if (ia != null) {
                 ia.setOrdemEmbarque(ordem++);
-                novaOrdem.add(ia);
             }
         }
 
-        if (!novaOrdem.isEmpty()) {
-            itinerarioAlunoRepository.saveAll(novaOrdem);
-        }
+        itinerarioAlunoRepository.saveAll(atuais);
     }
 
 }

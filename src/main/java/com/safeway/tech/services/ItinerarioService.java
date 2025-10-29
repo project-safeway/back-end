@@ -1,11 +1,15 @@
 package com.safeway.tech.services;
 
 import com.safeway.tech.dto.ItinerarioRequest;
+import com.safeway.tech.dto.ItinerarioResponse;
+import com.safeway.tech.dto.ItinerarioUpdateRequest;
+import com.safeway.tech.mappers.ItinerarioMapper;
 import com.safeway.tech.models.Itinerario;
 import com.safeway.tech.models.Transporte;
 import com.safeway.tech.repository.ItinerarioRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -18,46 +22,58 @@ public class ItinerarioService {
     @Autowired
     private TransporteService transporteService;
 
-    public Itinerario buscarItinerarioPorId(Long id) {
-        return itinerarioRepository.findById(id)
+    @Autowired
+    private ItinerarioAlunoService itinerarioAlunoService;
+
+    public List<ItinerarioResponse> listarTodos() {
+        return itinerarioRepository.findAll().stream()
+                .map(ItinerarioMapper::toResponse)
+                .toList();
+    }
+
+    public ItinerarioResponse buscarPorId(Long id) {
+        Itinerario entity = itinerarioRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Itinerário não encontrado"));
+        return ItinerarioMapper.toResponse(entity);
     }
 
-    public List<Itinerario> buscarTodosItinerarios(Long idTransporte) {
-        return itinerarioRepository.findAllByTransporteId(idTransporte);
+    @Transactional
+    public void desativar(Long id) {
+        Itinerario itinerario = itinerarioRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Itinerário não encontrado"));
+        itinerario.setAtivo(false);
+        itinerarioRepository.save(itinerario);
     }
 
-    public Itinerario criarItinerario(ItinerarioRequest request) {
+    @Transactional
+    public ItinerarioResponse criar(ItinerarioRequest request) {
         Itinerario itinerario = new Itinerario();
+        itinerario.setNome(request.nome());
+        itinerario.setHorarioInicio(request.horarioInicio());
+        itinerario.setHorarioFim(request.horarioFim());
+        itinerario.setTipoViagem(request.tipoViagem());
+        itinerario.setTransporte(transporteService.getById(request.transporteId()));
+        itinerarioRepository.save(itinerario);
+        return ItinerarioMapper.toResponse(itinerario);
+    }
+
+    @Transactional
+    public ItinerarioResponse atualizar(Long id, ItinerarioUpdateRequest request) {
+        Itinerario itinerario = itinerarioRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Itinerário não encontrado"));
 
         itinerario.setNome(request.nome());
         itinerario.setHorarioInicio(request.horarioInicio());
         itinerario.setHorarioFim(request.horarioFim());
         itinerario.setTipoViagem(request.tipoViagem());
+        itinerario.setAtivo(request.ativo());
 
-        Transporte transporte = transporteService.getById(request.transporteId());
+        if (request.alunos() != null) {
+            itinerarioAlunoService.sincronizarAlunos(itinerario, request.alunos());
+        }
 
-        itinerario.setTransporte(transporte);
-        return itinerarioRepository.save(itinerario);
-    }
-
-    public Itinerario atualizarItinerario(Long id, ItinerarioRequest request) {
-        Itinerario itinerario = buscarItinerarioPorId(id);
-
-        itinerario.setNome(request.nome());
-        itinerario.setHorarioInicio(request.horarioInicio());
-        itinerario.setHorarioFim(request.horarioFim());
-        itinerario.setTipoViagem(request.tipoViagem());
-
-        Transporte transporte = transporteService.getById(request.transporteId());
-        itinerario.setTransporte(transporte);
-
-        return itinerarioRepository.save(itinerario);
-    }
-
-    public void deleterItinerario(Long id) {
-        Itinerario itinerario = buscarItinerarioPorId(id);
-        itinerarioRepository.delete(itinerario);
+        itinerarioRepository.save(itinerario);
+        return ItinerarioMapper.toResponse(itinerario);
     }
 
 }
