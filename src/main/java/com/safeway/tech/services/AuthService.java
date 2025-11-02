@@ -16,6 +16,7 @@ import org.springframework.security.oauth2.jwt.JwtClaimsSet;
 import org.springframework.security.oauth2.jwt.JwtEncoder;
 import org.springframework.security.oauth2.jwt.JwtEncoderParameters;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.util.Optional;
@@ -37,6 +38,7 @@ public class AuthService {
     @Autowired
     private TransporteRepository transporteRepository;
 
+    @Transactional
     public void register(RegisterRequest request) {
         // Campos obrigatórios já validados pelo @Valid no controller
         log.info("Tentativa de registro para email: {}", request.email());
@@ -46,24 +48,31 @@ public class AuthService {
             throw new RuntimeException("Email já cadastrado");
         }
 
-        Transporte transporteEncontrado = null;
-        if (request.transporte().placa() != null && !request.transporte().placa().isBlank()) {
-            String placaNormalizada = request.transporte().placa().trim().toUpperCase();
-            transporteEncontrado = transporteRepository.findByPlaca(placaNormalizada).orElse(null);
-            if (transporteEncontrado == null) {
-                log.warn("Placa informada, porém transporte não encontrado: {}", request.transporte().placa());
-            }
-        }
-
         Usuario usuario = new Usuario();
         usuario.setNome(request.nome());
         usuario.setEmail(request.email());
         usuario.setPasswordHash(passwordEncoder.encode(request.senha()));
         usuario.setRole(UserRole.COMMON);
         usuario.setTel1(request.telefone());
-        usuario.setTransporte(transporteEncontrado); // pode ser null
 
         usuarioRepository.save(usuario);
+
+        if (request.transporte() != null && request.transporte().placa() != null) {
+            String placaNormalizada = request.transporte().placa().trim().toUpperCase();
+
+            if (transporteRepository.findByPlaca(placaNormalizada).isPresent()) {
+                throw new RuntimeException("Placa já cadastrada");
+            }
+
+            Transporte transporte = new Transporte();
+            transporte.setPlaca(placaNormalizada);
+            transporte.setModelo(request.transporte().modelo());
+            transporte.setCapacidade(request.transporte().capacidade());
+            transporte.setUsuario(usuario);
+
+            transporteRepository.save(transporte);
+            log.info("Transporte {} vinculado ao usuário {}", placaNormalizada, usuario.getEmail());
+        }
         log.info("Usuário registrado com sucesso: {}", request.email());
     }
 

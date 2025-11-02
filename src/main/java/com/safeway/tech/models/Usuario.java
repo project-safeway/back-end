@@ -7,6 +7,9 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @Table(name = "usuarios")
 @Data
@@ -16,9 +19,8 @@ public class Usuario extends Auditable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long idUsuario;
 
-    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
-    @JoinColumn(name = "fkTransporte", nullable = true, unique = true)
-    private Transporte transporte;
+    @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Transporte> transportes = new ArrayList<>();
 
     @Column(nullable = false, length = 100)
     private String nome;

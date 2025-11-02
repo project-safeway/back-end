@@ -33,6 +33,7 @@ public class Transporte extends Auditable {
     @OneToMany(mappedBy = "transporte")
     private List<Despesa> despesas;
 
-    @OneToOne(mappedBy = "transporte")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "fkUsuario", nullable = false)
     private Usuario usuario;
 }
