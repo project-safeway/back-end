@@ -21,15 +21,17 @@ public interface MensalidadeRepository extends JpaRepository<MensalidadeAluno, L
     boolean existsByAlunoAndMesAndAno(Aluno aluno, Integer mes, Integer ano);
 
     @EntityGraph(attributePaths = {"aluno", "aluno.responsaveis"})
-    @Query("SELECT m FROM MensalidadeAluno m WHERE m.status IN :statuses")
-    List<MensalidadeAluno> findByStatusInWithDetails(@Param("statuses") List<StatusPagamento> statuses);
+    @Query("SELECT m FROM MensalidadeAluno m WHERE m.status IN :statuses AND m.aluno.usuario.idUsuario = :userId")
+    List<MensalidadeAluno> findByStatusInWithDetails(@Param("statuses") List<StatusPagamento> statuses,
+                                                     @Param("userId") Long userId);
 
     @EntityGraph(attributePaths = {"aluno", "aluno.responsaveis"})
     @Query("SELECT m FROM MensalidadeAluno m " +
-            "WHERE m.mes = :mes AND m.ano = :ano AND m.status IN :statuses")
+            "WHERE m.mes = :mes AND m.ano = :ano AND m.status IN :statuses AND m.aluno.usuario.idUsuario = :userId")
     List<MensalidadeAluno> findByMesAndAnoAndStatusInWithDetails(
             @Param("mes") Integer mes,
             @Param("ano") Integer ano,
-            @Param("statuses") List<StatusPagamento> statuses
+            @Param("statuses") List<StatusPagamento> statuses,
+            @Param("userId") Long userId
     );
 }

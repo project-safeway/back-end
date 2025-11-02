@@ -11,7 +11,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Table(name = "responsaveis")
+@Table(name = "responsaveis",
+        uniqueConstraints = {
+                @UniqueConstraint(name = "uk_responsavel_usuario_cpf", columnNames = {"fkUsuario", "cpf"})
+        })
 @Data
 @EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor
@@ -23,6 +26,11 @@ public class Responsavel extends Auditable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long idResponsavel;
 
+    // Dono do registro (escopo de usuário)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "fkUsuario", nullable = false)
+    private Usuario usuario;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "fk_endereco", nullable = false)
     private Endereco endereco;
@@ -30,7 +38,7 @@ public class Responsavel extends Auditable {
     @Column(nullable = false, length = 45)
     private String nome;
 
-    @Column(unique = true, length = 14)
+    @Column(length = 14)
     private String cpf;
 
     @Column(nullable = false, length = 9)

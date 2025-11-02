@@ -2,6 +2,7 @@ package com.safeway.tech.controllers;
 
 import com.safeway.tech.dto.CadastroAlunoCompletoRequest;
 import com.safeway.tech.services.AlunoService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,7 +17,7 @@ public class AlunoController {
 
     @PostMapping
     public ResponseEntity<Long> cadastrarAlunoCompleto(
-            @RequestBody CadastroAlunoCompletoRequest request
+            @RequestBody @Valid CadastroAlunoCompletoRequest request
     ) {
         Long idAluno = alunoService.cadastrarAlunoCompleto(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(idAluno);

@@ -7,14 +7,7 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -34,38 +27,35 @@ public class PagamentoController {
     // Buscar um pagamento específico pelo ID
     @GetMapping("/{id}")
     public ResponseEntity<Pagamento> buscarPagamento(@PathVariable Long id) {
-        pagamentoService.buscarPagamento(id);
-        return null;
+        Pagamento pagamento = pagamentoService.buscarPagamento(id);
+        return ResponseEntity.ok(pagamento);
     }
 
     // Buscar todos os pagamentos de um funcionário específico
     @GetMapping("/todos/{id}")
     public ResponseEntity<List<Pagamento>> buscarPagamentosPorId(@PathVariable Long id) {
-        pagamentoService.buscarPagamentosPorId(id);
-        return null;
+        List<Pagamento> pagamentos = pagamentoService.buscarPagamentosPorId(id);
+        return ResponseEntity.ok(pagamentos);
     }
 
-
-    // Listar todos os pagamentos de todos os funcionários
+    // Listar todos os pagamentos do usuário autenticado
     @GetMapping("/cobrador/{id}")
     public ResponseEntity<List<Pagamento>> listarPagamentos(@PathVariable Long id){
-        pagamentoService.listarPagamentos(id);
-        return null;
+        List<Pagamento> pagamentos = pagamentoService.listarPagamentos(id);
+        return ResponseEntity.ok(pagamentos);
     }
 
-    // Mesma coisa do dto de funcionário
-    @PutMapping
-    public ResponseEntity<Pagamento> atualizarPagamento(@RequestBody PagamentoRequest request, @PathVariable Long id){
-        pagamentoService.atualizarPagamento(request, id);
-        return null;
+    // Atualizar pagamento
+    @PutMapping("/{id}")
+    public ResponseEntity<Pagamento> atualizarPagamento(@RequestBody @Valid PagamentoRequest request, @PathVariable Long id){
+        Pagamento atualizado = pagamentoService.atualizarPagamento(request, id);
+        return ResponseEntity.ok(atualizado);
     }
 
-    // Vamos deixar ele poder fazer isso mesmo? Eu vejo como algo que ele não pode fazer
-    // Se deixarmos ele deletar, será um delete lógico ou físico?
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deletarPagamento(@PathVariable Long id){
         pagamentoService.deletarPagamento(id);
-        return null;
+        return ResponseEntity.noContent().build();
     }
 
 }
