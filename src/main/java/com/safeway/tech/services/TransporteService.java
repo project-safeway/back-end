@@ -38,11 +38,10 @@ public class TransporteService {
     public Transporte salvarTransporte(Transporte transporte){
         Long userId = currentUserService.getCurrentUserId();
         Usuario usuario = usuarioRepository.getReferenceById(userId);
-        // salva transporte primeiro
+
+        transporte.setUsuario(usuario);
         Transporte salvo = repository.save(transporte);
-        // vincula ao usuário (lado dono da FK)
-        usuario.setTransporte(salvo);
-        usuarioRepository.save(usuario);
+
         System.out.println("Transporte cadastrado!");
         return salvo;
     }
@@ -54,12 +53,6 @@ public class TransporteService {
 
     public void excluirTransporte(long idTransporte){
         Transporte transporte = getOwnedOrThrow(idTransporte);
-        // remove vínculo do usuário
-        Usuario usuario = transporte.getUsuario();
-        if (usuario != null) {
-            usuario.setTransporte(null);
-            usuarioRepository.save(usuario);
-        }
         repository.delete(transporte);
     }
 
