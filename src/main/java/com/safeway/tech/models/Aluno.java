@@ -25,6 +25,11 @@ public class Aluno extends Auditable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long idAluno;
 
+    // Dono do registro (escopo de usuário)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "fkUsuario", nullable = false)
+    private Usuario usuario;
+
     @ManyToMany(mappedBy = "alunos")
     private List<Responsavel> responsaveis = new ArrayList<>();
 

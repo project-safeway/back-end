@@ -23,14 +23,16 @@ public class MensalidadeService {
 
     private final MensalidadeRepository mensalidadeRepository;
     private final PagamentoRepository pagamentoRepository;
+    private final CurrentUserService currentUserService;
 
     @Transactional(readOnly = true)
     public List<MensalidadePendenteResponse> buscarMensalidadesPendentes(Integer mes, Integer ano) {
         List<StatusPagamento> statusPendentes = List.of(StatusPagamento.PENDENTE, StatusPagamento.ATRASADO);
+        Long userId = currentUserService.getCurrentUserId();
 
         List<MensalidadeAluno> mensalidades = mes != null && ano != null
-                ? mensalidadeRepository.findByMesAndAnoAndStatusInWithDetails(mes, ano, statusPendentes)
-                : mensalidadeRepository.findByStatusInWithDetails(statusPendentes);
+                ? mensalidadeRepository.findByMesAndAnoAndStatusInWithDetails(mes, ano, statusPendentes, userId)
+                : mensalidadeRepository.findByStatusInWithDetails(statusPendentes, userId);
 
         return mensalidades.stream()
                 .map(this::mapToResponse)
@@ -41,6 +43,12 @@ public class MensalidadeService {
     public void marcarComoPago(Long mensalidadeId, Long pagamentoId) {
         MensalidadeAluno mensalidade = mensalidadeRepository.findById(mensalidadeId)
                 .orElseThrow(() -> new RuntimeException("Mensalidade não encontrada"));
+
+        // valida dono
+        Long userId = currentUserService.getCurrentUserId();
+        if (!mensalidade.getAluno().getUsuario().getIdUsuario().equals(userId)) {
+            throw new RuntimeException("Sem permissão para alterar esta mensalidade");
+        }
 
         Pagamento pagamento = pagamentoRepository.findById(pagamentoId)
                 .orElseThrow(() -> new RuntimeException("Pagamento não encontrado"));

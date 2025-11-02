@@ -1,10 +1,11 @@
 package com.safeway.tech.controllers;
 
-import com.safeway.tech.models.Responsavel;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
+import com.safeway.tech.dto.TransporteRequest;
 import com.safeway.tech.models.Transporte;
 import com.safeway.tech.services.TransporteService;
+import jakarta.validation.Valid;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -14,9 +15,17 @@ public class TransporteController {
     @Autowired
     private TransporteService transporteService;
 
+    private Transporte mapToEntity(TransporteRequest req){
+        Transporte t = new Transporte();
+        t.setPlaca(req.placa());
+        t.setModelo(req.modelo());
+        t.setCapacidade(req.capacidade());
+        return t;
+    }
+
     @PostMapping
-    public Transporte salvarTransporte(@RequestBody Transporte transporte){
-        return transporteService.salvarTransporte(transporte);
+    public Transporte salvarTransporte(@RequestBody @Valid TransporteRequest request){
+        return transporteService.salvarTransporte(mapToEntity(request));
     }
 
     @GetMapping
@@ -30,12 +39,12 @@ public class TransporteController {
     }
 
     @DeleteMapping("/{idTransporte}")
-    public void excluir(@PathVariable int idTransporte){
+    public void excluir(@PathVariable long idTransporte){
         transporteService.excluirTransporte(idTransporte);
     }
 
     @PutMapping("/{idTransporte}")
-    public Transporte alterarTransporte(@RequestBody Transporte novoTransporte1,@PathVariable int idTransporte){
-        return transporteService.alterarTransporte(novoTransporte1,idTransporte);
+    public Transporte alterarTransporte(@RequestBody @Valid TransporteRequest novoTransporte1,@PathVariable long idTransporte){
+        return transporteService.alterarTransporte(mapToEntity(novoTransporte1),idTransporte);
     }
 }

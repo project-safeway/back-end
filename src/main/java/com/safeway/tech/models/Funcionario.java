@@ -16,13 +16,20 @@ import lombok.NoArgsConstructor;
 import java.util.List;
 
 @Entity
-@Table(name = "funcionarios")
+@Table(name = "funcionarios", uniqueConstraints = {
+        @jakarta.persistence.UniqueConstraint(name = "uk_funcionario_usuario_cpf", columnNames = {"fkUsuario", "cpf"})
+})
 @Data
 @NoArgsConstructor @AllArgsConstructor
 public class Funcionario extends Auditable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long idFuncionario;
+
+    // Dono do registro (escopo de usuário)
+    @ManyToOne
+    @JoinColumn(name = "fkUsuario", nullable = false)
+    private Usuario usuario;
 
     @ManyToOne
     @JoinColumn(name = "fkTransporte", nullable = false)
@@ -35,7 +42,7 @@ public class Funcionario extends Auditable {
     @Column(nullable = false)
     private String nome;
 
-    @Column(unique = true)
+    @Column
     private String cpf;
 
     @OneToMany(mappedBy = "funcionario")

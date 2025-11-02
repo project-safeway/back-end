@@ -1,16 +1,7 @@
 package com.safeway.tech.models;
 
 import com.safeway.tech.enums.UserRole;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -25,13 +16,9 @@ public class Usuario extends Auditable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long idUsuario;
 
-    @ManyToOne(optional = true)
-    @JoinColumn(name = "fkTransporte", nullable = true)
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "fkTransporte", nullable = true, unique = true)
     private Transporte transporte;
-
-    @ManyToOne
-    @JoinColumn(name = "fkResponsavel")
-    private Responsavel responsavel;
 
     @Column(nullable = false, length = 100)
     private String nome;

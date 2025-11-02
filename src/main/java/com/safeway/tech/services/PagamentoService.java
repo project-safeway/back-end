@@ -3,12 +3,10 @@ package com.safeway.tech.services;
 import com.safeway.tech.dto.PagamentoRequest;
 import com.safeway.tech.models.Funcionario;
 import com.safeway.tech.models.Pagamento;
-import com.safeway.tech.models.Usuario;
 import com.safeway.tech.repository.PagamentoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -21,17 +19,15 @@ public class PagamentoService {
     private FuncionarioService funcionarioService;
 
     @Autowired
-    private UsuarioService usuarioService;
+    private CurrentUserService currentUserService;
 
     public Pagamento registrarPagamento(PagamentoRequest request){
-
         Funcionario funcionario = funcionarioService.buscarPorId(request.idFuncionario());
 
         Pagamento pagamento = new Pagamento();
-
         pagamento.setFuncionario(funcionario);
         pagamento.setValorPagamento(request.valorPagamento());
-        pagamento.setDataPagamento(request.dataPagamento()); // Pode ser que aqui tenha problema de timezone
+        pagamento.setDataPagamento(request.dataPagamento());
 
         return pagamentoRepository.save(pagamento);
     }
@@ -40,37 +36,41 @@ public class PagamentoService {
         Pagamento pagamento = pagamentoRepository.findById(id).orElseThrow(
                 () -> new RuntimeException("Pagamento não encontrado")
         );
-
+        // garante escopo
+        Long userId = currentUserService.getCurrentUserId();
+        if (!pagamento.getFuncionario().getUsuario().getIdUsuario().equals(userId)) {
+            throw new RuntimeException("Sem permissão para acessar este pagamento");
+        }
         return pagamento;
     }
 
-    public List<Pagamento> buscarPagamentosPorId(Long id) {
-        Funcionario funcionario = funcionarioService.buscarPorId(id);
-        List<Pagamento> pagamentos = pagamentoRepository.findByFuncionario(funcionario);
-        return pagamentos;
+    public List<Pagamento> buscarPagamentosPorId(Long funcionarioId) {
+        // valida escopo via buscarPorId
+        Funcionario funcionario = funcionarioService.buscarPorId(funcionarioId);
+        return pagamentoRepository.findByFuncionario(funcionario);
     }
 
-    // Aqui vai ser melhor mudar para paginação
-    public List<Pagamento> listarPagamentos(Long id) {
-        Usuario usuario = usuarioService.retornarUm(id);
-        List<Pagamento> pagamentos = pagamentoRepository.findPagamentosByUsuario(usuario);
-        return pagamentos;
+    public List<Pagamento> listarPagamentos(Long ignoredUserId) {
+        Long userId = currentUserService.getCurrentUserId();
+        return pagamentoRepository.findPagamentosByUserId(userId);
     }
 
     public Pagamento atualizarPagamento(PagamentoRequest request, Long id) {
         Pagamento pagamento = buscarPagamento(id);
-
         pagamento.setDataPagamento(request.dataPagamento());
         pagamento.setValorPagamento(request.valorPagamento());
 
-        Funcionario funcionario = funcionarioService.buscarPorId(request.idFuncionario());
+        // revalida e atualiza funcionário se informado
+        if (request.idFuncionario() != null) {
+            Funcionario funcionario = funcionarioService.buscarPorId(request.idFuncionario());
+            pagamento.setFuncionario(funcionario);
+        }
 
-        pagamento.setFuncionario(funcionario);
-        pagamento = pagamentoRepository.save(pagamento);
-        return pagamento;
+        return pagamentoRepository.save(pagamento);
     }
 
     public void deletarPagamento(Long id) {
-        pagamentoRepository.deleteById(id);
+        Pagamento pagamento = buscarPagamento(id);
+        pagamentoRepository.delete(pagamento);
     }
 }
