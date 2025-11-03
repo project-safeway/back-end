@@ -1,9 +1,12 @@
 package com.safeway.tech.controllers;
 
+import com.safeway.tech.dto.EventoRequest;
 import com.safeway.tech.models.Evento;
 import com.safeway.tech.services.EventoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
@@ -17,12 +20,13 @@ public class EventoController {
     private EventoService eventoService;
 
     @GetMapping
-    public List<Evento> listar(
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
+    public ResponseEntity<List<EventoRequest>> listarFiltrado(
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate start,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate end,
             @RequestParam(required = false) String type,
             @RequestParam(required = false) String priority) {
-        return eventoService.listarFiltrado(startDate, endDate, type, priority);
+        List<EventoRequest> eventos = eventoService.listarFiltrado(start, end, type, priority);
+        return ResponseEntity.ok(eventos);
     }
 
     @GetMapping("/{id}")
@@ -31,8 +35,9 @@ public class EventoController {
     }
 
     @PostMapping
-    public Evento criar(@RequestBody Evento evento) {
-        return eventoService.criarEvento(evento);
+    public ResponseEntity<EventoRequest> criarEvento(@RequestBody Evento evento) {
+        EventoRequest eventoDTO = eventoService.criarEvento(evento);
+        return ResponseEntity.status(HttpStatus.CREATED).body(eventoDTO);
     }
 
     @PutMapping("/{id}")

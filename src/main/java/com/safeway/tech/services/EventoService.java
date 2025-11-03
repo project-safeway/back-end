@@ -1,5 +1,6 @@
 package com.safeway.tech.services;
 
+import com.safeway.tech.dto.EventoRequest;
 import com.safeway.tech.models.Evento;
 import com.safeway.tech.models.Usuario;
 import com.safeway.tech.repository.EventoRepository;
@@ -22,19 +23,23 @@ public class EventoService {
     @Autowired
     private UsuarioRepository usuarioRepository;
 
-    public Evento criarEvento(Evento evento) {
+    public EventoRequest criarEvento(Evento evento) {
         Long userId = currentUserService.getCurrentUserId();
         Usuario usuario = usuarioRepository.getReferenceById(userId);
         if (evento.getPriority() == null || evento.getPriority().isBlank()) {
             evento.setPriority("media");
         }
         evento.setUsuario(usuario);
-        return repository.save(evento);
+        Evento salvo = repository.save(evento);
+        return converterParaDTO(salvo);
     }
 
-    public List<Evento> listarEventosDoUsuarioAtual() {
+    public List<EventoRequest> listarEventosDoUsuarioAtual() {
         Long userId = currentUserService.getCurrentUserId();
-        return repository.findAllByUsuario_IdUsuario(userId);
+        return repository.findAllByUsuario_IdUsuario(userId)
+                .stream()
+                .map(this::converterParaDTO)
+                .toList();
     }
 
     public Evento retornarUmOwned(Long idEvento) {
@@ -59,11 +64,26 @@ public class EventoService {
         return repository.save(atual);
     }
 
-    public List<Evento> listarFiltrado(LocalDate start,
-                                       LocalDate end,
-                                       String type,
-                                       String priority) {
+    public List<EventoRequest> listarFiltrado(LocalDate start, LocalDate end, String type, String priority) {
         Long userId = currentUserService.getCurrentUserId();
-        return repository.findFiltrado(userId, start, end, type, priority);
+        return repository.findFiltrado(userId, start, end, type, priority)
+                .stream()
+                .map(this::converterParaDTO)
+                .toList();
+    }
+
+    private EventoRequest converterParaDTO(Evento evento) {
+        return new EventoRequest(
+                evento.getId(),
+                evento.getTitle(),
+                evento.getDescription(),
+                evento.getDate(),
+                evento.getType(),
+                evento.getPriority(),
+                evento.getUsuario().getIdUsuario(),
+                evento.getUsuario().getNome(),
+                evento.getCreatedAt(),
+                evento.getUpdatedAt()
+        );
     }
 }
