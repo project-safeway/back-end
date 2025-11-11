@@ -52,7 +52,7 @@ public class Aluno extends Auditable {
 
     // Campos para controle financeiro
     @Column(nullable = false)
-    private BigDecimal valorMensalidade;
+    private Double valorMensalidade;
 
     @Column(nullable = false)
     private Integer diaVencimento; // 1-31

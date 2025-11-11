@@ -18,7 +18,10 @@ public interface MensalidadeRepository extends JpaRepository<MensalidadeAluno, L
             LocalDate data
     );
 
-    boolean existsByAlunoAndMesAndAno(Aluno aluno, Integer mes, Integer ano);
+    boolean existsByAlunoAndDataVencimentoBetween(
+            Aluno aluno,
+            LocalDate dataInicio,
+            LocalDate dataFim);
 
     @EntityGraph(attributePaths = {"aluno", "aluno.responsaveis"})
     @Query("SELECT m FROM MensalidadeAluno m WHERE m.status IN :statuses AND m.aluno.usuario.idUsuario = :userId")
@@ -27,10 +30,11 @@ public interface MensalidadeRepository extends JpaRepository<MensalidadeAluno, L
 
     @EntityGraph(attributePaths = {"aluno", "aluno.responsaveis"})
     @Query("SELECT m FROM MensalidadeAluno m " +
-            "WHERE m.mes = :mes AND m.ano = :ano AND m.status IN :statuses AND m.aluno.usuario.idUsuario = :userId")
+            "WHERE m.dataVencimento BETWEEN :dataInicio AND :dataFinal " +
+            "AND m.status IN :statuses AND m.aluno.usuario.idUsuario = :userId")
     List<MensalidadeAluno> findByMesAndAnoAndStatusInWithDetails(
-            @Param("mes") Integer mes,
-            @Param("ano") Integer ano,
+            @Param("dataInicio") LocalDate dataInicio,
+            @Param("dataFinal") LocalDate dataFinal,
             @Param("statuses") List<StatusPagamento> statuses,
             @Param("userId") Long userId
     );

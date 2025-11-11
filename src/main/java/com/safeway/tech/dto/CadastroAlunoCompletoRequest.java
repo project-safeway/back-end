@@ -13,7 +13,7 @@ public record CadastroAlunoCompletoRequest(
         @Past LocalDate dtNascimento,
         @Min(1) Integer serie,
         @Size(max = 5) String sala,
-        @NotNull @DecimalMin(value = "0.0", inclusive = true) BigDecimal valorMensalidade,
+        @NotNull @DecimalMin(value = "0.0", inclusive = true) Double valorMensalidade,
         @NotNull @Min(1) @Max(31) Integer diaVencimento,
         @NotNull Long fkEscola,
         @Positive(message = "fkTransporte deve ser positivo") Long fkTransporte,
