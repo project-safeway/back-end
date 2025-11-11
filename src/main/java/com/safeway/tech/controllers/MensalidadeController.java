@@ -1,8 +1,8 @@
 package com.safeway.tech.controllers;
 
-import com.safeway.tech.dto.MensalidadePendenteResponse;
+import com.safeway.tech.dto.MensalidadeResponse;
+import com.safeway.tech.enums.StatusPagamento;
 import com.safeway.tech.services.MensalidadeService;
-import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -17,21 +17,21 @@ public class MensalidadeController {
     private MensalidadeService mensalidadeService;
 
     @GetMapping("/pendentes")
-    public ResponseEntity<List<MensalidadePendenteResponse>> getMensalidadesPendentes(
+    public ResponseEntity<List<MensalidadeResponse>> getMensalidades(
             @RequestParam(required = false) Integer mes,
-            @RequestParam(required = false) Integer ano
-    ) {
-        List<MensalidadePendenteResponse> mensalidades =
-                mensalidadeService.buscarMensalidadesPendentes(mes, ano);
+            @RequestParam(required = false) Integer ano,
+            @RequestParam(required = false) List<StatusPagamento> status
+            ) {
+        List<MensalidadeResponse> mensalidades =
+                mensalidadeService.buscarMensalidadesPendentes(mes, ano, status);
         return ResponseEntity.ok(mensalidades);
     }
 
-    @PutMapping("/{id}/marcar-pago")
+    @PatchMapping("/pagar/{id}")
     public ResponseEntity<Void> marcarComoPago(
-            @PathVariable Long id,
-            @RequestParam Long pagamentoId
+            @PathVariable Long id
     ) {
-        mensalidadeService.marcarComoPago(id, pagamentoId);
+        mensalidadeService.marcarComoPago(id);
         return ResponseEntity.noContent().build();
     }
 }

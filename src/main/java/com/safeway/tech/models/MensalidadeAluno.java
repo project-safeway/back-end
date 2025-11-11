@@ -29,24 +29,16 @@ public class MensalidadeAluno extends Auditable {
     private Aluno aluno;
 
     @Column(nullable = false)
-    private Integer mes;
-
-    @Column(nullable = false)
-    private Integer ano;
-
-    @Column(nullable = false)
-    private BigDecimal valorMensalidade;
-
-    @Column(nullable = false)
     private LocalDate dataVencimento;
+
+    @Column(nullable = false)
+    private Double valorMensalidade;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
     private StatusPagamento status;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "fkPagamento")
-    private Pagamento pagamento;
-
     private LocalDate dataPagamento;
+
+    private Double valorPago;
 }
