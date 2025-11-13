@@ -25,8 +25,8 @@ public class ItinerarioService {
     @Autowired
     private ItinerarioAlunoService itinerarioAlunoService;
 
-    public List<ItinerarioResponse> listarTodos() {
-        return itinerarioRepository.findAll().stream()
+    public List<ItinerarioResponse> listarTodos(Long transporteId) {
+        return itinerarioRepository.findAllByTransporte(transporteId).stream()
                 .map(ItinerarioMapper::toResponse)
                 .toList();
     }

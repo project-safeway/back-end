@@ -40,7 +40,6 @@ public class AuthService {
 
     @Transactional
     public void register(RegisterRequest request) {
-        // Campos obrigatórios já validados pelo @Valid no controller
         log.info("Tentativa de registro para email: {}", request.email());
 
         if (usuarioRepository.existsByEmail(request.email())) {
@@ -78,14 +77,16 @@ public class AuthService {
 
     public AuthResponse autenticar(String email, String senha) {
         log.info("Tentativa de login para email: {}", email);
-        Optional<Usuario> usuario = usuarioRepository.findByEmail(email);
+        Optional<Usuario> usuarioDatabase = usuarioRepository.findByEmail(email);
 
-        if (usuario.isEmpty()) {
+        if (usuarioDatabase.isEmpty()) {
             log.warn("Usuário não encontrado: {}", email);
             throw new BadCredentialsException("Email ou senha inválidos");
         }
 
-        if (!usuario.get().isLoginCorrect(senha, passwordEncoder)) {
+        Usuario usuario = usuarioDatabase.get();
+
+        if (!usuario.isLoginCorrect(senha, passwordEncoder)) {
             log.warn("Senha incorreta para: {}", email);
             throw new BadCredentialsException("Email ou senha inválidos");
         }
@@ -97,10 +98,11 @@ public class AuthService {
 
         JwtClaimsSet claims = JwtClaimsSet.builder()
                 .issuer("safeway-tech")
-                .subject(usuario.get().getIdUsuario().toString())
+                .subject(usuario.getIdUsuario().toString())
                 .issuedAt(now)
                 .expiresAt(now.plusSeconds(expiresIn))
-                .claim("role", usuario.get().getRole().toString())
+                .claim("role", usuario.getRole().toString())
+                .claim("transporte", usuario.getTransporte().getIdTransporte())
                 .build();
 
         String jwtValue = jwtEncoder.encode(JwtEncoderParameters.from(claims)).getTokenValue();

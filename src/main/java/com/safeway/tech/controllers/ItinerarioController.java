@@ -10,6 +10,8 @@ import com.safeway.tech.services.ItinerarioService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -39,8 +41,9 @@ public class ItinerarioController {
     }
 
     @GetMapping
-    public ResponseEntity<List<ItinerarioResponse>> listarTodos() {
-        return ResponseEntity.ok(itinerarioService.listarTodos());
+    public ResponseEntity<List<ItinerarioResponse>> listarTodos(@AuthenticationPrincipal Jwt jwt) {
+        Long transporte = jwt.getClaim("transporte");
+        return ResponseEntity.ok(itinerarioService.listarTodos(transporte));
     }
 
     @GetMapping("/{id}")

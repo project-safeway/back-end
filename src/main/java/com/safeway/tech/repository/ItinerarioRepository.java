@@ -28,5 +28,5 @@ public interface ItinerarioRepository extends JpaRepository<Itinerario, Long> {
             @Param("idTransporte") Long idTransporte);
 
     @Query("SELECT i FROM Itinerario i WHERE i.transporte.idTransporte = :idTransporte")
-    List<Itinerario> findAllByTransporteId(Long idTransporte);
+    List<Itinerario> findAllByTransporte(@Param("idTransporte") Long idTransporte);
 }
