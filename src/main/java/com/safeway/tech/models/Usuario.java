@@ -19,8 +19,8 @@ public class Usuario extends Auditable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long idUsuario;
 
-    @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Transporte> transportes = new ArrayList<>();
+    @OneToOne(mappedBy = "usuario", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Transporte transporte;
 
     @Column(nullable = false, length = 100)
     private String nome;
