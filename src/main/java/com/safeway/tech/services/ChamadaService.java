@@ -32,10 +32,10 @@ public class ChamadaService {
             throw new RuntimeException("Já existe uma chamada em andamento para este itinerário");
         }
 
-        Itinerario itinerario = itinerarioService.buscarItinerarioPorId(idItinerario);
+//        Itinerario itinerario = itinerarioService.buscarItinerarioPorId(idItinerario);
 
         Chamada chamada = new Chamada();
-        chamada.setItinerario(itinerario);
+//        chamada.setItinerario(itinerario);
         chamada.setStatus(StatusChamadaEnum.EM_ANDAMENTO);
 
         chamadaRepository.save(chamada);

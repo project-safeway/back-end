@@ -4,9 +4,15 @@ import com.safeway.tech.dto.MensalidadeResponse;
 import com.safeway.tech.enums.StatusPagamento;
 import com.safeway.tech.services.MensalidadeService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @RestController
@@ -17,13 +23,15 @@ public class MensalidadeController {
     private MensalidadeService mensalidadeService;
 
     @GetMapping
-    public ResponseEntity<List<MensalidadeResponse>> getMensalidades(
-            @RequestParam(required = false) Integer mes,
-            @RequestParam(required = false) Integer ano,
-            @RequestParam(required = false) List<StatusPagamento> status
+    public ResponseEntity<Page<MensalidadeResponse>> getMensalidades(
+            @RequestParam(required = false) Long alunoId,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dataInicio,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dataFim,
+            @RequestParam(required = false) List<StatusPagamento> status,
+            @PageableDefault(page = 0, size = 10, sort = "dataVencimento", direction = Sort.Direction.DESC) Pageable pageable
             ) {
-        List<MensalidadeResponse> mensalidades =
-                mensalidadeService.buscarMensalidades(mes, ano, status);
+        Page<MensalidadeResponse> mensalidades =
+                mensalidadeService.buscarMensalidades(alunoId, dataInicio, dataFim, status, pageable);
         return ResponseEntity.ok(mensalidades);
     }
 
