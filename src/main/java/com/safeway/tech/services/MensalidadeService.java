@@ -4,7 +4,11 @@ import com.safeway.tech.dto.MensalidadeResponse;
 import com.safeway.tech.enums.StatusPagamento;
 import com.safeway.tech.models.MensalidadeAluno;
 import com.safeway.tech.repository.MensalidadeRepository;
+import com.safeway.tech.specification.MensalidadeAlunoSpecs;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,36 +24,19 @@ public class MensalidadeService {
     private final CurrentUserService currentUserService;
 
     @Transactional(readOnly = true)
-    public List<MensalidadeResponse> buscarMensalidadesPendentes(Integer mes, Integer ano, List<StatusPagamento> status) {
+    public Page<MensalidadeResponse> buscarMensalidades(Long alunoId, LocalDate dataInicio, LocalDate dataFim, List<StatusPagamento> status, Pageable pageable) {
         Long userId = currentUserService.getCurrentUserId();
 
-        List<MensalidadeAluno> mensalidades = new ArrayList<>();
-        if (mes != null && ano != null) {
-            LocalDate dataInicio = LocalDate.of(ano, mes, 1);
-            LocalDate dataFinal = dataInicio.withDayOfMonth(dataInicio.lengthOfMonth());
+        Specification<MensalidadeAluno> spec = Specification.allOf(
+                MensalidadeAlunoSpecs.comAluno(alunoId),
+                MensalidadeAlunoSpecs.comPeriodo(dataInicio, dataFim),
+                MensalidadeAlunoSpecs.comStatus(status),
+                MensalidadeAlunoSpecs.comUsuario(userId)
+        );
 
-            mensalidades = mensalidadeRepository
-                    .findByMesAndAnoAndStatusInWithDetails(dataInicio, dataFinal, status, userId);
-        } else if (mes != null) {
-            int anoAtual = LocalDate.now().getYear();
-            LocalDate dataInicio = LocalDate.of(anoAtual, mes, 1);
-            LocalDate dataFinal = dataInicio.withDayOfMonth(dataInicio.lengthOfMonth());
+        Page<MensalidadeAluno> result = mensalidadeRepository.findAll(spec, pageable);
 
-            mensalidades = mensalidadeRepository
-                    .findByMesAndAnoAndStatusInWithDetails(dataInicio, dataFinal, status, userId);
-        } else if (ano != null) {
-            LocalDate dataInicio = LocalDate.of(ano, 1, 1);
-            LocalDate dataFinal = LocalDate.of(ano, 12, 31);
-
-            mensalidades = mensalidadeRepository
-                    .findByMesAndAnoAndStatusInWithDetails(dataInicio, dataFinal, status, userId);
-        } else {
-            mensalidades = mensalidadeRepository
-                    .findByStatusInWithDetails(status, userId);
-        }
-        return mensalidades.stream()
-                .map(this::mapToResponse)
-                .toList();
+        return result.map(MensalidadeResponse::fromEntity);
     }
 
     @Transactional
@@ -66,18 +53,5 @@ public class MensalidadeService {
         mensalidade.setDataPagamento(LocalDate.now());
 
         mensalidadeRepository.save(mensalidade);
-    }
-
-    private MensalidadeResponse mapToResponse(MensalidadeAluno mensalidade) {
-        return new MensalidadeResponse(
-                mensalidade.getId(),
-                mensalidade.getAluno().getNome(),
-                mensalidade.getAluno().getResponsaveis().getFirst().getNome(),
-                mensalidade.getDataVencimento(),
-                mensalidade.getDataPagamento(),
-                mensalidade.getValorMensalidade(),
-                mensalidade.getValorPago(),
-                mensalidade.getStatus()
-        );
     }
 }
