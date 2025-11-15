@@ -20,7 +20,7 @@ public class MensalidadeService {
     private final CurrentUserService currentUserService;
 
     @Transactional(readOnly = true)
-    public List<MensalidadeResponse> buscarMensalidadesPendentes(Integer mes, Integer ano, List<StatusPagamento> status) {
+    public List<MensalidadeResponse> buscarMensalidades(Integer mes, Integer ano, List<StatusPagamento> status) {
         Long userId = currentUserService.getCurrentUserId();
 
         List<MensalidadeAluno> mensalidades = new ArrayList<>();
@@ -43,9 +43,12 @@ public class MensalidadeService {
 
             mensalidades = mensalidadeRepository
                     .findByMesAndAnoAndStatusInWithDetails(dataInicio, dataFinal, status, userId);
-        } else {
+        } else if (status != null && !status.isEmpty()) {
             mensalidades = mensalidadeRepository
                     .findByStatusInWithDetails(status, userId);
+        } else {
+            mensalidades = mensalidadeRepository
+                    .findByUserId(userId);
         }
         return mensalidades.stream()
                 .map(this::mapToResponse)

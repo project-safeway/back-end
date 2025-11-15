@@ -23,7 +23,7 @@ public class MensalidadeController {
             @RequestParam(required = false) List<StatusPagamento> status
             ) {
         List<MensalidadeResponse> mensalidades =
-                mensalidadeService.buscarMensalidadesPendentes(mes, ano, status);
+                mensalidadeService.buscarMensalidades(mes, ano, status);
         return ResponseEntity.ok(mensalidades);
     }
 

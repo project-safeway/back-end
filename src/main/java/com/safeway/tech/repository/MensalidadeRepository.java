@@ -38,4 +38,7 @@ public interface MensalidadeRepository extends JpaRepository<MensalidadeAluno, L
             @Param("statuses") List<StatusPagamento> statuses,
             @Param("userId") Long userId
     );
+
+    @Query("SELECT m FROM MensalidadeAluno m WHERE m.aluno.usuario.idUsuario = :userId")
+    List<MensalidadeAluno> findByUserId(@Param("userId") Long userId);
 }
