@@ -22,5 +22,26 @@ public class CurrentUserService {
         String name = auth.getName();
         return Long.valueOf(name);
     }
+
+    public Long getCurrentTransporteId() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth == null) {
+            throw new IllegalStateException("Usuário não autenticado");
+        }
+
+        Object principal = auth.getPrincipal();
+
+        if (principal instanceof Jwt jwt) {
+            Object transporteClaim = jwt.getClaim("transporte");
+
+            if (transporteClaim == null) {
+                throw new IllegalStateException("Claim 'transporte' não encontrada no token");
+            }
+
+            return Long.valueOf(transporteClaim.toString());
+        }
+
+        throw new IllegalStateException("Token JWT não encontrado no authentication principal");
+    }
 }
 
