@@ -16,7 +16,7 @@ public class MensalidadeController {
     @Autowired
     private MensalidadeService mensalidadeService;
 
-    @GetMapping("/pendentes")
+    @GetMapping
     public ResponseEntity<List<MensalidadeResponse>> getMensalidades(
             @RequestParam(required = false) Integer mes,
             @RequestParam(required = false) Integer ano,
