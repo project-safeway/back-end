@@ -26,8 +26,8 @@ public class PagamentoController {
     private PagamentoService pagamentoService;
 
     @PostMapping
-    public ResponseEntity<Pagamento> registrarPagamento(@RequestParam Long idFuncionario, @RequestBody @Valid PagamentoRequest request){
-        Pagamento pagamento = pagamentoService.registrarPagamento(idFuncionario, request);
+    public ResponseEntity<PagamentoResponse> registrarPagamento(@RequestParam Long idFuncionario, @RequestBody @Valid PagamentoRequest request){
+        PagamentoResponse pagamento = pagamentoService.registrarPagamento(idFuncionario, request);
         return ResponseEntity.status(HttpStatus.CREATED).body(pagamento);
     }
 
@@ -45,10 +45,10 @@ public class PagamentoController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Pagamento> atualizarPagamento(@PathVariable Long id,
+    public ResponseEntity<PagamentoResponse> atualizarPagamento(@PathVariable Long id,
                                                         @RequestParam Long idFuncionario,
                                                         @RequestBody @Valid PagamentoRequest request){
-        Pagamento atualizado = pagamentoService.atualizarPagamento(id, idFuncionario, request);
+        PagamentoResponse atualizado = pagamentoService.atualizarPagamento(id, idFuncionario, request);
         return ResponseEntity.ok(atualizado);
     }
 

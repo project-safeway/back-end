@@ -27,7 +27,7 @@ public class PagamentoService {
     @Autowired
     private CurrentUserService currentUserService;
 
-    public Pagamento registrarPagamento(Long idFuncionario, PagamentoRequest request){
+    public PagamentoResponse registrarPagamento(Long idFuncionario, PagamentoRequest request){
         Funcionario funcionario = funcionarioService.buscarPorId(idFuncionario);
 
         Pagamento pagamento = new Pagamento();
@@ -35,7 +35,9 @@ public class PagamentoService {
         pagamento.setValorPagamento(request.valorPagamento());
         pagamento.setDataPagamento(request.dataPagamento());
 
-        return pagamentoRepository.save(pagamento);
+        Pagamento pagamentoDB = pagamentoRepository.save(pagamento);
+
+        return PagamentoResponse.fromEntity(pagamentoDB);
     }
 
     public Page<PagamentoResponse> buscarPagamentos(Long funcionarioId, LocalDate dataInicio, LocalDate dataFim, Double valorMinimo, Double valorMaximo, Pageable pageable) {
@@ -53,7 +55,7 @@ public class PagamentoService {
         return result.map(PagamentoResponse::fromEntity);
     }
 
-    public Pagamento atualizarPagamento(Long idPagamento, Long idFuncionario, PagamentoRequest request) {
+    public PagamentoResponse atualizarPagamento(Long idPagamento, Long idFuncionario, PagamentoRequest request) {
         Pagamento pagamento = pagamentoRepository.findById(idPagamento)
                 .orElseThrow(() -> new RuntimeException("Pagamento não encontrado com ID: " + idPagamento));
         pagamento.setDataPagamento(request.dataPagamento());
@@ -64,7 +66,9 @@ public class PagamentoService {
             pagamento.setFuncionario(funcionario);
         }
 
-        return pagamentoRepository.save(pagamento);
+        Pagamento pagamentoDB = pagamentoRepository.save(pagamento);
+
+        return PagamentoResponse.fromEntity(pagamentoDB);
     }
 
     public void deletarPagamento(Long id) {
