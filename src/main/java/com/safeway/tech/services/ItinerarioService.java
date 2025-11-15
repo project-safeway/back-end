@@ -28,6 +28,7 @@ public class ItinerarioService {
     public List<ItinerarioResponse> listarTodos(Long transporteId) {
         return itinerarioRepository.findAllByTransporte(transporteId).stream()
                 .map(ItinerarioMapper::toResponse)
+                .filter(ItinerarioResponse::ativo)
                 .toList();
     }
 
