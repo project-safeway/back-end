@@ -11,7 +11,7 @@ public class MensalidadeAlunoSpecs {
 
     public static Specification<MensalidadeAluno> comAluno(Long alunoId) {
         return (root, query, cb) ->
-                alunoId == null ? null : cb.equal(root.get("aluno").get("id"), alunoId);
+                alunoId == null ? null : cb.equal(root.get("aluno").get("idAluno"), alunoId);
     }
 
     public static Specification<MensalidadeAluno> comStatus(List<StatusPagamento> status) {
