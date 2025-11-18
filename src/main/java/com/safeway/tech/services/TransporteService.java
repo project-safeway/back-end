@@ -2,6 +2,7 @@ package com.safeway.tech.services;
 
 import com.safeway.tech.models.Transporte;
 import com.safeway.tech.models.Usuario;
+import com.safeway.tech.models.Aluno;
 import com.safeway.tech.repository.TransporteRepository;
 import com.safeway.tech.repository.UsuarioRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,7 +33,25 @@ public class TransporteService {
     }
 
     public Transporte getById(long idTransporte){
-        return getOwnedOrThrow(idTransporte);
+        Transporte t = getOwnedOrThrow(idTransporte);
+        // inicializa coleção lazy de alunos e seus relacionamentos usados pelos DTOs
+        if (t.getAlunosTransportes() != null) {
+            int ignored = t.getAlunosTransportes().size();
+            for (Aluno a : t.getAlunosTransportes()) {
+                // inicializa lista de responsáveis
+                if (a.getResponsaveis() != null) {
+                    int ignored2 = a.getResponsaveis().size();
+                }
+                // inicializa escola (ManyToOne)
+                if (a.getEscola() != null) {
+                    // acessar um campo para forçar fetch
+                    String nomeEscola = a.getEscola().getNome();
+                    // evitar warning unused
+                    if (nomeEscola == null) { /* noop */ }
+                }
+            }
+        }
+        return t;
     }
 
     public Transporte salvarTransporte(Transporte transporte){
@@ -63,5 +82,25 @@ public class TransporteService {
         existente.setCapacidade(transporte.getCapacidade());
         System.out.println("Transporte Atualizado!");
         return repository.save(existente);
+    }
+
+    // Novo: retorna alunos vinculados ao transporte garantindo inicialização dentro da transação
+    public List<Aluno> listarAlunos(long idTransporte) {
+        Transporte t = getOwnedOrThrow(idTransporte);
+        List<Aluno> alunos = t.getAlunosTransportes();
+        // força inicialização da coleção lazy
+        if (alunos != null) {
+            int ignored = alunos.size();
+            for (Aluno a : alunos) {
+                if (a.getResponsaveis() != null) {
+                    int ignored2 = a.getResponsaveis().size();
+                }
+                if (a.getEscola() != null) {
+                    String nomeEscola = a.getEscola().getNome();
+                    if (nomeEscola == null) { /* noop */ }
+                }
+            }
+        }
+        return alunos;
     }
 }

@@ -3,7 +3,6 @@ package com.safeway.tech.dto;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.*;
 
-import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -34,7 +33,10 @@ public record CadastroAlunoCompletoRequest(
             String complemento,
             @NotBlank String bairro,
             @NotBlank String cidade,
-            String estado,
-            @NotBlank String cep
+            @NotBlank @Size(min = 2, max = 2) String uf,
+            @NotBlank String cep,
+            Double latitude,
+            Double longitude,
+            String tipo
     ) {}
 }

@@ -28,7 +28,7 @@ public class Responsavel extends Auditable {
 
     // Dono do registro (escopo de usuário)
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "fkUsuario", nullable = false)
+    @JoinColumn(name = "fk_usuario", nullable = false)
     private Usuario usuario;
 
     @ManyToOne(fetch = FetchType.LAZY)

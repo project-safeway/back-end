@@ -22,7 +22,7 @@ public class Evento extends Auditable {
 
     // Dono do evento
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "fkUsuario", nullable = false)
+    @JoinColumn(name = "fk_usuario", nullable = false)
     private Usuario usuario;
 
     @Column(name = "title", nullable = false, length = 255)

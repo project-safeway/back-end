@@ -1,6 +1,8 @@
 package com.safeway.tech.controllers;
 
 import com.safeway.tech.dto.TransporteRequest;
+import com.safeway.tech.dto.TransporteResponse;
+import com.safeway.tech.dto.AlunoTransporteResponse;
 import com.safeway.tech.models.Transporte;
 import com.safeway.tech.services.TransporteService;
 import jakarta.validation.Valid;
@@ -8,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/transporte")
@@ -23,19 +26,35 @@ public class TransporteController {
         return t;
     }
 
+    private TransporteResponse mapToResponse(Transporte t){
+        return TransporteResponse.fromEntity(t);
+    }
+
     @PostMapping
-    public Transporte salvarTransporte(@RequestBody @Valid TransporteRequest request){
-        return transporteService.salvarTransporte(mapToEntity(request));
+    public TransporteResponse salvarTransporte(@RequestBody @Valid TransporteRequest request){
+        Transporte salvo = transporteService.salvarTransporte(mapToEntity(request));
+        return mapToResponse(salvo);
     }
 
     @GetMapping
-    public List<Transporte> listarTransportes(){
-        return transporteService.listarTransportes();
+    public List<TransporteResponse> listarTransportes(){
+        return transporteService.listarTransportes()
+                .stream()
+                .map(this::mapToResponse)
+                .collect(Collectors.toList());
     }
 
     @GetMapping("/{idTransporte}")
-    public Transporte retornarUm(@PathVariable long idTransporte){
-        return transporteService.getById(idTransporte);
+    public TransporteResponse retornarUm(@PathVariable long idTransporte){
+        return mapToResponse(transporteService.getById(idTransporte));
+    }
+
+    @GetMapping("/{idTransporte}/alunos")
+    public List<AlunoTransporteResponse> listarAlunosDoTransporte(@PathVariable long idTransporte) {
+        return transporteService.listarAlunos(idTransporte)
+                .stream()
+                .map(AlunoTransporteResponse::fromEntity)
+                .collect(Collectors.toList());
     }
 
     @DeleteMapping("/{idTransporte}")
@@ -44,7 +63,8 @@ public class TransporteController {
     }
 
     @PutMapping("/{idTransporte}")
-    public Transporte alterarTransporte(@RequestBody @Valid TransporteRequest novoTransporte1,@PathVariable long idTransporte){
-        return transporteService.alterarTransporte(mapToEntity(novoTransporte1),idTransporte);
+    public TransporteResponse alterarTransporte(@RequestBody @Valid TransporteRequest novoTransporte1,@PathVariable long idTransporte){
+        Transporte atualizado = transporteService.alterarTransporte(mapToEntity(novoTransporte1),idTransporte);
+        return mapToResponse(atualizado);
     }
 }

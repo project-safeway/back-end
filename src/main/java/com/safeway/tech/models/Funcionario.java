@@ -28,15 +28,15 @@ public class Funcionario extends Auditable {
 
     // Dono do registro (escopo de usuário)
     @ManyToOne
-    @JoinColumn(name = "fkUsuario", nullable = false)
+    @JoinColumn(name = "fk_usuario", nullable = false)
     private Usuario usuario;
 
     @ManyToOne
-    @JoinColumn(name = "fkTransporte", nullable = false)
+    @JoinColumn(name = "fk_transporte", nullable = false)
     private Transporte transporte;
 
     @ManyToOne
-    @JoinColumn(name = "fkEndereco", nullable = false)
+    @JoinColumn(name = "fk_endereco", nullable = false)
     private Endereco endereco;
 
     @Column(nullable = false)

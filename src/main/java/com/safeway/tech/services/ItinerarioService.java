@@ -5,7 +5,6 @@ import com.safeway.tech.dto.ItinerarioResponse;
 import com.safeway.tech.dto.ItinerarioUpdateRequest;
 import com.safeway.tech.mappers.ItinerarioMapper;
 import com.safeway.tech.models.Itinerario;
-import com.safeway.tech.models.Transporte;
 import com.safeway.tech.repository.ItinerarioRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -47,7 +46,11 @@ public class ItinerarioService {
     }
 
     @Transactional
-    public ItinerarioResponse criar(ItinerarioRequest request) {
+    public ItinerarioResponse criar(ItinerarioRequest request, Long transporteUsuario) {
+        if (!request.transporteId().equals(transporteUsuario)) {
+            throw new RuntimeException("Sem permissão para acessar este transporte");
+        }
+
         Itinerario itinerario = new Itinerario();
         itinerario.setNome(request.nome());
         itinerario.setHorarioInicio(request.horarioInicio());

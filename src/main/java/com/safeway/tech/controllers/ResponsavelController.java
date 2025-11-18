@@ -1,6 +1,7 @@
 package com.safeway.tech.controllers;
 
 import com.safeway.tech.dto.ResponsavelRequest;
+import com.safeway.tech.dto.ResponsavelResponse;
 import com.safeway.tech.dto.EnderecoRequest;
 import com.safeway.tech.models.Aluno;
 import com.safeway.tech.models.Endereco;
@@ -26,7 +27,7 @@ public class ResponsavelController {
         Endereco endereco = null;
         if (er != null) {
             endereco = new Endereco();
-            endereco.setLogradouro(er.rua());
+            endereco.setLogradouro(er.logradouro());
             endereco.setNumero(er.numero());
             endereco.setCidade(er.cidade());
             endereco.setCep(er.cep());
@@ -50,20 +51,27 @@ public class ResponsavelController {
         return r;
     }
 
+    private ResponsavelResponse toResponse(Responsavel r) {
+        return ResponsavelResponse.fromEntity(r);
+    }
+
     @PostMapping
-    public ResponseEntity<Responsavel> salvarResponsavel(@RequestBody @Valid ResponsavelRequest request){
+    public ResponseEntity<ResponsavelResponse> salvarResponsavel(@RequestBody @Valid ResponsavelRequest request){
         Responsavel salvo = responsavelService.salvarResponsavel(mapToEntity(request));
-        return ResponseEntity.status(HttpStatus.CREATED).body(salvo);
+        return ResponseEntity.status(HttpStatus.CREATED).body(toResponse(salvo));
     }
 
     @GetMapping
-    public List<Responsavel> listarResponsaveis() {
-        return responsavelService.listarResponsaveis();
+    public List<ResponsavelResponse> listarResponsaveis() {
+        return responsavelService.listarResponsaveis()
+                .stream()
+                .map(this::toResponse)
+                .collect(Collectors.toList());
     }
 
     @GetMapping("/{idResponsavel}")
-    public Responsavel retornarUm(@PathVariable Long idResponsavel){
-        return responsavelService.retornarUm(idResponsavel);
+    public ResponsavelResponse retornarUm(@PathVariable Long idResponsavel){
+        return toResponse(responsavelService.retornarUm(idResponsavel));
     }
 
     @DeleteMapping("/{idResponsavel}")
@@ -72,7 +80,8 @@ public class ResponsavelController {
     }
 
     @PutMapping("/{idResponsavel}")
-    public Responsavel alterarResponsavel(@RequestBody @Valid ResponsavelRequest novoResponsavel,@PathVariable Long idResponsavel){
-        return responsavelService.alterarResponsavel(mapToEntity(novoResponsavel), idResponsavel);
+    public ResponsavelResponse alterarResponsavel(@RequestBody @Valid ResponsavelRequest novoResponsavel,@PathVariable Long idResponsavel){
+        Responsavel atualizado = responsavelService.alterarResponsavel(mapToEntity(novoResponsavel), idResponsavel);
+        return toResponse(atualizado);
     }
 }
