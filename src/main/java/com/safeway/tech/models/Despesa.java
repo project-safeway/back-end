@@ -24,7 +24,7 @@ public class Despesa extends Auditable {
     private Long idDespesa;
 
     @ManyToOne
-    @JoinColumn(name = "fkTransporte", nullable = false)
+    @JoinColumn(name = "fk_transporte", nullable = false)
     private Transporte transporte;
 
     private Date dataDespesa;

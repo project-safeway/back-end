@@ -61,9 +61,13 @@ public class GoogleOptimizationAdapter implements RotasService {
                     tempoViagem = parseStringDuracao(durTravel);
                 }
 
+                JsonNode arrivalLocation = visit.path("arrivalLocation");
+                Double lat = arrivalLocation.path("latitude").asDouble(0D);
+                Double lng = arrivalLocation.path("longitude").asDouble(0D);
+
                 ParadaOtimizada parada = new ParadaOtimizada(
                         idParada,
-                        new Localizacao(0D,0D),
+                        new Localizacao(lat, lng),
                         horarioChegada,
                         distanciaAteAqui,
                         tempoViagem

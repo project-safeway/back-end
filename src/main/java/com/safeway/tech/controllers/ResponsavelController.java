@@ -26,7 +26,7 @@ public class ResponsavelController {
         Endereco endereco = null;
         if (er != null) {
             endereco = new Endereco();
-            endereco.setLogradouro(er.rua());
+            endereco.setLogradouro(er.logradouro());
             endereco.setNumero(er.numero());
             endereco.setCidade(er.cidade());
             endereco.setCep(er.cep());

@@ -25,7 +25,7 @@ public class MensalidadeAluno extends Auditable {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "fkAluno", nullable = false)
+    @JoinColumn(name = "fk_aluno", nullable = false)
     private Aluno aluno;
 
     @Column(nullable = false)

@@ -54,7 +54,7 @@ public class FuncionarioService {
                 .orElseThrow(() -> new RuntimeException("Transporte não encontrado para este usuário"));
 
         Endereco endereco = new Endereco();
-        endereco.setLogradouro(request.endereco().rua());
+        endereco.setLogradouro(request.endereco().logradouro());
         endereco.setNumero(request.endereco().numero());
         endereco.setCidade(request.endereco().cidade());
         endereco.setCep(request.endereco().cep());
@@ -88,7 +88,7 @@ public class FuncionarioService {
         funcionario.setCpf(request.cpf());
 
         Endereco endereco = funcionario.getEndereco();
-        endereco.setLogradouro(request.endereco().rua());
+        endereco.setLogradouro(request.endereco().logradouro());
         endereco.setNumero(request.endereco().numero());
         endereco.setCidade(request.endereco().cidade());
         endereco.setCep(request.endereco().cep());

@@ -1,7 +1,9 @@
 package com.safeway.tech.services;
 
+import com.safeway.tech.dto.AlunoComLocalizacao;
 import com.safeway.tech.dto.ItinerarioAlunoRequest;
 import com.safeway.tech.models.Aluno;
+import com.safeway.tech.models.Endereco;
 import com.safeway.tech.models.Itinerario;
 import com.safeway.tech.models.ItinerarioAluno;
 import com.safeway.tech.repository.ItinerarioAlunoRepository;
@@ -26,6 +28,9 @@ public class ItinerarioAlunoService {
     @Autowired
     private AlunoService alunoService;
 
+    @Autowired
+    private EnderecoService enderecoService;
+
     /**
      * Adiciona um aluno a um itinerário existente
      */
@@ -36,6 +41,12 @@ public class ItinerarioAlunoService {
 
         Aluno aluno = alunoService.buscarAlunoPorId(request.alunoId());
 
+        Endereco endereco = enderecoService.buscarEntidade(request.enderecoId());
+
+        if (!endereco.getAluno().getIdAluno().equals(request.alunoId())) {
+            throw new RuntimeException("Endereço não pertence ao aluno");
+        }
+
         // Evita duplicidade
         itinerarioAlunoRepository.findByItinerarioIdAndAlunoId(itinerarioId, aluno.getIdAluno())
                 .ifPresent(a -> {
@@ -45,6 +56,7 @@ public class ItinerarioAlunoService {
         ItinerarioAluno entity = new ItinerarioAluno();
         entity.setItinerario(itinerario);
         entity.setAluno(aluno);
+        entity.setEndereco(endereco);
         entity.setOrdemEmbarque(request.ordemEmbarque());
 
         itinerarioAlunoRepository.save(entity);
@@ -94,4 +106,29 @@ public class ItinerarioAlunoService {
         itinerarioAlunoRepository.saveAll(atuais);
     }
 
+    public List<AlunoComLocalizacao> buscarAlunosComLocalizacao(Long itinerarioId) {
+        Itinerario itinerario = itinerarioRepository.findById(itinerarioId)
+                .orElseThrow(() -> new RuntimeException("Itinerário não encontrado"));
+
+        return itinerarioAlunoRepository.findByItinerarioOrderByOrdemEmbarqueAsc(itinerario).stream()
+                .map(ia -> {
+                    Endereco endereco = ia.getEndereco();
+                    String enderecoCompleto = String.format("%s, %s - %s",
+                            endereco.getLogradouro(),
+                            endereco.getNumero(),
+                            endereco.getBairro()
+                    );
+
+                    return new AlunoComLocalizacao(
+                            ia.getAluno().getIdAluno(),
+                            ia.getAluno().getNome(),
+                            endereco.getIdEndereco(),
+                            enderecoCompleto,
+                            endereco.getLatitude(),
+                            endereco.getLongitude(),
+                            ia.getOrdemEmbarque()
+                    );
+                })
+                .toList();
+    }
 }

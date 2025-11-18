@@ -1,9 +1,6 @@
 package com.safeway.tech.controllers;
 
-import com.safeway.tech.dto.ItinerarioAlunoRequest;
-import com.safeway.tech.dto.ItinerarioRequest;
-import com.safeway.tech.dto.ItinerarioResponse;
-import com.safeway.tech.dto.ItinerarioUpdateRequest;
+import com.safeway.tech.dto.*;
 import com.safeway.tech.models.Itinerario;
 import com.safeway.tech.services.ItinerarioAlunoService;
 import com.safeway.tech.services.ItinerarioService;
@@ -35,8 +32,12 @@ public class ItinerarioController {
     private ItinerarioAlunoService itinerarioAlunoService;
 
     @PostMapping
-    public ResponseEntity<ItinerarioResponse> criar(@Valid @RequestBody ItinerarioRequest request) {
-        ItinerarioResponse response = itinerarioService.criar(request);
+    public ResponseEntity<ItinerarioResponse> criar(
+            @Valid @RequestBody ItinerarioRequest request,
+            @AuthenticationPrincipal Jwt jwt
+    ) {
+        Long transporteUsuario = jwt.getClaim("transporte");
+        ItinerarioResponse response = itinerarioService.criar(request, transporteUsuario);
         return ResponseEntity.ok(response);
     }
 
@@ -50,6 +51,12 @@ public class ItinerarioController {
     public ResponseEntity<ItinerarioResponse> buscarPorId(@PathVariable Long id) {
         Itinerario itinerario = itinerarioService.buscarPorId(id);
         return ResponseEntity.ok(ItinerarioResponse.fromEntity(itinerario));
+    }
+
+    @GetMapping("/{id}/alunos")
+    public ResponseEntity<List<AlunoComLocalizacao>> buscarAlunosDoItinerario(@PathVariable Long id) {
+        List<AlunoComLocalizacao> alunos = itinerarioAlunoService.buscarAlunosComLocalizacao(id);
+        return ResponseEntity.ok(alunos);
     }
 
     @PutMapping("/{id}")

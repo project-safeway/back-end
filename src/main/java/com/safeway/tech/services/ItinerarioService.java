@@ -47,7 +47,11 @@ public class ItinerarioService {
     }
 
     @Transactional
-    public ItinerarioResponse criar(ItinerarioRequest request) {
+    public ItinerarioResponse criar(ItinerarioRequest request, Long transporteUsuario) {
+        if (!request.transporteId().equals(transporteUsuario)) {
+            throw new RuntimeException("Sem permissão para acessar este transporte");
+        }
+
         Itinerario itinerario = new Itinerario();
         itinerario.setNome(request.nome());
         itinerario.setHorarioInicio(request.horarioInicio());

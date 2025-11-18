@@ -1,5 +1,6 @@
 package com.safeway.tech.repository;
 
+import com.safeway.tech.models.Itinerario;
 import com.safeway.tech.models.ItinerarioAluno;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -21,4 +22,6 @@ public interface ItinerarioAlunoRepository extends JpaRepository<ItinerarioAluno
     @Query("DELETE FROM ItinerarioAluno ia WHERE ia.itinerario.id = :itinerarioId")
     void deleteAllByItinerarioId(
             @Param("itinerarioId") Long itinerarioId);
+
+    List<ItinerarioAluno> findByItinerarioOrderByOrdemEmbarqueAsc(Itinerario itinerario);
 }
