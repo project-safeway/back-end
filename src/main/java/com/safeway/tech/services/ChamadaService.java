@@ -26,25 +26,33 @@ public class ChamadaService {
                 .orElse(null);
     }
 
-    public void iniciarChamada(Long idItinerario) {
+    public Chamada iniciarChamada(Long idItinerario) {
         Chamada chamadaExistente = buscarChamadaAtivaPorItinerario(idItinerario);
         if(chamadaExistente != null) {
             throw new RuntimeException("Já existe uma chamada em andamento para este itinerário");
         }
 
-//        Itinerario itinerario = itinerarioService.buscarItinerarioPorId(idItinerario);
+        Itinerario itinerario = itinerarioService.buscarPorId(idItinerario);
 
         Chamada chamada = new Chamada();
-//        chamada.setItinerario(itinerario);
+        chamada.setItinerario(itinerario);
         chamada.setStatus(StatusChamadaEnum.EM_ANDAMENTO);
 
         chamadaRepository.save(chamada);
+
+        return chamada;
     }
 
-    public void atualizarChamada(Long idChamada, StatusChamadaEnum statusChamada) {
-        Chamada chamada = buscarChamadaPorId(idChamada);
+    public Chamada atualizarChamada(Long idItinerario, StatusChamadaEnum statusChamada) {
+        Chamada chamada = buscarChamadaAtivaPorItinerario(idItinerario);
+        if (chamada == null) {
+            throw new RuntimeException("Nenhuma chamada em andamento encontrada para este itinerário");
+        }
+
         chamada.setStatus(statusChamada);
 
         chamadaRepository.save(chamada);
+
+        return chamada;
     }
 }

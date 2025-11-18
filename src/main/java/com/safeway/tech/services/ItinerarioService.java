@@ -32,10 +32,10 @@ public class ItinerarioService {
                 .toList();
     }
 
-    public ItinerarioResponse buscarPorId(Long id) {
+    public Itinerario buscarPorId(Long id) {
         Itinerario entity = itinerarioRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Itinerário não encontrado"));
-        return ItinerarioMapper.toResponse(entity);
+        return entity;
     }
 
     @Transactional
