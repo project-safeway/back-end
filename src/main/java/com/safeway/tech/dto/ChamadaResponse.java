@@ -3,13 +3,25 @@ package com.safeway.tech.dto;
 import com.safeway.tech.enums.StatusChamadaEnum;
 import com.safeway.tech.models.Chamada;
 
-public record ChamadaResponse(Long id, ItinerarioResponse itinerario, StatusChamadaEnum status) {
+import java.util.List;
+
+public record ChamadaResponse(
+        Long id,
+        ItinerarioResponse itinerario,
+        StatusChamadaEnum status,
+        List<ChamadaAlunoResponse> alunos
+) {
 
     public static ChamadaResponse fromEntity(Chamada chamada) {
+        List<ChamadaAlunoResponse> alunosResponse = chamada.getAlunos().stream()
+                .map(ChamadaAlunoResponse::fromEntity)
+                .toList();
+
         return new ChamadaResponse(
             chamada.getId(),
             ItinerarioResponse.fromEntity(chamada.getItinerario()),
-            chamada.getStatus()
+            chamada.getStatus(),
+            alunosResponse
         );
     }
 }
