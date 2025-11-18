@@ -10,7 +10,7 @@ public record CadastroAlunoCompletoRequest(
         LocalDate dtNascimento,
         Integer serie,
         String sala,
-        BigDecimal valorMensalidade,
+        Double valorMensalidade,
         Integer diaVencimento,
         Long fkEscola,
         Long fkTransporte,

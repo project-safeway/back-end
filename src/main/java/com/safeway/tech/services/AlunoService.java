@@ -15,6 +15,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
+
 @Service
 @RequiredArgsConstructor
 public class AlunoService {
@@ -27,14 +29,13 @@ public class AlunoService {
 
     @Transactional
     public Long cadastrarAlunoCompleto(CadastroAlunoCompletoRequest request) {
-        // 1. Criar o aluno
         Aluno aluno = new Aluno();
         aluno.setNome(request.nome());
         aluno.setProfessor(request.professor());
         aluno.setDtNascimento(request.dtNascimento());
         aluno.setSerie(request.serie());
         aluno.setSala(request.sala());
-        aluno.setValorMensalidade(request.valorMensalidade());
+        aluno.setValorMensalidade(BigDecimal.valueOf(request.valorMensalidade()));
         aluno.setDiaVencimento(request.diaVencimento());
         aluno.setAtivo(true);
 
