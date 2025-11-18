@@ -69,7 +69,7 @@ public class ItinerarioService {
         itinerario.setTipoViagem(request.tipoViagem());
         itinerario.setAtivo(request.ativo());
 
-        if (request.alunos() != null) {
+        if (!request.alunos().isEmpty()) {
             itinerarioAlunoService.sincronizarAlunos(itinerario, request.alunos());
         }
 
