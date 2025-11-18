@@ -4,8 +4,14 @@ import com.safeway.tech.enums.StatusChamadaEnum;
 import com.safeway.tech.models.Chamada;
 import com.safeway.tech.models.Itinerario;
 import com.safeway.tech.repository.ChamadaRepository;
+import com.safeway.tech.specification.ChamadaSpecs;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 public class ChamadaService {
@@ -15,6 +21,9 @@ public class ChamadaService {
 
     @Autowired
     private ItinerarioService itinerarioService;
+
+    @Autowired
+    private CurrentUserService currentUserService;
 
     public Chamada buscarChamadaPorId(Long id) {
         return chamadaRepository.findById(id)
@@ -54,5 +63,19 @@ public class ChamadaService {
         chamadaRepository.save(chamada);
 
         return chamada;
+    }
+
+    public Page<Chamada> buscarHistoricoChamadas(Long idItinerario, List<StatusChamadaEnum> status, Pageable pageable) {
+        Long transporteId = currentUserService.getCurrentTransporteId();
+        Long userId = currentUserService.getCurrentUserId();
+
+        Specification<Chamada> specs = Specification.allOf(
+                ChamadaSpecs.comItinerarioId(idItinerario),
+                ChamadaSpecs.comStatus(status),
+                ChamadaSpecs.comTransporte(transporteId),
+                ChamadaSpecs.comUsuario(userId)
+        );
+
+        return chamadaRepository.findAll(specs, pageable);
     }
 }

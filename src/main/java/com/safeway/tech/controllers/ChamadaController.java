@@ -8,7 +8,12 @@ import com.safeway.tech.services.ChamadaAlunoService;
 import com.safeway.tech.services.ChamadaService;
 import jakarta.websocket.server.PathParam;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -16,6 +21,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
 import java.util.Map;
 
 @RequestMapping("/chamada")
@@ -46,6 +52,15 @@ public class ChamadaController {
             @RequestBody Map<Long, StatusPresencaEnum> presencas) {
         chamadaAlunoService.registrarPresenca(presencas, id);
         return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/historico/{id}")
+    public ResponseEntity<Page<ChamadaResponse>> historicoChamada(
+            @PathVariable Long id,
+            @PathParam("status") List<StatusChamadaEnum> status,
+            @PageableDefault(page = 0, size = 10, sort = "dtInsert", direction = Sort.Direction.DESC) Pageable pageable) {
+        Page<Chamada> chamadas = chamadaService.buscarHistoricoChamadas(id, status, pageable);
+        return ResponseEntity.ok(chamadas.map(ChamadaResponse::fromEntity));
     }
 
 }

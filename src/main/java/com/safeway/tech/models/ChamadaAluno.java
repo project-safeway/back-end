@@ -23,7 +23,7 @@ public class ChamadaAluno {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
     private Chamada chamada;
 
     @ManyToOne(fetch = FetchType.LAZY)
