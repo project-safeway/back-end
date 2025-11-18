@@ -61,7 +61,17 @@ public class AlunoService {
                 endereco.setComplemento(respData.endereco().complemento());
                 endereco.setBairro(respData.endereco().bairro());
                 endereco.setCidade(respData.endereco().cidade());
+                endereco.setUf(respData.endereco().uf());
                 endereco.setCep(respData.endereco().cep());
+                endereco.setLatitude(respData.endereco().latitude());
+                endereco.setLongitude(respData.endereco().longitude());
+                // validar lat/long
+                if (endereco.getLatitude() == null || endereco.getLongitude() == null) {
+                    throw new RuntimeException("Latitude e longitude do endereço do responsável são obrigatórias");
+                }
+                endereco.setTipo(respData.endereco().tipo() != null ? respData.endereco().tipo() : "RESIDENCIAL");
+                endereco.setAtivo(true);
+                endereco.setPrincipal(true);
                 endereco = enderecoRepository.save(endereco);
 
                 // 4.2 Criar responsável com vínculo ao usuário
@@ -75,10 +85,14 @@ public class AlunoService {
                 responsavel.setEndereco(endereco);
                 responsavel = responsavelRepository.save(responsavel);
 
-                // 4.3 Vincular aluno <-> responsável
+                // 4.3 Vincular aluno <-> responsável e persistir a associação
                 responsavel.getAlunos().add(aluno);
+                responsavel = responsavelRepository.save(responsavel); // salvar novamente para persistir join table
+
                 aluno.getResponsaveis().add(responsavel);
             }
+            // salvar aluno novamente para garantir que a relação inversa está persistida
+            alunoRepository.save(aluno);
         }
 
         return aluno.getIdAluno();

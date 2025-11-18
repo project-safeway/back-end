@@ -2,10 +2,8 @@ package com.safeway.tech.services;
 
 import com.safeway.tech.dto.EnderecoRequest;
 import com.safeway.tech.dto.EnderecoResponse;
-import com.safeway.tech.models.Aluno;
 import com.safeway.tech.models.Endereco;
 import com.safeway.tech.models.Responsavel;
-import com.safeway.tech.repository.AlunoRepository;
 import com.safeway.tech.repository.EnderecoRepository;
 import com.safeway.tech.repository.ResponsavelRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Objects;
 
 @Service
 public class EnderecoService {
@@ -21,29 +20,18 @@ public class EnderecoService {
     private EnderecoRepository enderecoRepository;
 
     @Autowired
-    private AlunoRepository alunoRepository;
-
-    @Autowired
     private ResponsavelRepository responsavelRepository;
 
     @Transactional
     public EnderecoResponse criar(EnderecoRequest request) {
-        Aluno aluno = alunoRepository.findById(request.alunoId())
-                .orElseThrow(() -> new RuntimeException("Aluno não encontrado"));
-
-        Responsavel responsavel = null;
-        if (request.responsavelId() != null) {
-            responsavel = responsavelRepository.findById(request.responsavelId())
-                    .orElseThrow(() -> new RuntimeException("Responsável não encontrado"));
+        if (request.responsavelId() == null) {
+            throw new RuntimeException("responsavelId é obrigatório");
         }
 
-        if (Boolean.TRUE.equals(request.principal())) {
-            desmarcarOutrosPrincipais(request.alunoId());
-        }
+        Responsavel responsavel = responsavelRepository.findById(request.responsavelId())
+                .orElseThrow(() -> new RuntimeException("Responsável não encontrado"));
 
         Endereco endereco = new Endereco();
-        endereco.setAluno(aluno);
-        endereco.setResponsavel(responsavel);
         endereco.setLogradouro(request.logradouro());
         endereco.setNumero(request.numero());
         endereco.setComplemento(request.complemento());
@@ -55,15 +43,38 @@ public class EnderecoService {
         endereco.setLongitude(request.longitude());
         endereco.setTipo(request.tipo());
         endereco.setAtivo(true);
-        endereco.setPrincipal(Boolean.TRUE.equals(request.principal()));
+        endereco.setPrincipal(false); // Principal é gerenciado no Responsavel
 
         endereco = enderecoRepository.save(endereco);
+
+        // Vincula endereço ao responsável
+        responsavel.setEndereco(endereco);
+        responsavelRepository.save(responsavel);
+
         return EnderecoResponse.fromEntity(endereco);
     }
 
-    public List<EnderecoResponse> listarPorAluno(Long alunoId) {
-        return enderecoRepository.findByAlunoIdAlunoAndAtivoTrue(alunoId).stream()
-                .map(EnderecoResponse::fromEntity)
+    public List<EnderecoResponse> listarPorResponsavel(Long responsavelId) {
+        Responsavel responsavel = responsavelRepository.findById(responsavelId)
+                .orElseThrow(() -> new RuntimeException("Responsável não encontrado"));
+
+        return List.of(EnderecoResponse.fromEntity(responsavel.getEndereco()));
+    }
+
+    @Transactional
+    public List<EnderecoResponse> listarEnderecosDisponiveis(Long alunoId, Long usuarioId) {
+        // Busca endereços de todos os responsáveis vinculados ao aluno
+        List<Responsavel> responsaveis = responsavelRepository.findByAlunosIdAlunoAndUsuarioIdUsuario(alunoId, usuarioId);
+
+        return responsaveis.stream()
+                .map(r -> {
+                    Endereco e = r.getEndereco();
+                    if (e == null) return null;
+                    // Acessar um campo para garantir inicialização dentro da transação
+                    e.getIdEndereco();
+                    return EnderecoResponse.fromEntity(e);
+                })
+                .filter(Objects::nonNull)
                 .toList();
     }
 
@@ -76,16 +87,6 @@ public class EnderecoService {
     public EnderecoResponse atualizar(Long id, EnderecoRequest request) {
         Endereco endereco = buscarEntidade(id);
 
-        if (request.responsavelId() != null) {
-            Responsavel responsavel = responsavelRepository.findById(request.responsavelId())
-                    .orElseThrow(() -> new RuntimeException("Responsável não encontrado"));
-            endereco.setResponsavel(responsavel);
-        }
-
-        if (Boolean.TRUE.equals(request.principal())) {
-            desmarcarOutrosPrincipais(endereco.getAluno().getIdAluno());
-        }
-
         endereco.setLogradouro(request.logradouro());
         endereco.setNumero(request.numero());
         endereco.setComplemento(request.complemento());
@@ -96,7 +97,6 @@ public class EnderecoService {
         endereco.setLatitude(request.latitude());
         endereco.setLongitude(request.longitude());
         endereco.setTipo(request.tipo());
-        endereco.setPrincipal(Boolean.TRUE.equals(request.principal()));
 
         endereco = enderecoRepository.save(endereco);
         return EnderecoResponse.fromEntity(endereco);
@@ -109,25 +109,8 @@ public class EnderecoService {
         enderecoRepository.save(endereco);
     }
 
-    @Transactional
-    public void definirComoPrincipal(Long id) {
-        Endereco endereco = buscarEntidade(id);
-        desmarcarOutrosPrincipais(endereco.getAluno().getIdAluno());
-        endereco.setPrincipal(true);
-        enderecoRepository.save(endereco);
-    }
-
     public Endereco buscarEntidade(Long id) {
         return enderecoRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Endereço não encontrado"));
-    }
-
-    private void desmarcarOutrosPrincipais(Long alunoId) {
-        enderecoRepository.findByAlunoIdAlunoAndAtivoTrue(alunoId).stream()
-                .filter(Endereco::getPrincipal)
-                .forEach(e -> {
-                    e.setPrincipal(false);
-                    enderecoRepository.save(e);
-                });
     }
 }

@@ -7,6 +7,6 @@ import java.util.List;
 import java.util.Optional;
 
 public interface EscolaRepository extends JpaRepository<Escola,Long> {
-    List<Escola> findAllByUsuario_IdUsuario(Long userId);
+    List<Escola> findByUsuarioIdUsuario(Long usuarioId);
     Optional<Escola> findByIdEscolaAndUsuario_IdUsuario(Long idEscola, Long userId);
 }

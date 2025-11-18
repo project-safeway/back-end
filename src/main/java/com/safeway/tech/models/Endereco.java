@@ -16,14 +16,6 @@ public class Endereco extends Auditable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long idEndereco;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "fk_aluno", nullable = false)
-    private Aluno aluno;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "fk_responsavel", nullable = true) // pode ser nulo (ex: escola)
-    private Responsavel responsavel;
-
     @Column(nullable = false, length = 255)
     private String logradouro;
 

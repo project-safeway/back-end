@@ -3,6 +3,7 @@ package com.safeway.tech.dto;
 import com.safeway.tech.enums.TipoViagemEnum;
 
 import java.sql.Time;
+import java.util.Comparator;
 import java.util.List;
 
 public record ItinerarioResponse(
@@ -17,6 +18,7 @@ public record ItinerarioResponse(
 
     public static ItinerarioResponse fromEntity(com.safeway.tech.models.Itinerario itinerario) {
         List<ItinerarioAlunoResponse> alunosResponse = itinerario.getAlunos().stream()
+                .sorted(Comparator.comparing(a -> a.getOrdemEmbarque() == null ? Integer.MAX_VALUE : a.getOrdemEmbarque()))
                 .map(ItinerarioAlunoResponse::fromEntity)
                 .toList();
 

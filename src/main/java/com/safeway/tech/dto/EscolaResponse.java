@@ -16,5 +16,4 @@ public record EscolaResponse(
                 EnderecoResponse.fromEntity(escola.getEndereco())
         );
     }
-
 }

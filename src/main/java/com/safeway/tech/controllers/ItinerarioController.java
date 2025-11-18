@@ -85,9 +85,19 @@ public class ItinerarioController {
     @DeleteMapping("/{id}/alunos/{alunoId}")
     public ResponseEntity<Void> removerAluno(
             @PathVariable Long id,
-            @PathVariable Long alunoId
+            @PathVariable String alunoId
     ) {
-        itinerarioAlunoService.removerAluno(id, alunoId);
+        if (alunoId == null || alunoId.isBlank() || "undefined".equalsIgnoreCase(alunoId)) {
+            return ResponseEntity.badRequest().build();
+        }
+        Long alunoIdLong;
+        try {
+            alunoIdLong = Long.valueOf(alunoId);
+        } catch (NumberFormatException ex) {
+            return ResponseEntity.badRequest().build();
+        }
+
+        itinerarioAlunoService.removerAluno(id, alunoIdLong);
         return ResponseEntity.noContent().build();
     }
 

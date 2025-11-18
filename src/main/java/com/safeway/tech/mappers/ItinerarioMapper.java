@@ -13,7 +13,8 @@ public class ItinerarioMapper {
                 .map(a -> new ItinerarioAlunoResponse(
                         a.getAluno().getIdAluno(),
                         a.getAluno().getNome(),
-                        a.getOrdemEmbarque()
+                        a.getOrdemEmbarque(),
+                        a.getEndereco() != null ? a.getEndereco().getIdEndereco() : null
                 ))
                 .toList();
 

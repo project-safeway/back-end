@@ -4,10 +4,6 @@ import com.safeway.tech.models.Endereco;
 
 public record EnderecoResponse(
         Long id,
-        Long alunoId,
-        String alunoNome,
-        Long responsavelId,
-        String responsavelNome,
         String logradouro,
         String numero,
         String complemento,
@@ -24,10 +20,6 @@ public record EnderecoResponse(
     public static EnderecoResponse fromEntity(Endereco endereco) {
         return new EnderecoResponse(
                 endereco.getIdEndereco(),
-                endereco.getAluno().getIdAluno(),
-                endereco.getAluno().getNome(),
-                endereco.getResponsavel() != null ? endereco.getResponsavel().getIdResponsavel() : null,
-                endereco.getResponsavel() != null ? endereco.getResponsavel().getNome() : null,
                 endereco.getLogradouro(),
                 endereco.getNumero(),
                 endereco.getComplemento(),

@@ -1,6 +1,7 @@
 package com.safeway.tech.repository;
 
 import com.safeway.tech.models.Aluno;
+import com.safeway.tech.models.Endereco;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

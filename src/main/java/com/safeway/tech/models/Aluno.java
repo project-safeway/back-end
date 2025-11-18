@@ -71,6 +71,7 @@ public class Aluno extends Auditable {
     @OneToMany(mappedBy = "aluno", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ItinerarioAluno> itinerarios = new ArrayList<>();
 
-    @OneToMany(mappedBy = "aluno", cascade = CascadeType.ALL)
-    private List<Endereco> enderecos = new ArrayList<>(); // 🆕
+//    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+//    @JoinColumn(name = "fk_aluno")
+//    private List<Endereco> enderecos = new ArrayList<>();
 }

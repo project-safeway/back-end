@@ -40,10 +40,4 @@ public class EnderecoController {
         enderecoService.desativar(id);
         return ResponseEntity.noContent().build();
     }
-
-    @PatchMapping("/{id}/principal")
-    public ResponseEntity<Void> definirComoPrincipal(@PathVariable Long id) {
-        enderecoService.definirComoPrincipal(id);
-        return ResponseEntity.ok().build();
-    }
 }

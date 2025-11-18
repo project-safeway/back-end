@@ -24,7 +24,7 @@ public class Escola extends Auditable {
     @JoinColumn(name = "fk_usuario", nullable = false)
     private Usuario usuario;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinColumn(name = "fk_endereco", nullable = false)
     private Endereco endereco;
 

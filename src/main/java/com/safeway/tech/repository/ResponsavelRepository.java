@@ -8,5 +8,6 @@ import java.util.Optional;
 
 public interface ResponsavelRepository extends JpaRepository<Responsavel,Long> {
     List<Responsavel> findAllByUsuario_IdUsuario(Long userId);
-    Optional<Responsavel> findByIdResponsavelAndUsuario_IdUsuario(Long idResponsavel, Long userId);
+    List<Responsavel> findByAlunosIdAlunoAndUsuarioIdUsuario(Long alunoId, Long usuarioId);
+    Optional<Responsavel> findByIdResponsavelAndUsuario_IdUsuario(Long idResponsavel, Long usuarioId);
 }

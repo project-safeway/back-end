@@ -4,6 +4,7 @@ import com.safeway.tech.dto.CadastroAlunoCompletoRequest;
 import com.safeway.tech.dto.EnderecoResponse;
 import com.safeway.tech.services.AlunoService;
 import com.safeway.tech.services.EnderecoService;
+import com.safeway.tech.services.CurrentUserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +25,9 @@ public class AlunoController {
     @Autowired
     private EnderecoService enderecoService;
 
+    @Autowired
+    private CurrentUserService currentUserService;
+
     @PostMapping
     public ResponseEntity<Long> cadastrarAlunoCompleto(
             @RequestBody @Valid CadastroAlunoCompletoRequest request
@@ -34,9 +38,13 @@ public class AlunoController {
 
     @GetMapping("/{alunoId}/enderecos")
     public ResponseEntity<List<EnderecoResponse>> listarEnderecosDoAluno(
-            @PathVariable Long alunoId
+            @PathVariable Long alunoId,
+            @RequestParam(required = false) Long usuarioId
     ) {
-        List<EnderecoResponse> enderecos = enderecoService.listarPorAluno(alunoId);
+        if (usuarioId == null) {
+            usuarioId = currentUserService.getCurrentUserId();
+        }
+        List<EnderecoResponse> enderecos = enderecoService.listarEnderecosDisponiveis(alunoId, usuarioId);
         return ResponseEntity.ok(enderecos);
     }
 }
