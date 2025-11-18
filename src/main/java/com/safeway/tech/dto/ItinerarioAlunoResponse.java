@@ -5,4 +5,12 @@ public record ItinerarioAlunoResponse(
         String nomeAluno,
         Integer ordemEmbarque
 ) {
+
+    public static ItinerarioAlunoResponse fromEntity(com.safeway.tech.models.ItinerarioAluno itinerarioAluno) {
+        return new ItinerarioAlunoResponse(
+                itinerarioAluno.getAluno().getIdAluno(),
+                itinerarioAluno.getAluno().getNome(),
+                itinerarioAluno.getOrdemEmbarque()
+        );
+    }
 }

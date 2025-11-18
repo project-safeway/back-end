@@ -48,7 +48,8 @@ public class ItinerarioController {
 
     @GetMapping("/{id}")
     public ResponseEntity<ItinerarioResponse> buscarPorId(@PathVariable Long id) {
-        return ResponseEntity.ok(itinerarioService.buscarPorId(id));
+        Itinerario itinerario = itinerarioService.buscarPorId(id);
+        return ResponseEntity.ok(ItinerarioResponse.fromEntity(itinerario));
     }
 
     @PutMapping("/{id}")
