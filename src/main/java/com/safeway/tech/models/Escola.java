@@ -1,19 +1,10 @@
 package com.safeway.tech.models;
 
 import com.safeway.tech.enums.NivelEnsinoEnum;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 import java.util.List;
@@ -21,14 +12,20 @@ import java.util.List;
 @Entity
 @Table(name = "escolas")
 @Data
+@EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor @AllArgsConstructor
 public class Escola extends Auditable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long idEscola;
 
-    @ManyToOne
-    @JoinColumn(name = "fkEndereco", nullable = false)
+    // Dono do registro (escopo de usuário)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "fk_usuario", nullable = false)
+    private Usuario usuario;
+
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JoinColumn(name = "fk_endereco", nullable = false)
     private Endereco endereco;
 
     @Column(nullable = false)

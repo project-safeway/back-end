@@ -5,11 +5,11 @@ import jakarta.validation.constraints.PastOrPresent;
 import jakarta.validation.constraints.Positive;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.Date;
 
 public record PagamentoRequest(
-        @NotNull Long idFuncionario,
-        @NotNull @PastOrPresent Date dataPagamento,
-        @NotNull @Positive BigDecimal valorPagamento
+        @NotNull @PastOrPresent LocalDate dataPagamento,
+        @NotNull @Positive Double valorPagamento
 ) {
 }

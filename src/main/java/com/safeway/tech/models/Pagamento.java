@@ -10,6 +10,7 @@ import jakarta.persistence.Table;
 import lombok.*;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.Date;
 
 @Entity
@@ -28,6 +29,6 @@ public class Pagamento extends Auditable {
     @JoinColumn(name = "fkFuncionario", nullable = false)
     private Funcionario funcionario;
 
-    private Date dataPagamento;
-    private BigDecimal valorPagamento;
+    private LocalDate dataPagamento;
+    private Double valorPagamento;
 }

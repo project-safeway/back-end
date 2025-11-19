@@ -1,16 +1,8 @@
 package com.safeway.tech.services;
 
 import com.safeway.tech.dto.CadastroAlunoCompletoRequest;
-import com.safeway.tech.models.Aluno;
-import com.safeway.tech.models.Endereco;
-import com.safeway.tech.models.Escola;
-import com.safeway.tech.models.Responsavel;
-import com.safeway.tech.models.Transporte;
-import com.safeway.tech.repository.AlunoRepository;
-import com.safeway.tech.repository.EnderecoRepository;
-import com.safeway.tech.repository.EscolaRepository;
-import com.safeway.tech.repository.ResponsavelRepository;
-import com.safeway.tech.repository.TransporteRepository;
+import com.safeway.tech.models.*;
+import com.safeway.tech.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,11 +16,17 @@ public class AlunoService {
     private final EnderecoRepository enderecoRepository;
     private final EscolaRepository escolaRepository;
     private final TransporteRepository transporteRepository;
+    private final UsuarioRepository usuarioRepository;
+    private final CurrentUserService currentUserService;
 
     @Transactional
     public Long cadastrarAlunoCompleto(CadastroAlunoCompletoRequest request) {
+        Long userId = currentUserService.getCurrentUserId();
+        Usuario usuario = usuarioRepository.getReferenceById(userId);
+
         // 1. Criar o aluno
         Aluno aluno = new Aluno();
+        aluno.setUsuario(usuario);
         aluno.setNome(request.nome());
         aluno.setProfessor(request.professor());
         aluno.setDtNascimento(request.dtNascimento());
@@ -38,15 +36,15 @@ public class AlunoService {
         aluno.setDiaVencimento(request.diaVencimento());
         aluno.setAtivo(true);
 
-        // 2. Buscar escola
-        Escola escola = escolaRepository.findById(request.fkEscola())
-                .orElseThrow(() -> new RuntimeException("Escola não encontrada"));
+        // 2. Buscar escola do próprio usuário
+        Escola escola = escolaRepository.findByIdEscolaAndUsuario_IdUsuario(request.fkEscola(), userId)
+                .orElseThrow(() -> new RuntimeException("Escola não encontrada para este usuário"));
         aluno.setEscola(escola);
 
-        // 3. Transporte (opcional)
+        // 3. Transporte (opcional) do próprio usuário
         if (request.fkTransporte() != null) {
-            Transporte transporte = transporteRepository.findById(request.fkTransporte())
-                    .orElseThrow(() -> new RuntimeException("Transporte não encontrado"));
+            Transporte transporte = transporteRepository.findByIdTransporteAndUsuario_IdUsuario(request.fkTransporte(), userId)
+                    .orElseThrow(() -> new RuntimeException("Transporte não encontrado para este usuário"));
             aluno.setTransporte(transporte);
         }
 
@@ -63,11 +61,22 @@ public class AlunoService {
                 endereco.setComplemento(respData.endereco().complemento());
                 endereco.setBairro(respData.endereco().bairro());
                 endereco.setCidade(respData.endereco().cidade());
+                endereco.setUf(respData.endereco().uf());
                 endereco.setCep(respData.endereco().cep());
+                endereco.setLatitude(respData.endereco().latitude());
+                endereco.setLongitude(respData.endereco().longitude());
+                // validar lat/long
+                if (endereco.getLatitude() == null || endereco.getLongitude() == null) {
+                    throw new RuntimeException("Latitude e longitude do endereço do responsável são obrigatórias");
+                }
+                endereco.setTipo(respData.endereco().tipo() != null ? respData.endereco().tipo() : "RESIDENCIAL");
+                endereco.setAtivo(true);
+                endereco.setPrincipal(true);
                 endereco = enderecoRepository.save(endereco);
 
-                // 4.2 Criar responsável
+                // 4.2 Criar responsável com vínculo ao usuário
                 Responsavel responsavel = new Responsavel();
+                responsavel.setUsuario(usuario);
                 responsavel.setNome(respData.nome());
                 responsavel.setCpf(respData.cpf());
                 responsavel.setTel1(respData.tel1());
@@ -76,12 +85,21 @@ public class AlunoService {
                 responsavel.setEndereco(endereco);
                 responsavel = responsavelRepository.save(responsavel);
 
-                // 4.3 Vincular aluno <-> responsável
+                // 4.3 Vincular aluno <-> responsável e persistir a associação
                 responsavel.getAlunos().add(aluno);
+                responsavel = responsavelRepository.save(responsavel); // salvar novamente para persistir join table
+
                 aluno.getResponsaveis().add(responsavel);
             }
+            // salvar aluno novamente para garantir que a relação inversa está persistida
+            alunoRepository.save(aluno);
         }
 
         return aluno.getIdAluno();
+    }
+
+    public Aluno buscarAlunoPorId(Long id) {
+        return alunoRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Aluno não encontrado"));
     }
 }

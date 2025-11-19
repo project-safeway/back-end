@@ -1,6 +1,7 @@
 package com.safeway.tech.controllers;
 
 import com.safeway.tech.dto.FuncionarioRequest;
+import com.safeway.tech.dto.FuncionarioResponse;
 import com.safeway.tech.models.Funcionario;
 import com.safeway.tech.services.FuncionarioService;
 import jakarta.validation.Valid;
@@ -10,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/funcionario")
@@ -25,22 +27,27 @@ public class FuncionarioController {
     @Autowired
     private FuncionarioService funcionarioService;
 
+    private FuncionarioResponse toResponse(Funcionario f) {
+        return FuncionarioResponse.fromEntity(f);
+    }
+
     @PostMapping
-    public ResponseEntity<Funcionario> salvarFuncionario(@RequestBody @Valid FuncionarioRequest request){
+    public ResponseEntity<FuncionarioResponse> salvarFuncionario(@RequestBody @Valid FuncionarioRequest request){
         Funcionario funcionario = funcionarioService.salvarFuncionario(request);
-        return ResponseEntity.status(HttpStatus.CREATED).body(funcionario);
+        return ResponseEntity.status(HttpStatus.CREATED).body(toResponse(funcionario));
     }
 
     @GetMapping
-    public ResponseEntity<List<Funcionario>> listarFuncionarios(){
+    public ResponseEntity<List<FuncionarioResponse>> listarFuncionarios(){
         List<Funcionario> funcionarios = funcionarioService.listarFuncionarios();
-        return ResponseEntity.status(HttpStatus.OK).body(funcionarios);
+        List<FuncionarioResponse> resp = funcionarios.stream().map(this::toResponse).collect(Collectors.toList());
+        return ResponseEntity.status(HttpStatus.OK).body(resp);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Funcionario> retornarUm(@PathVariable Long id){
+    public ResponseEntity<FuncionarioResponse> retornarUm(@PathVariable Long id){
         Funcionario funcionario = funcionarioService.buscarPorId(id);
-        return ResponseEntity.status(HttpStatus.OK).body(funcionario);
+        return ResponseEntity.status(HttpStatus.OK).body(toResponse(funcionario));
     }
 
     @DeleteMapping("/{id}")
@@ -50,8 +57,8 @@ public class FuncionarioController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Funcionario> alterarFuncionario(@RequestBody FuncionarioRequest request,@PathVariable Long id){
+    public ResponseEntity<FuncionarioResponse> alterarFuncionario(@RequestBody @Valid FuncionarioRequest request,@PathVariable Long id){
         Funcionario funcionario = funcionarioService.alterarFuncionario(request, id);
-        return ResponseEntity.status(HttpStatus.OK).body(funcionario);
+        return ResponseEntity.status(HttpStatus.OK).body(toResponse(funcionario));
     }
 }

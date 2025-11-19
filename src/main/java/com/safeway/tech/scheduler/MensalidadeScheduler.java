@@ -46,21 +46,21 @@ public class MensalidadeScheduler {
     public void gerarMensalidadesMesAtual() {
         log.info("Iniciando geração de mensalidades do mês");
         LocalDate hoje = LocalDate.now();
-        List<Aluno> alunosAtivos = alunoRepository.findByAtivoTrue();
+        LocalDate inicioMes = hoje.withDayOfMonth(1);
+        LocalDate fimMes = hoje.withDayOfMonth(hoje.lengthOfMonth());
 
+        List<Aluno> alunosAtivos = alunoRepository.findByAtivoTrue();
         int mensalidadesGeradas = 0;
 
         for (Aluno aluno : alunosAtivos) {
             boolean jaExiste = mensalidadeRepository
-                    .existsByAlunoAndMesAndAno(aluno, hoje.getMonthValue(), hoje.getYear());
+                    .existsByAlunoAndDataVencimentoBetween(aluno, inicioMes, fimMes);
 
             if (!jaExiste) {
                 LocalDate dataVencimento = calcularDataVencimento(hoje, aluno.getDiaVencimento());
 
                 MensalidadeAluno mensalidade = new MensalidadeAluno();
                 mensalidade.setAluno(aluno);
-                mensalidade.setMes(hoje.getMonthValue());
-                mensalidade.setAno(hoje.getYear());
                 mensalidade.setValorMensalidade(aluno.getValorMensalidade());
                 mensalidade.setDataVencimento(dataVencimento);
                 mensalidade.setStatus(StatusPagamento.PENDENTE);

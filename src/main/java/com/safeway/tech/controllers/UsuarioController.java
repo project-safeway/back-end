@@ -1,18 +1,13 @@
 package com.safeway.tech.controllers;
 
+import com.safeway.tech.dto.UsuarioResponse;
 import com.safeway.tech.models.Usuario;
 import com.safeway.tech.services.UsuarioService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/usuarios")
@@ -20,19 +15,27 @@ public class UsuarioController {
     @Autowired
     private UsuarioService usuarioService;
 
+    private UsuarioResponse toResponse(Usuario u) {
+        return UsuarioResponse.fromEntity(u);
+    }
+
     @PostMapping
-    public Usuario salvarUsuario(@RequestBody Usuario usuario){
-        return usuarioService.salvarUsuario(usuario);
+    public UsuarioResponse salvarUsuario(@RequestBody Usuario usuario){
+        Usuario salvo = usuarioService.salvarUsuario(usuario);
+        return toResponse(salvo);
     }
 
     @GetMapping
-    public List<Usuario> listarUsuarios() {
-        return usuarioService.listarUsuarios();
+    public List<UsuarioResponse> listarUsuarios() {
+        return usuarioService.listarUsuarios()
+                .stream()
+                .map(this::toResponse)
+                .collect(Collectors.toList());
     }
 
     @GetMapping("/{idUsuario}")
-    public Usuario retornarUm(@PathVariable Long idUsuario){
-        return usuarioService.retornarUm(idUsuario);
+    public UsuarioResponse retornarUm(@PathVariable Long idUsuario){
+        return toResponse(usuarioService.retornarUm(idUsuario));
     }
 
     @DeleteMapping("/{idUsuario}")
@@ -41,7 +44,8 @@ public class UsuarioController {
     }
 
     @PutMapping("/{idUsuario}")
-    public Usuario alterarUsuario(@RequestBody Usuario novoUsuario,@PathVariable Long idUsuario){
-        return usuarioService.alterarUsuario(novoUsuario, idUsuario);
+    public UsuarioResponse alterarUsuario(@RequestBody Usuario novoUsuario,@PathVariable Long idUsuario){
+        Usuario atualizado = usuarioService.alterarUsuario(novoUsuario, idUsuario);
+        return toResponse(atualizado);
     }
 }
