@@ -23,7 +23,9 @@ public class EscolaService {
     private final UsuarioRepository usuarioRepository;
 
     @Transactional
-    public EscolaResponse cadastrarEscola(EscolaRequest request, Long usuarioId) {
+    public EscolaResponse cadastrarEscola(EscolaRequest request) {
+        Long usuarioId = new CurrentUserService().getCurrentUserId();
+
         Usuario usuario = usuarioRepository.findById(usuarioId)
                 .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
 
@@ -56,7 +58,9 @@ public class EscolaService {
         return EscolaResponse.fromEntity(escola);
     }
 
-    public List<EscolaComAlunosResponse> listarEscolasComAlunos(Long usuarioId) {
+    public List<EscolaComAlunosResponse> listarEscolasComAlunos() {
+        Long usuarioId = new CurrentUserService().getCurrentUserId();
+
         return escolaRepository.findByUsuarioIdUsuario(usuarioId).stream()
                 .map(EscolaComAlunosResponse::fromEntity)
                 .toList();

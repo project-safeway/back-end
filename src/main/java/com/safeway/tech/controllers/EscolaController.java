@@ -10,6 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -22,20 +23,15 @@ public class EscolaController {
 
     @PostMapping
     public ResponseEntity<EscolaResponse> cadastrarEscola(
-            @Valid @RequestBody EscolaRequest request,
-            @RequestParam Long usuarioId) {
+            @Valid @RequestBody EscolaRequest request) {
 
-        EscolaResponse response = escolaService.cadastrarEscola(request, usuarioId);
+        EscolaResponse response = escolaService.cadastrarEscola(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @GetMapping
-    public ResponseEntity<List<EscolaComAlunosResponse>> listarEscolasComAlunos(
-            @AuthenticationPrincipal UserDetails userDetails) {
-
-        Long usuarioId = Long.parseLong(userDetails.getUsername());
-        List<EscolaComAlunosResponse> response = escolaService.listarEscolasComAlunos(usuarioId);
-
+    public ResponseEntity<List<EscolaComAlunosResponse>> listarEscolasComAlunos() {
+        List<EscolaComAlunosResponse> response = escolaService.listarEscolasComAlunos();
         return ResponseEntity.ok(response);
     }
 }
