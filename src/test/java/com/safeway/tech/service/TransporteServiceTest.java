@@ -1,23 +1,13 @@
-package com.safeway.tech;
+package com.safeway.tech.service;
 
-import com.safeway.tech.dto.AuthResponse;
-import com.safeway.tech.dto.RegisterRequest;
-import com.safeway.tech.dto.TransporteRequest;
-import com.safeway.tech.enums.UserRole;
 import com.safeway.tech.models.Transporte;
-import com.safeway.tech.models.Usuario;
 import com.safeway.tech.repository.TransporteRepository;
-import com.safeway.tech.repository.UsuarioRepository;
-import com.safeway.tech.services.AuthService;
 import com.safeway.tech.services.TransporteService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.oauth2.jwt.*;
 
 import java.util.List;
 import java.util.Optional;

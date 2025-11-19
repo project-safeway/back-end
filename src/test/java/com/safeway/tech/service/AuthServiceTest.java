@@ -1,4 +1,4 @@
-package com.safeway.tech;
+package com.safeway.tech.service;
 
 import com.safeway.tech.dto.AuthResponse;
 import com.safeway.tech.dto.RegisterRequest;

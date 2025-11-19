@@ -1,4 +1,4 @@
-package com.safeway.tech;
+package com.safeway.tech.service;
 
 import com.safeway.tech.models.Endereco;
 import com.safeway.tech.repository.ResponsavelRepository;
