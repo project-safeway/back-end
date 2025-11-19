@@ -16,7 +16,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 @RestController
-@RequestMapping("/mensalidades")
+@RequestMapping({"/mensalidades","/api/mensalidades"})
 public class MensalidadeController {
 
     @Autowired
@@ -32,6 +32,15 @@ public class MensalidadeController {
             ) {
         Page<MensalidadeResponse> mensalidades =
                 mensalidadeService.buscarMensalidades(alunoId, dataInicio, dataFim, status, pageable);
+        return ResponseEntity.ok(mensalidades);
+    }
+
+    @GetMapping("/pendentes")
+    public ResponseEntity<Page<MensalidadeResponse>> getPendentes(
+            @PageableDefault(page = 0, size = 10, sort = "dataVencimento", direction = Sort.Direction.ASC) Pageable pageable
+    ) {
+        List<StatusPagamento> status = List.of(StatusPagamento.PENDENTE, StatusPagamento.ATRASADO);
+        Page<MensalidadeResponse> mensalidades = mensalidadeService.buscarMensalidades(null, null, null, status, pageable);
         return ResponseEntity.ok(mensalidades);
     }
 
