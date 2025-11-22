@@ -41,10 +41,10 @@ public class Responsavel extends Auditable {
     @Column(length = 14)
     private String cpf;
 
-    @Column(nullable = false, length = 9)
+    @Column(nullable = false, length = 11)
     private String tel1;
 
-    @Column(length = 9)
+    @Column(length = 11)
     private String tel2;
 
     private String email;
