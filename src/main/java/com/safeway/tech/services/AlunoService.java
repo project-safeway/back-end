@@ -1,6 +1,8 @@
 package com.safeway.tech.services;
 
+import com.safeway.tech.dto.AlunoResponse;
 import com.safeway.tech.dto.CadastroAlunoCompletoRequest;
+import com.safeway.tech.dto.AlunoUpdateRequest;
 import com.safeway.tech.models.*;
 import com.safeway.tech.repository.*;
 import lombok.RequiredArgsConstructor;
@@ -101,5 +103,130 @@ public class AlunoService {
     public Aluno buscarAlunoPorId(Long id) {
         return alunoRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Aluno não encontrado"));
+    }
+
+    @Transactional
+    public AlunoResponse obterDadosAluno(Long alunoId) {
+        // Validação de escopo: garante que o aluno pertence ao usuário logado
+        Long userId = currentUserService.getCurrentUserId();
+        Aluno aluno = alunoRepository.findByIdAlunoAndUsuario_IdUsuario(alunoId, userId)
+                .orElseThrow(() -> new RuntimeException("Aluno não encontrado para este usuário"));
+        return AlunoResponse.fromEntity(aluno);
+    }
+
+    @Transactional
+    public AlunoResponse atualizarAluno(Long alunoId, AlunoUpdateRequest request) {
+        Long userId = currentUserService.getCurrentUserId();
+
+        Aluno aluno = alunoRepository.findByIdAlunoAndUsuario_IdUsuario(alunoId, userId)
+                .orElseThrow(() -> new RuntimeException("Aluno não encontrado para este usuário"));
+
+        // Atualiza dados basicos do aluno
+        aluno.setNome(request.nome());
+        aluno.setProfessor(request.professor());
+        aluno.setDtNascimento(request.dtNascimento());
+        aluno.setSerie(request.serie());
+        aluno.setSala(request.sala());
+        aluno.setValorMensalidade(request.valorMensalidade());
+        aluno.setDiaVencimento(request.diaVencimento());
+
+        Escola escola = escolaRepository.findByIdEscolaAndUsuario_IdUsuario(request.fkEscola(), userId)
+                .orElseThrow(() -> new RuntimeException("Escola não encontrada para este usuário"));
+        aluno.setEscola(escola);
+
+        if (request.fkTransporte() != null) {
+            Transporte transporte = transporteRepository.findByIdTransporteAndUsuario_IdUsuario(request.fkTransporte(), userId)
+                    .orElseThrow(() -> new RuntimeException("Transporte não encontrado para este usuário"));
+            aluno.setTransporte(transporte);
+        } else {
+            aluno.setTransporte(null);
+        }
+
+        // Gerenciamento completo de responsaveis/endereco via aluno
+        if (request.responsaveis() != null) {
+            // Mapa rapido dos responsaveis atuais por id (se precisar no futuro)
+            // java.util.Map<Long, Responsavel> atuaisPorId = aluno.getResponsaveis().stream()
+            //         .filter(r -> r.getIdResponsavel() != null)
+            //         .collect(java.util.stream.Collectors.toMap(Responsavel::getIdResponsavel, r -> r));
+
+            java.util.List<Responsavel> novaLista = new java.util.ArrayList<>();
+
+            for (AlunoUpdateRequest.ResponsavelUpdateData dto : request.responsaveis()) {
+                Responsavel responsavel;
+
+                if (dto.idResponsavel() != null) {
+                    // Ja existe: carrega garantindo escopo do usuario
+                    responsavel = responsavelRepository
+                            .findByIdResponsavelAndUsuario_IdUsuario(dto.idResponsavel(), userId)
+                            .orElseThrow(() -> new RuntimeException("Responsável não encontrado para este usuário"));
+
+                    if (dto.deletar()) {
+                        // Remover vinculo aluno<->responsavel
+                        final Long idAlunoParam = alunoId;
+                        responsavel.getAlunos().removeIf(a -> a.getIdAluno().equals(idAlunoParam));
+                        // Se não tiver mais alunos vinculados, pode deletar o responsavel inteiro
+                        if (responsavel.getAlunos().isEmpty()) {
+                            responsavelRepository.delete(responsavel);
+                        } else {
+                            responsavelRepository.save(responsavel);
+                        }
+                        // Não adiciona na nova lista -> deixa de estar vinculado a este aluno
+                        continue;
+                    }
+                } else {
+                    // Novo responsavel
+                    responsavel = new Responsavel();
+                    Usuario usuario = usuarioRepository.getReferenceById(userId);
+                    responsavel.setUsuario(usuario);
+                    responsavel.setAlunos(new java.util.ArrayList<>());
+                }
+
+                // Atualiza dados do responsavel
+                responsavel.setNome(dto.nome());
+                responsavel.setCpf(dto.cpf());
+                responsavel.setTel1(dto.tel1());
+                responsavel.setTel2(dto.tel2());
+                responsavel.setEmail(dto.email());
+
+                // Atualiza/cria endereco vinculado ao responsavel
+                AlunoUpdateRequest.EnderecoUpdateData endDto = dto.endereco();
+                Endereco endereco = responsavel.getEndereco();
+                if (endereco == null) {
+                    endereco = new Endereco();
+                }
+                endereco.setLogradouro(endDto.logradouro());
+                endereco.setNumero(endDto.numero());
+                endereco.setComplemento(endDto.complemento());
+                endereco.setBairro(endDto.bairro());
+                endereco.setCidade(endDto.cidade());
+                endereco.setUf(endDto.uf());
+                endereco.setCep(endDto.cep());
+                endereco.setLatitude(endDto.latitude());
+                endereco.setLongitude(endDto.longitude());
+                endereco.setTipo(endDto.tipo() != null ? endDto.tipo() : "RESIDENCIAL");
+                endereco.setAtivo(true);
+                if (endereco.getIdEndereco() == null) {
+                    endereco.setPrincipal(true);
+                }
+
+                endereco = enderecoRepository.save(endereco);
+                responsavel.setEndereco(endereco);
+
+                // Garante vinculo aluno<->responsavel nas duas pontas
+                final Long idAlunoParam = alunoId;
+                if (responsavel.getAlunos().stream().noneMatch(a -> a.getIdAluno().equals(idAlunoParam))) {
+                    responsavel.getAlunos().add(aluno);
+                }
+
+                responsavel = responsavelRepository.save(responsavel);
+                novaLista.add(responsavel);
+            }
+
+            // Substitui lista de responsaveis do aluno pelo novo conjunto
+            aluno.setResponsaveis(novaLista);
+        }
+
+        aluno = alunoRepository.save(aluno);
+        return AlunoResponse.fromEntity(aluno);
     }
 }
