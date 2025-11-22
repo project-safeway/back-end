@@ -1,7 +1,9 @@
 package com.safeway.tech.controllers;
 
+import com.safeway.tech.dto.AlunoResponse;
 import com.safeway.tech.dto.CadastroAlunoCompletoRequest;
 import com.safeway.tech.dto.EnderecoResponse;
+import com.safeway.tech.dto.AlunoUpdateRequest;
 import com.safeway.tech.services.AlunoService;
 import com.safeway.tech.services.EnderecoService;
 import com.safeway.tech.services.CurrentUserService;
@@ -46,5 +48,20 @@ public class AlunoController {
         }
         List<EnderecoResponse> enderecos = enderecoService.listarEnderecosDisponiveis(alunoId, usuarioId);
         return ResponseEntity.ok(enderecos);
+    }
+
+    @GetMapping("/{alunoId}")
+    public ResponseEntity<AlunoResponse> listarDadosAluno(@PathVariable Long alunoId) {
+        AlunoResponse alunoResponse = alunoService.obterDadosAluno(alunoId);
+        return ResponseEntity.ok(alunoResponse);
+    }
+
+    @PutMapping("/{alunoId}")
+    public ResponseEntity<AlunoResponse> atualizarAluno(
+            @PathVariable Long alunoId,
+            @RequestBody @Valid AlunoUpdateRequest request
+    ) {
+        AlunoResponse atualizado = alunoService.atualizarAluno(alunoId, request);
+        return ResponseEntity.ok(atualizado);
     }
 }
