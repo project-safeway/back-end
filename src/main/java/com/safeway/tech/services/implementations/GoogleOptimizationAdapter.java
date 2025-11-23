@@ -11,6 +11,7 @@ import com.safeway.tech.services.RotasService;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -25,7 +26,33 @@ public class GoogleOptimizationAdapter implements RotasService {
     public RotasResponse otimizarRota(RotasRequest request) {
         try {
             JsonNode response = cliente.otimizarRotas(request);
-            return parseResposta(response, request);
+            RotasResponse bruto = parseResposta(response, request);
+
+            // Se nao for para otimizar a ordem, reordena de volta para a ordem original enviada pelo front
+            if (!Boolean.TRUE.equals(request.otimizarOrdem())) {
+                // Mapa de ordem original por idParada
+                Map<String, Integer> ordemOriginal = new HashMap<>();
+                int idx = 0;
+                for (var p : request.pontosParada()) {
+                    // se o request tiver campo ordem, use-o; caso contrario, use o indice
+                    int ordem = p.ordem() != null ? p.ordem() : idx;
+                    ordemOriginal.put(p.id(), ordem);
+                    idx++;
+                }
+
+                List<ParadaOtimizada> reordenadas = new ArrayList<>(bruto.paradas());
+                reordenadas.sort(Comparator.comparingInt(p -> ordemOriginal.getOrDefault(p.idParada(), Integer.MAX_VALUE)));
+
+                return new RotasResponse(
+                        bruto.distanciaTotal(),
+                        bruto.tempoTotal(),
+                        reordenadas,
+                        bruto.metricas(),
+                        bruto.provedor()
+                );
+            }
+
+            return bruto;
         } catch (Exception e) {
             throw new RuntimeException("Falha ao otimizar rota com Google: " + e.getMessage(), e);
         }
