@@ -5,31 +5,30 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 @Entity
-@Table(name = "itinerario_aluno")
+@Table(name = "itinerario_escola")
 @Data
-@EqualsAndHashCode
-public class ItinerarioAluno {
+@EqualsAndHashCode(callSuper = true)
+public class ItinerarioEscola extends Auditable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "fk_itinerario", nullable = false)
     private Itinerario itinerario;
 
-    @ManyToOne
-    @JoinColumn(name = "fk_aluno", nullable = false)
-    private Aluno aluno;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "fk_escola", nullable = false)
+    private Escola escola;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "fk_endereco", nullable = false)
     private Endereco endereco;
 
-    @Column(name = "ordem_embarque")
-    private Integer ordemEmbarque;
+    @Column(name = "ordem_parada")
+    private Integer ordemParada;
 
     @Column(name = "ordem_global")
     private Integer ordemGlobal;
-
 }

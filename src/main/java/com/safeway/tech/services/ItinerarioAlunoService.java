@@ -146,11 +146,10 @@ public class ItinerarioAlunoService {
 
     @Transactional
     public void reordenar(Long itinerarioId, List<Long> novaOrdemAlunoIds) {
+        // Mantido apenas para compatibilidade, mas ordemGlobal sera tratada em endpoint unificado
         List<ItinerarioAluno> atuais = itinerarioAlunoRepository.findByItinerarioId(itinerarioId);
-
         Map<Long, ItinerarioAluno> map = atuais.stream()
                 .collect(Collectors.toMap(a -> a.getAluno().getIdAluno(), a -> a));
-
         int ordem = 1;
         for (Long id : novaOrdemAlunoIds) {
             ItinerarioAluno ia = map.get(id);
@@ -158,7 +157,6 @@ public class ItinerarioAlunoService {
                 ia.setOrdemEmbarque(ordem++);
             }
         }
-
         itinerarioAlunoRepository.saveAll(atuais);
     }
 

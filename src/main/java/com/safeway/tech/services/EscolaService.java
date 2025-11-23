@@ -1,5 +1,6 @@
 package com.safeway.tech.services;
 
+import com.safeway.tech.dto.EnderecoResponse;
 import com.safeway.tech.dto.EscolaComAlunosResponse;
 import com.safeway.tech.dto.EscolaRequest;
 import com.safeway.tech.dto.EscolaResponse;
@@ -21,6 +22,7 @@ public class EscolaService {
     private final EscolaRepository escolaRepository;
     private final EnderecoRepository enderecoRepository;
     private final UsuarioRepository usuarioRepository;
+    private final CurrentUserService currentUserService;
 
     @Transactional
     public EscolaResponse cadastrarEscola(EscolaRequest request) {
@@ -64,5 +66,29 @@ public class EscolaService {
         return escolaRepository.findByUsuarioIdUsuario(usuarioId).stream()
                 .map(EscolaComAlunosResponse::fromEntity)
                 .toList();
+    }
+
+    @Transactional(readOnly = true)
+    public EscolaResponse buscarPorId(Long escolaId) {
+        Long usuarioId = currentUserService.getCurrentUserId();
+        Escola escola = escolaRepository.findByIdEscolaAndUsuario_IdUsuario(escolaId, usuarioId)
+                .orElseThrow(() -> new RuntimeException("Escola não encontrada para este usuário"));
+        return EscolaResponse.fromEntity(escola);
+    }
+
+    @Transactional(readOnly = true)
+    public EnderecoResponse buscarEnderecoDaEscola(Long escolaId) {
+        Long usuarioId = currentUserService.getCurrentUserId();
+        Escola escola = escolaRepository.findByIdEscolaAndUsuario_IdUsuario(escolaId, usuarioId)
+                .orElseThrow(() -> new RuntimeException("Escola não encontrada para este usuário"));
+        Endereco endereco = escola.getEndereco();
+        return EnderecoResponse.fromEntity(endereco);
+    }
+
+    @Transactional(readOnly = true)
+    public Escola buscarEntidadePorId(Long itinerarioId, Long escolaId) {
+        Long usuarioId = currentUserService.getCurrentUserId();
+        return escolaRepository.findByIdEscolaAndUsuario_IdUsuario(escolaId, usuarioId)
+                .orElseThrow(() -> new RuntimeException("Escola não encontrada para este usuário"));
     }
 }

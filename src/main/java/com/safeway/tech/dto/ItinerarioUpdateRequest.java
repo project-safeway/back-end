@@ -14,6 +14,13 @@ public record ItinerarioUpdateRequest(
         Time horarioFim,
         @NotNull TipoViagemEnum tipoViagem,
         @NotNull Boolean ativo,
-        List<@Valid ItinerarioAlunoRequest> alunos
+        List<@Valid ItinerarioAlunoRequest> alunos,
+        List<ItinerarioParadaUpdate> paradas
         ) {
+    public record ItinerarioParadaUpdate(
+            String tipo,      // "ALUNO" ou "ESCOLA"
+            Long id,          // alunoId ou escolaId
+            Integer ordemGlobal,
+            Integer ordemEspecifica // ordemEmbarque ou ordemVisita
+    ) {}
 }

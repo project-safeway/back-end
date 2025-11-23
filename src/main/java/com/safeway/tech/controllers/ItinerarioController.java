@@ -3,6 +3,7 @@ package com.safeway.tech.controllers;
 import com.safeway.tech.dto.*;
 import com.safeway.tech.models.Itinerario;
 import com.safeway.tech.services.ItinerarioAlunoService;
+import com.safeway.tech.services.ItinerarioEscolaService;
 import com.safeway.tech.services.ItinerarioService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,6 +31,9 @@ public class ItinerarioController {
 
     @Autowired
     private ItinerarioAlunoService itinerarioAlunoService;
+
+    @Autowired
+    private ItinerarioEscolaService itinerarioEscolaService;
 
     @PostMapping
     public ResponseEntity<ItinerarioResponse> criar(
@@ -110,4 +114,30 @@ public class ItinerarioController {
         return ResponseEntity.ok().build();
     }
 
+    @PostMapping("/{id}/escolas")
+    public ResponseEntity<Void> adicionarEscola(
+            @PathVariable Long id,
+            @Valid @RequestBody ItinerarioEscolaRequest request
+    ) {
+        itinerarioEscolaService.adicionarEscola(id, request);
+        return ResponseEntity.ok().build();
+    }
+
+    @DeleteMapping("/{id}/escolas/{escolaId}")
+    public ResponseEntity<Void> removerEscola(
+            @PathVariable Long id,
+            @PathVariable Long escolaId
+    ) {
+        itinerarioEscolaService.removerEscola(id, escolaId);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PatchMapping("/{id}/escolas/ordem")
+    public ResponseEntity<Void> reordenarEscolas(
+            @PathVariable Long id,
+            @RequestBody List<Long> novaOrdemEscolaIds
+    ) {
+        itinerarioEscolaService.reordenar(id, novaOrdemEscolaIds);
+        return ResponseEntity.ok().build();
+    }
 }
