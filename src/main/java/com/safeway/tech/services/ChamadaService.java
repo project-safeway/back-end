@@ -38,7 +38,7 @@ public class ChamadaService {
     public Chamada iniciarChamada(Long idItinerario) {
         Chamada chamadaExistente = buscarChamadaAtivaPorItinerario(idItinerario);
         if(chamadaExistente != null) {
-            throw new RuntimeException("Já existe uma chamada em andamento para este itinerário");
+            return chamadaExistente;
         }
 
         Itinerario itinerario = itinerarioService.buscarPorId(idItinerario);
