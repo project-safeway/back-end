@@ -47,7 +47,7 @@ public class ChamadaService {
         chamada.setItinerario(itinerario);
         chamada.setStatus(StatusChamadaEnum.EM_ANDAMENTO);
 
-        chamadaRepository.save(chamada);
+        chamada = chamadaRepository.save(chamada);
 
         return chamada;
     }
@@ -60,7 +60,7 @@ public class ChamadaService {
 
         chamada.setStatus(statusChamada);
 
-        chamadaRepository.save(chamada);
+        chamada = chamadaRepository.save(chamada);
 
         return chamada;
     }
