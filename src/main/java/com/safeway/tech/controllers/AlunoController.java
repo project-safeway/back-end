@@ -64,4 +64,10 @@ public class AlunoController {
         AlunoResponse atualizado = alunoService.atualizarAluno(alunoId, request);
         return ResponseEntity.ok(atualizado);
     }
+
+    @DeleteMapping("/{alunoId}")
+    public ResponseEntity<Void> deletarAluno(@PathVariable Long alunoId) {
+        alunoService.deletarAluno(alunoId);
+        return ResponseEntity.noContent().build();
+    }
 }

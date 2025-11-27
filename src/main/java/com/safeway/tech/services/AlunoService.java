@@ -9,6 +9,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Optional;
+
 @Service
 @RequiredArgsConstructor
 public class AlunoService {
@@ -51,49 +53,95 @@ public class AlunoService {
         }
 
         aluno = alunoRepository.save(aluno);
+        final Long alunoId = aluno.getIdAluno(); // usado nas lambdas
 
-        // 4. Processar responsáveis e endereços
+        // 4. Processar responsáveis e endereços (reutilizando por CPF)
         var responsaveis = request.responsaveis();
         if (responsaveis != null) {
             for (CadastroAlunoCompletoRequest.ResponsavelComEnderecoData respData : responsaveis) {
-                // 4.1 Criar endereço
-                Endereco endereco = new Endereco();
-                endereco.setLogradouro(respData.endereco().logradouro());
-                endereco.setNumero(respData.endereco().numero());
-                endereco.setComplemento(respData.endereco().complemento());
-                endereco.setBairro(respData.endereco().bairro());
-                endereco.setCidade(respData.endereco().cidade());
-                endereco.setUf(respData.endereco().uf());
-                endereco.setCep(respData.endereco().cep());
-                endereco.setLatitude(respData.endereco().latitude());
-                endereco.setLongitude(respData.endereco().longitude());
-                // validar lat/long
-                if (endereco.getLatitude() == null || endereco.getLongitude() == null) {
-                    throw new RuntimeException("Latitude e longitude do endereço do responsável são obrigatórias");
-                }
-                endereco.setTipo(respData.endereco().tipo() != null ? respData.endereco().tipo() : "RESIDENCIAL");
-                endereco.setAtivo(true);
-                endereco.setPrincipal(true);
-                endereco = enderecoRepository.save(endereco);
+                String cpf = respData.cpf();
 
-                // 4.2 Criar responsável com vínculo ao usuário
-                Responsavel responsavel = new Responsavel();
-                responsavel.setUsuario(usuario);
-                responsavel.setNome(respData.nome());
-                responsavel.setCpf(respData.cpf());
-                responsavel.setTel1(respData.tel1());
-                responsavel.setTel2(respData.tel2());
-                responsavel.setEmail(respData.email());
-                responsavel.setEndereco(endereco);
-                responsavel = responsavelRepository.save(responsavel);
+                Responsavel responsavel;
+                if (cpf != null && !cpf.isBlank()) {
+                    Optional<Responsavel> existenteOpt = responsavelRepository
+                            .findByCpfAndUsuario_IdUsuario(cpf, userId);
+                    if (existenteOpt.isPresent()) {
+                        // 4.x Reutiliza responsável já existente (mesmo CPF para o mesmo usuário)
+                        responsavel = existenteOpt.get();
+                    } else {
+                        // 4.1 Criar endereço
+                        Endereco endereco = new Endereco();
+                        endereco.setLogradouro(respData.endereco().logradouro());
+                        endereco.setNumero(respData.endereco().numero());
+                        endereco.setComplemento(respData.endereco().complemento());
+                        endereco.setBairro(respData.endereco().bairro());
+                        endereco.setCidade(respData.endereco().cidade());
+                        endereco.setUf(respData.endereco().uf());
+                        endereco.setCep(respData.endereco().cep());
+                        endereco.setLatitude(respData.endereco().latitude());
+                        endereco.setLongitude(respData.endereco().longitude());
+                        // validar lat/long
+                        if (endereco.getLatitude() == null || endereco.getLongitude() == null) {
+                            throw new RuntimeException("Latitude e longitude do endereço do responsável são obrigatórias");
+                        }
+                        endereco.setTipo(respData.endereco().tipo() != null ? respData.endereco().tipo() : "RESIDENCIAL");
+                        endereco.setAtivo(true);
+                        endereco.setPrincipal(true);
+                        endereco = enderecoRepository.save(endereco);
+
+                        // 4.2 Criar responsável com vínculo ao usuário
+                        responsavel = new Responsavel();
+                        responsavel.setUsuario(usuario);
+                        responsavel.setNome(respData.nome());
+                        responsavel.setCpf(cpf);
+                        responsavel.setTel1(respData.tel1());
+                        responsavel.setTel2(respData.tel2());
+                        responsavel.setEmail(respData.email());
+                        responsavel.setEndereco(endereco);
+                        responsavel = responsavelRepository.save(responsavel);
+                    }
+                } else {
+                    // CPF não informado: sempre cria um novo responsável
+                    Endereco endereco = new Endereco();
+                    endereco.setLogradouro(respData.endereco().logradouro());
+                    endereco.setNumero(respData.endereco().numero());
+                    endereco.setComplemento(respData.endereco().complemento());
+                    endereco.setBairro(respData.endereco().bairro());
+                    endereco.setCidade(respData.endereco().cidade());
+                    endereco.setUf(respData.endereco().uf());
+                    endereco.setCep(respData.endereco().cep());
+                    endereco.setLatitude(respData.endereco().latitude());
+                    endereco.setLongitude(respData.endereco().longitude());
+                    if (endereco.getLatitude() == null || endereco.getLongitude() == null) {
+                        throw new RuntimeException("Latitude e longitude do endereço do responsável são obrigatórias");
+                    }
+                    endereco.setTipo(respData.endereco().tipo() != null ? respData.endereco().tipo() : "RESIDENCIAL");
+                    endereco.setAtivo(true);
+                    endereco.setPrincipal(true);
+                    endereco = enderecoRepository.save(endereco);
+
+                    responsavel = new Responsavel();
+                    responsavel.setUsuario(usuario);
+                    responsavel.setNome(respData.nome());
+                    responsavel.setCpf(cpf);
+                    responsavel.setTel1(respData.tel1());
+                    responsavel.setTel2(respData.tel2());
+                    responsavel.setEmail(respData.email());
+                    responsavel.setEndereco(endereco);
+                    responsavel = responsavelRepository.save(responsavel);
+                }
 
                 // 4.3 Vincular aluno <-> responsável e persistir a associação
-                responsavel.getAlunos().add(aluno);
-                responsavel = responsavelRepository.save(responsavel); // salvar novamente para persistir join table
+                if (responsavel.getAlunos().stream().noneMatch(a -> a.getIdAluno().equals(alunoId))) {
+                    responsavel.getAlunos().add(aluno);
+                }
+                responsavel = responsavelRepository.save(responsavel); // persistir join table
 
-                aluno.getResponsaveis().add(responsavel);
+                final Long respId = responsavel.getIdResponsavel();
+                if (aluno.getResponsaveis().stream().noneMatch(r -> r.getIdResponsavel().equals(respId))) {
+                    aluno.getResponsaveis().add(responsavel);
+                }
             }
-            // salvar aluno novamente para garantir que a relação inversa está persistida
             alunoRepository.save(aluno);
         }
 
@@ -229,4 +277,31 @@ public class AlunoService {
         aluno = alunoRepository.save(aluno);
         return AlunoResponse.fromEntity(aluno);
     }
+
+    @Transactional
+    public void deletarAluno(Long alunoId) {
+        Long userId = currentUserService.getCurrentUserId();
+        Aluno aluno = alunoRepository.findByIdAlunoAndUsuario_IdUsuario(alunoId, userId)
+                .orElseThrow(() -> new RuntimeException("Aluno não encontrado para este usuário"));
+
+        // Remove vínculos aluno <-> responsáveis e deleta responsáveis órfãos
+        if (aluno.getResponsaveis() != null && !aluno.getResponsaveis().isEmpty()) {
+            for (Responsavel responsavel : aluno.getResponsaveis()) {
+                // remove este aluno da lista de alunos do responsável
+                responsavel.getAlunos().removeIf(a -> a.getIdAluno().equals(alunoId));
+
+                if (responsavel.getAlunos().isEmpty()) {
+                    // se não tiver mais alunos vinculados, apaga o responsável
+                    responsavelRepository.delete(responsavel);
+                } else {
+                    // senão, apenas atualiza o vínculo
+                    responsavelRepository.save(responsavel);
+                }
+            }
+        }
+
+        // agora é seguro deletar o aluno (não há mais registros na tabela de junção)
+        alunoRepository.delete(aluno);
+    }
 }
+

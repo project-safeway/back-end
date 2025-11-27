@@ -1,6 +1,7 @@
 package com.safeway.tech.dto;
 
 public record FuncionarioResponse(
+        Long idFuncionario,
         String nome,
         String cpf,
         TransporteResponse transporte,
@@ -9,6 +10,7 @@ public record FuncionarioResponse(
 
     public static FuncionarioResponse fromEntity(com.safeway.tech.models.Funcionario funcionario) {
         return new FuncionarioResponse(
+                funcionario.getIdFuncionario(),
                 funcionario.getNome(),
                 funcionario.getCpf(),
                 TransporteResponse.fromEntity(funcionario.getTransporte()),

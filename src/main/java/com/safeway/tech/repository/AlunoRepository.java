@@ -1,7 +1,6 @@
 package com.safeway.tech.repository;
 
 import com.safeway.tech.models.Aluno;
-import com.safeway.tech.models.Endereco;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -17,4 +16,6 @@ public interface AlunoRepository extends JpaRepository<Aluno, Long> {
     List<Aluno> findByUsuario_IdUsuarioAndAtivoTrue(Long userId);
 
     Optional<Aluno> findByIdAlunoAndUsuario_IdUsuario(Long idAluno, Long userId);
+
+    boolean existsByEscola_IdEscolaAndUsuario_IdUsuario(Long idEscola, Long idUsuario);
 }
