@@ -120,7 +120,7 @@ public class EnderecoService {
 
     public Endereco calcularCoordenadas(Endereco endereco) {
         try {
-            String street = endereco.getLogradouro() + " " + endereco.getNumero();
+            String street = endereco.getNumero() + " " + endereco.getLogradouro();
 
             String url = UriComponentsBuilder
                     .fromHttpUrl("https://nominatim.openstreetmap.org/search")

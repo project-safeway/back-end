@@ -4,6 +4,7 @@ import com.safeway.tech.dto.ItinerarioAlunoResponse;
 import com.safeway.tech.dto.ItinerarioEscolaResponse;
 import com.safeway.tech.dto.ItinerarioResponse;
 import com.safeway.tech.models.Itinerario;
+import com.safeway.tech.models.Responsavel;
 
 import java.util.List;
 
@@ -16,7 +17,10 @@ public class ItinerarioMapper {
                         a.getAluno().getNome(),
                         a.getOrdemEmbarque(),
                         a.getEndereco() != null ? a.getEndereco().getIdEndereco() : null,
-                        a.getOrdemGlobal()
+                        a.getOrdemGlobal(),
+                        a.getAluno().getEscola().getNome(),
+                        a.getAluno().getResponsaveis().stream().map(Responsavel::getNome).findFirst().orElse(null),
+                        a.getAluno().getSala()
                 ))
                 .toList();
 
