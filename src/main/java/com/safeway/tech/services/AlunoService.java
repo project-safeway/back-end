@@ -20,6 +20,7 @@ public class AlunoService {
     private final TransporteRepository transporteRepository;
     private final UsuarioRepository usuarioRepository;
     private final CurrentUserService currentUserService;
+    private final EnderecoService enderecoService;
 
     @Transactional
     public Long cadastrarAlunoCompleto(CadastroAlunoCompletoRequest request) {
@@ -65,15 +66,12 @@ public class AlunoService {
                 endereco.setCidade(respData.endereco().cidade());
                 endereco.setUf(respData.endereco().uf());
                 endereco.setCep(respData.endereco().cep());
-                endereco.setLatitude(respData.endereco().latitude());
-                endereco.setLongitude(respData.endereco().longitude());
-                // validar lat/long
-                if (endereco.getLatitude() == null || endereco.getLongitude() == null) {
-                    throw new RuntimeException("Latitude e longitude do endereço do responsável são obrigatórias");
-                }
                 endereco.setTipo(respData.endereco().tipo() != null ? respData.endereco().tipo() : "RESIDENCIAL");
                 endereco.setAtivo(true);
                 endereco.setPrincipal(true);
+
+                endereco = enderecoService.calcularCoordenadas(endereco);
+
                 endereco = enderecoRepository.save(endereco);
 
                 // 4.2 Criar responsável com vínculo ao usuário

@@ -37,10 +37,10 @@ public class Endereco extends Auditable {
     @Column(nullable = false, length = 9)
     private String cep;
 
-    @Column(nullable = false)
+    @Column
     private Double latitude;
 
-    @Column(nullable = false)
+    @Column
     private Double longitude;
 
     @Column(nullable = false, length = 50)
