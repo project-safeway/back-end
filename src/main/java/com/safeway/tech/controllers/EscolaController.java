@@ -47,4 +47,18 @@ public class EscolaController {
         EnderecoResponse response = escolaService.buscarEnderecoDaEscola(id);
         return ResponseEntity.ok(response);
     }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<EscolaResponse> atualizarEscola(
+            @PathVariable Long id,
+            @Valid @RequestBody EscolaRequest request) {
+        EscolaResponse response = escolaService.atualizarEscola(id, request);
+        return ResponseEntity.ok(response);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deletarEscola(@PathVariable Long id) {
+        escolaService.deletarEscola(id);
+        return ResponseEntity.noContent().build();
+    }
 }

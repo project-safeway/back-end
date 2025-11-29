@@ -5,6 +5,7 @@ import com.safeway.tech.models.Transporte;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 public record FuncionarioResponse(
+        Long idFuncionario,
         String nome,
         String cpf,
         TransporteResponse transporte,
@@ -13,6 +14,7 @@ public record FuncionarioResponse(
 
     public static FuncionarioResponse fromEntity(Funcionario funcionario) {
         return new FuncionarioResponse(
+                funcionario.getIdFuncionario(),
                 funcionario.getNome(),
                 funcionario.getCpf(),
                 TransporteResponse.fromEntity(funcionario.getTransporte()),
