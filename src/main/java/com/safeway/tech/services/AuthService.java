@@ -107,6 +107,11 @@ public class AuthService {
 
         String jwtValue = jwtEncoder.encode(JwtEncoderParameters.from(claims)).getTokenValue();
 
-        return new AuthResponse(jwtValue, expiresIn);
+        Long idTransporte = null;
+        if (usuario.getTransporte() != null) {
+            idTransporte = usuario.getTransporte().getIdTransporte();
+        }
+
+        return new AuthResponse(jwtValue, expiresIn, usuario.getNome(), idTransporte);
     }
 }

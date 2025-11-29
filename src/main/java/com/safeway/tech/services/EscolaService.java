@@ -23,8 +23,9 @@ public class EscolaService {
     private final EscolaRepository escolaRepository;
     private final EnderecoRepository enderecoRepository;
     private final UsuarioRepository usuarioRepository;
-    private final CurrentUserService currentUserService;
     private final AlunoRepository alunoRepository;
+    private final CurrentUserService currentUserService;
+    private final EnderecoService enderecoService;
 
     @Transactional
     public EscolaResponse cadastrarEscola(EscolaRequest request) {
@@ -47,7 +48,7 @@ public class EscolaService {
         endereco.setTipo("ESCOLA");
         endereco.setAtivo(true);
         endereco.setPrincipal(true);
-
+        endereco = enderecoService.calcularCoordenadas(endereco);
         endereco = enderecoRepository.save(endereco);
 
         // Criar escola
@@ -112,6 +113,7 @@ public class EscolaService {
             enderecoExistente.setCidade(request.endereco().cidade());
             enderecoExistente.setUf(request.endereco().uf());
             enderecoExistente.setCep(request.endereco().cep());
+            enderecoExistente = enderecoService.calcularCoordenadas(enderecoExistente);
 
             enderecoRepository.save(enderecoExistente);
         }

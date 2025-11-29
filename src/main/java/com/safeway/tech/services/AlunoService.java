@@ -84,7 +84,6 @@ public class AlunoService {
                         endereco.setTipo(respData.endereco().tipo() != null ? respData.endereco().tipo() : "RESIDENCIAL");
                         endereco.setAtivo(true);
                         endereco.setPrincipal(true);
-                        endereco = enderecoRepository.save(endereco);
                         endereco = enderecoService.calcularCoordenadas(endereco);
                         endereco = enderecoRepository.save(endereco);
 
@@ -256,7 +255,7 @@ public class AlunoService {
                 if (endereco.getIdEndereco() == null) {
                     endereco.setPrincipal(true);
                 }
-
+                endereco = enderecoService.calcularCoordenadas(endereco);
                 endereco = enderecoRepository.save(endereco);
                 responsavel.setEndereco(endereco);
 

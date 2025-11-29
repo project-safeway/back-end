@@ -48,7 +48,7 @@ public class EnderecoService {
         endereco.setTipo(request.tipo());
         endereco.setAtivo(true);
         endereco.setPrincipal(false); // Principal é gerenciado no Responsavel
-
+        endereco = this.calcularCoordenadas(endereco);
         endereco = enderecoRepository.save(endereco);
 
         // Vincula endereço ao responsável
@@ -101,6 +101,7 @@ public class EnderecoService {
         endereco.setLatitude(request.latitude());
         endereco.setLongitude(request.longitude());
         endereco.setTipo(request.tipo());
+        endereco = this.calcularCoordenadas(endereco);
 
         endereco = enderecoRepository.save(endereco);
         return EnderecoResponse.fromEntity(endereco);
