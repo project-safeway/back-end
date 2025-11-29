@@ -10,6 +10,7 @@ import com.safeway.tech.models.Usuario;
 import com.safeway.tech.repository.EscolaRepository;
 import com.safeway.tech.repository.EnderecoRepository;
 import com.safeway.tech.repository.UsuarioRepository;
+import com.safeway.tech.repository.AlunoRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,6 +24,7 @@ public class EscolaService {
     private final EnderecoRepository enderecoRepository;
     private final UsuarioRepository usuarioRepository;
     private final CurrentUserService currentUserService;
+    private final AlunoRepository alunoRepository;
 
     @Transactional
     public EscolaResponse cadastrarEscola(EscolaRequest request) {
@@ -90,5 +92,46 @@ public class EscolaService {
         Long usuarioId = currentUserService.getCurrentUserId();
         return escolaRepository.findByIdEscolaAndUsuario_IdUsuario(escolaId, usuarioId)
                 .orElseThrow(() -> new RuntimeException("Escola não encontrada para este usuário"));
+    }
+
+    @Transactional
+    public EscolaResponse atualizarEscola(Long escolaId, EscolaRequest request) {
+        Long usuarioId = currentUserService.getCurrentUserId();
+        Escola escolaExistente = escolaRepository.findByIdEscolaAndUsuario_IdUsuario(escolaId, usuarioId)
+                .orElseThrow(() -> new RuntimeException("Escola não encontrada para este usuário"));
+
+        escolaExistente.setNome(request.nome());
+        escolaExistente.setNivelEnsino(request.nivelEnsino());
+
+        if(request.endereco() != null) {
+            Endereco enderecoExistente = escolaExistente.getEndereco();
+            enderecoExistente.setLogradouro(request.endereco().logradouro());
+            enderecoExistente.setNumero(request.endereco().numero());
+            enderecoExistente.setComplemento(request.endereco().complemento());
+            enderecoExistente.setBairro(request.endereco().bairro());
+            enderecoExistente.setCidade(request.endereco().cidade());
+            enderecoExistente.setUf(request.endereco().uf());
+            enderecoExistente.setCep(request.endereco().cep());
+
+            enderecoRepository.save(enderecoExistente);
+        }
+
+        escolaRepository.save(escolaExistente);
+        return EscolaResponse.fromEntity(escolaExistente);
+    }
+
+    @Transactional
+    public void deletarEscola(Long escolaId) {
+        Long usuarioId = currentUserService.getCurrentUserId();
+        Escola escolaExistente = escolaRepository.findByIdEscolaAndUsuario_IdUsuario(escolaId, usuarioId)
+                .orElseThrow(() -> new RuntimeException("Escola não encontrada para este usuário"));
+
+        // Verifica se existem alunos vinculados a esta escola para este usuário
+        boolean existeAluno = alunoRepository.existsByEscola_IdEscolaAndUsuario_IdUsuario(escolaId, usuarioId);
+        if (existeAluno) {
+            throw new RuntimeException("Não é possível excluir a escola, pois existem alunos vinculados a ela.");
+        }
+
+        escolaRepository.delete(escolaExistente);
     }
 }

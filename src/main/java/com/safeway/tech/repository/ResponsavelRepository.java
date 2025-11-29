@@ -10,4 +10,5 @@ public interface ResponsavelRepository extends JpaRepository<Responsavel,Long> {
     List<Responsavel> findAllByUsuario_IdUsuario(Long userId);
     List<Responsavel> findByAlunosIdAlunoAndUsuarioIdUsuario(Long alunoId, Long usuarioId);
     Optional<Responsavel> findByIdResponsavelAndUsuario_IdUsuario(Long idResponsavel, Long usuarioId);
+    Optional<Responsavel> findByCpfAndUsuario_IdUsuario(String cpf, Long usuarioId);
 }

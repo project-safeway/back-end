@@ -35,6 +35,8 @@ public record CadastroAlunoCompletoRequest(
             @NotBlank String cidade,
             @NotBlank @Size(min = 2, max = 2) String uf,
             @NotBlank String cep,
+            Double latitude,
+            Double longitude,
             String tipo
     ) {}
 }

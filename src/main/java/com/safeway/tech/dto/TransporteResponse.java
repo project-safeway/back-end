@@ -5,6 +5,7 @@ import com.safeway.tech.models.Transporte;
 import java.util.List;
 
 public record TransporteResponse(
+        Long idTransporte,
         String placa,
         String modelo,
         Integer capacidade,
@@ -20,6 +21,7 @@ public record TransporteResponse(
         }
 
         return new TransporteResponse(
+                transporte.getIdTransporte(),
                 transporte.getPlaca(),
                 transporte.getModelo(),
                 transporte.getCapacidade(),
