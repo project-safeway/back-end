@@ -10,7 +10,7 @@ public record MensalidadeResponse(
         Long idMensalidade,
         AlunoResponse aluno,
         LocalDate dataVencimento,
-        LocalDate dataPagemento,
+        LocalDate dataPagamento,
         Double valorMensalidade,
         Double valorPagamento,
         StatusPagamento status

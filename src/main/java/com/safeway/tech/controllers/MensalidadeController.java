@@ -37,10 +37,27 @@ public class MensalidadeController {
 
     @GetMapping("/pendentes")
     public ResponseEntity<Page<MensalidadeResponse>> getPendentes(
+            @RequestParam int mes,
+            @RequestParam int ano,
             @PageableDefault(page = 0, size = 10, sort = "dataVencimento", direction = Sort.Direction.ASC) Pageable pageable
     ) {
+        LocalDate dataInicio = LocalDate.of(ano, mes, 1);
+        LocalDate dataFim = dataInicio.withDayOfMonth(dataInicio.lengthOfMonth());
         List<StatusPagamento> status = List.of(StatusPagamento.PENDENTE, StatusPagamento.ATRASADO);
-        Page<MensalidadeResponse> mensalidades = mensalidadeService.buscarMensalidades(null, null, null, status, pageable);
+        Page<MensalidadeResponse> mensalidades = mensalidadeService.buscarMensalidades(null, dataInicio, dataFim, status, pageable);
+        return ResponseEntity.ok(mensalidades);
+    }
+
+    @GetMapping("/pagas")
+    public ResponseEntity<Page<MensalidadeResponse>> getPagas(
+            @RequestParam int mes,
+            @RequestParam int ano,
+            @PageableDefault(page = 0, size = 10, sort = "dataVencimento", direction = Sort.Direction.ASC) Pageable pageable
+    ) {
+        LocalDate dataInicio = LocalDate.of(ano, mes, 1);
+        LocalDate dataFim = dataInicio.withDayOfMonth(dataInicio.lengthOfMonth());
+        List<StatusPagamento> status = List.of(StatusPagamento.PAGO);
+        Page<MensalidadeResponse> mensalidades = mensalidadeService.buscarMensalidades(null, dataInicio, dataFim, status, pageable);
         return ResponseEntity.ok(mensalidades);
     }
 
