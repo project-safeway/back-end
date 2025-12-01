@@ -25,10 +25,10 @@ public class Pagamento extends Auditable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long idPagamento;
 
-    @ManyToOne
-    @JoinColumn(name = "fkFuncionario", nullable = false)
-    private Funcionario funcionario;
-
     private LocalDate dataPagamento;
     private Double valorPagamento;
+    private String descricao;
+
+    @ManyToOne(optional = false)
+    private Usuario usuario;
 }

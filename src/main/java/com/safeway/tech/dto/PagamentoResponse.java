@@ -1,20 +1,22 @@
 package com.safeway.tech.dto;
 
+import com.safeway.tech.models.Pagamento;
+
 import java.time.LocalDate;
 
 public record PagamentoResponse(
         Long idPagamento,
         LocalDate dataPagamento,
         Double valorPagamento,
-        FuncionarioResponse funcionario
+        String descricao
 ) {
 
-    public static PagamentoResponse fromEntity(com.safeway.tech.models.Pagamento pagamento) {
+    public static PagamentoResponse fromEntity(Pagamento pagamento) {
         return new PagamentoResponse(
                 pagamento.getIdPagamento(),
                 pagamento.getDataPagamento(),
                 pagamento.getValorPagamento(),
-                FuncionarioResponse.fromEntity(pagamento.getFuncionario())
+                pagamento.getDescricao()
         );
     }
 }
