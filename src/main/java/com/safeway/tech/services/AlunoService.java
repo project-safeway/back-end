@@ -1,10 +1,20 @@
 package com.safeway.tech.services;
 
 import com.safeway.tech.dto.AlunoResponse;
-import com.safeway.tech.dto.CadastroAlunoCompletoRequest;
 import com.safeway.tech.dto.AlunoUpdateRequest;
-import com.safeway.tech.models.*;
-import com.safeway.tech.repository.*;
+import com.safeway.tech.dto.CadastroAlunoCompletoRequest;
+import com.safeway.tech.models.Aluno;
+import com.safeway.tech.models.Endereco;
+import com.safeway.tech.models.Escola;
+import com.safeway.tech.models.Responsavel;
+import com.safeway.tech.models.Transporte;
+import com.safeway.tech.models.Usuario;
+import com.safeway.tech.repository.AlunoRepository;
+import com.safeway.tech.repository.EnderecoRepository;
+import com.safeway.tech.repository.EscolaRepository;
+import com.safeway.tech.repository.ResponsavelRepository;
+import com.safeway.tech.repository.TransporteRepository;
+import com.safeway.tech.repository.UsuarioRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -110,12 +120,10 @@ public class AlunoService {
                     endereco.setCep(respData.endereco().cep());
                     endereco.setLatitude(respData.endereco().latitude());
                     endereco.setLongitude(respData.endereco().longitude());
-                    if (endereco.getLatitude() == null || endereco.getLongitude() == null) {
-                        throw new RuntimeException("Latitude e longitude do endereço do responsável são obrigatórias");
-                    }
                     endereco.setTipo(respData.endereco().tipo() != null ? respData.endereco().tipo() : "RESIDENCIAL");
                     endereco.setAtivo(true);
                     endereco.setPrincipal(true);
+                    endereco = enderecoService.calcularCoordenadas(endereco);
                     endereco = enderecoRepository.save(endereco);
 
                     responsavel = new Responsavel();
