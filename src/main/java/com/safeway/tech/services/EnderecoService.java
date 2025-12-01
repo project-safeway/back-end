@@ -1,7 +1,6 @@
 package com.safeway.tech.services;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.maps.model.LatLng;
 import com.safeway.tech.dto.EnderecoRequest;
 import com.safeway.tech.dto.EnderecoResponse;
 import com.safeway.tech.models.Endereco;
@@ -11,8 +10,6 @@ import com.safeway.tech.repository.ResponsavelRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.client.RestTemplate;
-import org.springframework.web.util.UriComponentsBuilder;
 
 import java.util.List;
 import java.util.Objects;
@@ -25,6 +22,9 @@ public class EnderecoService {
 
     @Autowired
     private ResponsavelRepository responsavelRepository;
+
+    @Autowired
+    private GeocodingService geocodingService;
 
     @Transactional
     public EnderecoResponse criar(EnderecoRequest request) {
@@ -121,36 +121,18 @@ public class EnderecoService {
 
     public Endereco calcularCoordenadas(Endereco endereco) {
         try {
-            String street = endereco.getNumero() + " " + endereco.getLogradouro();
+            String enderecoCompleto = String.format("%s, %s, %s, %s, %s, %s",
+                    endereco.getLogradouro(),
+                    endereco.getNumero(),
+                    endereco.getBairro(),
+                    endereco.getCidade(),
+                    endereco.getUf(),
+                    endereco.getCep()
+            );
 
-            String url = UriComponentsBuilder
-                    .fromHttpUrl("https://nominatim.openstreetmap.org/search")
-                    .queryParam("street", street)
-                    .queryParam("city", endereco.getCidade())
-                    .queryParam("state", endereco.getUf())
-                    .queryParam("country", "Brasil")
-                    .queryParam("postalcode", endereco.getCep().replace("-", ""))
-                    .queryParam("format", "json")
-                    .queryParam("limit", 1)
-                    .build()
-                    .toUriString();
-
-            RestTemplate restTemplate = new RestTemplate();
-            String response = restTemplate.getForObject(url, String.class);
-
-            if (response != null && !response.equals("[]")) {
-                ObjectMapper mapper = new ObjectMapper();
-                JsonNode root = mapper.readTree(response);
-
-                if (root.isArray() && root.size() > 0) {
-                    JsonNode firstResult = root.get(0);
-                    Double lat = firstResult.get("lat").asDouble();
-                    Double lon = firstResult.get("lon").asDouble();
-
-                    endereco.setLatitude(lat);
-                    endereco.setLongitude(lon);
-                }
-            }
+            LatLng coordenadas = geocodingService.obterCoordenadas(enderecoCompleto);
+            endereco.setLatitude(coordenadas.lat);
+            endereco.setLongitude(coordenadas.lng);
 
             return endereco;
         } catch (Exception e) {
