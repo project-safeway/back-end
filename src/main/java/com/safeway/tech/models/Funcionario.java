@@ -44,7 +44,4 @@ public class Funcionario extends Auditable {
 
     @Column
     private String cpf;
-
-    @OneToMany(mappedBy = "funcionario")
-    private List<Pagamento> pagamentos;
 }
