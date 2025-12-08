@@ -37,7 +37,7 @@ public class AlunoService {
         aluno.setDtNascimento(request.dtNascimento());
         aluno.setSerie(request.serie());
         aluno.setSala(request.sala());
-        aluno.setValorMensalidade(request.valorMensalidade());
+        aluno.setValorMensalidade(BigDecimal.valueOf(request.valorMensalidade()));
         aluno.setDiaVencimento(request.diaVencimento());
         aluno.setAtivo(true);
 
