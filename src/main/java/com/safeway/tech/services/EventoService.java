@@ -1,13 +1,15 @@
 package com.safeway.tech.services;
 
+import com.safeway.tech.dto.EventoRequest;
 import com.safeway.tech.models.Evento;
+import com.safeway.tech.models.Usuario;
 import com.safeway.tech.repository.EventoRepository;
+import com.safeway.tech.repository.UsuarioRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class EventoService {
@@ -15,43 +17,73 @@ public class EventoService {
     @Autowired
     private EventoRepository repository;
 
-    public Evento salvarEvento(Evento evento) {
-        return repository.save(evento);
+    @Autowired
+    private CurrentUserService currentUserService;
+
+    @Autowired
+    private UsuarioRepository usuarioRepository;
+
+    public EventoRequest criarEvento(Evento evento) {
+        Long userId = currentUserService.getCurrentUserId();
+        Usuario usuario = usuarioRepository.getReferenceById(userId);
+        if (evento.getPriority() == null || evento.getPriority().isBlank()) {
+            evento.setPriority("media");
+        }
+        evento.setUsuario(usuario);
+        Evento salvo = repository.save(evento);
+        return converterParaDTO(salvo);
     }
 
-    public List<Evento> listarEventos() {
-        return repository.findAll();
+    public List<EventoRequest> listarEventosDoUsuarioAtual() {
+        Long userId = currentUserService.getCurrentUserId();
+        return repository.findAllByUsuario_IdUsuario(userId)
+                .stream()
+                .map(this::converterParaDTO)
+                .toList();
     }
 
-    public Evento retornarUm(Long idEvento) {
-        return repository.findById(idEvento).orElse(null);
-    }
-
-    public Optional<Evento> buscarPorId(Long idEvento) {
-        return repository.findById(idEvento);
+    public Evento retornarUmOwned(Long idEvento) {
+        Long userId = currentUserService.getCurrentUserId();
+        return repository.findByIdAndUsuario_IdUsuario(idEvento, userId)
+                .orElseThrow(() -> new RuntimeException("Evento não encontrado"));
     }
 
     public void excluir(Long idEvento) {
-        repository.deleteById(idEvento);
+        // valida propriedade
+        Evento evt = retornarUmOwned(idEvento);
+        repository.deleteById(evt.getId());
     }
 
-    public Evento alterarEvento(Long idEvento, Evento novo) {
-        Evento atual = retornarUm(idEvento);
-        if (atual == null) return null;
+    public Evento atualizarEvento(Long idEvento, Evento novo) {
+        Evento atual = retornarUmOwned(idEvento);
         atual.setTitle(novo.getTitle());
         atual.setDescription(novo.getDescription());
         atual.setDate(novo.getDate());
         atual.setType(novo.getType());
-        atual.setPriority(novo.getPriority());
-        // mantém o clientId original
+        atual.setPriority(novo.getPriority() == null || novo.getPriority().isBlank() ? "media" : novo.getPriority());
         return repository.save(atual);
     }
 
-    public List<Evento> listarFiltrado(Long clientId,
-                                       LocalDate start,
-                                       LocalDate end,
-                                       String type,
-                                       String priority) {
-        return repository.findFiltrado(clientId, start, end, type, priority);
+    public List<EventoRequest> listarFiltrado(LocalDate start, LocalDate end, String type, String priority) {
+        Long userId = currentUserService.getCurrentUserId();
+        return repository.findFiltrado(userId, start, end, type, priority)
+                .stream()
+                .map(this::converterParaDTO)
+                .toList();
+    }
+
+    private EventoRequest converterParaDTO(Evento evento) {
+        return new EventoRequest(
+                evento.getId(),
+                evento.getTitle(),
+                evento.getDescription(),
+                evento.getDate(),
+                evento.getType(),
+                evento.getPriority(),
+                evento.getUsuario().getIdUsuario(),
+                evento.getUsuario().getNome(),
+                evento.getCreatedAt(),
+                evento.getUpdatedAt()
+        );
     }
 }

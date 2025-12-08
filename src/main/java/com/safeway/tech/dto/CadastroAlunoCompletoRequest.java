@@ -1,37 +1,42 @@
 package com.safeway.tech.dto;
 
-import java.math.BigDecimal;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.*;
+
 import java.time.LocalDate;
 import java.util.List;
 
 public record CadastroAlunoCompletoRequest(
-        String nome,
-        String professor,
-        LocalDate dtNascimento,
-        Integer serie,
-        String sala,
-        Double valorMensalidade,
-        Integer diaVencimento,
-        Long fkEscola,
-        Long fkTransporte,
-        List<ResponsavelComEnderecoData> responsaveis
+        @NotBlank @Size(max = 45) String nome,
+        @NotBlank @Size(max = 45) String professor,
+        @Past LocalDate dtNascimento,
+        @Min(1) Integer serie,
+        @Size(max = 5) String sala,
+        @NotNull @DecimalMin(value = "0.0", inclusive = true) Double valorMensalidade,
+        @NotNull @Min(1) @Max(31) Integer diaVencimento,
+        @NotNull Long fkEscola,
+        @Positive(message = "fkTransporte deve ser positivo") Long fkTransporte,
+        @Valid List<ResponsavelComEnderecoData> responsaveis
 ) {
     public record ResponsavelComEnderecoData(
-            String nome,
-            String cpf,
-            String tel1,
+            @NotBlank @Size(max = 45) String nome,
+            @Size(max = 14) String cpf,
+            @NotBlank String tel1,
             String tel2,
-            String email,
-            EnderecoData endereco
+            @Email String email,
+            @NotNull @Valid EnderecoData endereco
     ) {}
 
     public record EnderecoData(
-            String logradouro,
-            String numero,
+            @NotBlank String logradouro,
+            @NotBlank String numero,
             String complemento,
-            String bairro,
-            String cidade,
-            String estado,
-            String cep
+            @NotBlank String bairro,
+            @NotBlank String cidade,
+            @NotBlank @Size(min = 2, max = 2) String uf,
+            @NotBlank String cep,
+            Double latitude,
+            Double longitude,
+            String tipo
     ) {}
 }

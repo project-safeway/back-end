@@ -16,128 +16,142 @@ import org.springframework.web.reactive.function.client.WebClientResponseExcepti
 
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.time.Duration;
 
 @Component
 public class GoogleOptimizationClient {
 
-    private final WebClient cliente;
+    private final WebClient webClient;
     private final ObjectMapper mapper = new ObjectMapper();
-    private final String projetoId;
-    private GoogleCredentials credenciais; // tornar opcional em dev
+    private final String projectId;
+    private GoogleCredentials credentials;
 
-    public GoogleOptimizationClient(WebClient.Builder builder, @Value("${google.projectId:dev-local}") String projetoId) {
-        this.cliente = builder
-                .baseUrl("https://routeoptimization.googleapis.com")
-                .build();
-        this.projetoId = projetoId;
-
+    public GoogleOptimizationClient(WebClient.Builder builder,
+                                    @Value("${google.projectId:dev-local}") String configuredProjectId) {
+        this.webClient = builder.baseUrl("https://routeoptimization.googleapis.com").build();
+        this.projectId = resolveProjectId(configuredProjectId);
         try {
-            this.credenciais = inicializarCredenciais();
+            this.credentials = initCredentials();
         } catch (IOException e) {
-            // Em dev, permite iniciar sem credenciais; exigiremos apenas ao usar a API
-            System.err.println("Aviso: credenciais do Google não inicializadas. Defina GOOGLE_APPLICATION_CREDENTIALS ou GOOGLE_ACCESS_TOKEN para usar a API. Detalhe: " + e.getMessage());
-            this.credenciais = null;
+            System.err.println("Aviso: não foi possível inicializar credenciais Google. Detalhe: " + e.getMessage());
+            this.credentials = null;
         }
     }
 
-    private GoogleCredentials inicializarCredenciais() throws IOException {
-        String caminhoCredenciais = System.getenv("GOOGLE_APPLICATION_CREDENTIALS");
-        if (caminhoCredenciais != null && !caminhoCredenciais.isEmpty()) {
-            System.out.println("Usando service account de: " + caminhoCredenciais);
-            try (FileInputStream contaDeServico = new FileInputStream(caminhoCredenciais)) {
-                return GoogleCredentials.fromStream(contaDeServico)
-                        .createScoped("https://www.googleapis.com/auth/cloud-platform");
+    private String resolveProjectId(String fallback) {
+        String keyPath = System.getenv("GOOGLE_APPLICATION_CREDENTIALS");
+        if (keyPath != null && !keyPath.isBlank()) {
+            try {
+                String content = Files.readString(Path.of(keyPath));
+                JsonNode node = mapper.readTree(content);
+                String pid = node.path("project_id").asText();
+                if (pid != null && !pid.isBlank()) {
+                    System.out.println("projectId extraído da service account: " + pid);
+                    return pid;
+                }
+                System.out.println("Service account sem project_id, usando configurado: " + fallback);
+            } catch (Exception ex) {
+                System.err.println("Falha ao ler project_id do arquivo: " + ex.getMessage());
+            }
+        } else {
+            System.out.println("Sem GOOGLE_APPLICATION_CREDENTIALS, usando projectId configurado: " + fallback);
+        }
+        return fallback;
+    }
+
+    private GoogleCredentials initCredentials() throws IOException {
+        String keyPath = System.getenv("GOOGLE_APPLICATION_CREDENTIALS");
+        if (keyPath != null && !keyPath.isBlank()) {
+            try (FileInputStream in = new FileInputStream(keyPath)) {
+                return GoogleCredentials.fromStream(in).createScoped("https://www.googleapis.com/auth/cloud-platform");
             }
         }
-
-        return GoogleCredentials.getApplicationDefault()
-                .createScoped("https://www.googleapis.com/auth/cloud-platform");
+        return GoogleCredentials.getApplicationDefault().createScoped("https://www.googleapis.com/auth/cloud-platform");
     }
 
     public JsonNode otimizarRotas(RotasRequest request) {
+        if (projectId == null || projectId.isBlank() || "dev-local".equals(projectId)) {
+            throw new RuntimeException("projectId inválido. Configure 'google.projectId' ou defina GOOGLE_APPLICATION_CREDENTIALS com project_id.");
+        }
+        ObjectNode body = montarRequest(request);
+        System.out.println("Google optimizeTours body: " + body);
+        String uri = String.format("/v1/projects/%s:optimizeTours", projectId);
         try {
-            ObjectNode body = criarOtimizacaoRequest(request);
-
-            return cliente.post()
-                    .uri("/v1/projects/{projetoId}:optimizeTours", projetoId)
-                    .header("Authorization", "Bearer " + getTokenAcesso())
+            return webClient.post()
+                    .uri(uri)
+                    .header("Authorization", "Bearer " + getAccessToken())
                     .header("Content-Type", "application/json")
                     .bodyValue(body)
                     .retrieve()
                     .bodyToMono(JsonNode.class)
                     .block(Duration.ofSeconds(30));
-        } catch (WebClientResponseException e) {
-            throw new RuntimeException("Erro na chamada à API Google: " + e.getResponseBodyAsString(), e);
-        } catch (Exception e) {
-            throw new RuntimeException("Erro inesperado ao otimizar rotas: " + e.getMessage(), e);
+        } catch (WebClientResponseException wcre) {
+            throw new RuntimeException("Erro na API Google: " + wcre.getResponseBodyAsString(), wcre);
+        } catch (Exception ex) {
+            throw new RuntimeException("Falha inesperada ao chamar otimização Google: " + ex.getMessage(), ex);
         }
     }
 
-    private ObjectNode criarOtimizacaoRequest(RotasRequest request) {
+    private ObjectNode montarRequest(RotasRequest request) {
         ObjectNode root = mapper.createObjectNode();
         ObjectNode model = mapper.createObjectNode();
 
         ArrayNode shipments = mapper.createArrayNode();
-        for (PontoParada ponto : request.pontosParada()) {
+        for (PontoParada p : request.pontosParada()) {
             ObjectNode shipment = mapper.createObjectNode();
-
+            shipment.put("label", p.id());
             ArrayNode deliveries = mapper.createArrayNode();
             ObjectNode delivery = mapper.createObjectNode();
-            delivery.set("arrivalLocation", criarNodeLocalizacao(ponto.localizacao()));
-
+            delivery.set("arrivalLocation", criarLocalizacao(p.localizacao()));
             deliveries.add(delivery);
             shipment.set("deliveries", deliveries);
-            shipment.put("label", ponto.id());
-
             shipments.add(shipment);
         }
         model.set("shipments", shipments);
 
+        // Vehicles
         ArrayNode vehicles = mapper.createArrayNode();
-        Veiculo veiculo = request.veiculo();
-        ObjectNode vehicleNode = mapper.createObjectNode();
-        vehicleNode.put("label", veiculo.id());
-        vehicleNode.set("startLocation", criarNodeLocalizacao(veiculo.localizacaoInicial()));
-        vehicleNode.set("endLocation", criarNodeLocalizacao(veiculo.localizacaoFinal()));
-
-        vehicles.add(vehicleNode);
+        Veiculo v = request.veiculo();
+        ObjectNode vehicle = mapper.createObjectNode();
+        vehicle.put("label", v.id());
+        vehicle.set("startLocation", criarLocalizacao(v.localizacaoInicial()));
+        vehicle.set("endLocation", criarLocalizacao(v.localizacaoFinal()));
+        vehicles.add(vehicle);
         model.set("vehicles", vehicles);
 
         root.set("model", model);
         return root;
     }
 
-    private ObjectNode criarNodeLocalizacao(Localizacao localizacao) {
+    private ObjectNode criarLocalizacao(Localizacao loc) {
+        if (loc == null) throw new RuntimeException("Localização ausente");
+        double lat = loc.lat();
+        double lng = loc.lng();
+        if (lat < -90 || lat > 90 || lng < -180 || lng > 180) {
+            throw new RuntimeException("Coordenadas inválidas: " + lat + ", " + lng);
+        }
+        // Ajuste: a API rejeitou campo latLng aninhado. Enviar diretamente latitude/longitude.
         ObjectNode location = mapper.createObjectNode();
-        location.put("latitude", localizacao.lat());
-        location.put("longitude", localizacao.lng());
+        location.put("latitude", lat);
+        location.put("longitude", lng);
         return location;
     }
 
-    private String getTokenAcesso() {
+    private String getAccessToken() {
         try {
-            if (credenciais != null) {
-                credenciais.refreshIfExpired();
-                return credenciais.getAccessToken().getTokenValue();
+            if (credentials != null) {
+                credentials.refreshIfExpired();
+                return credentials.getAccessToken().getTokenValue();
             }
-
-            String envToken = System.getenv("GOOGLE_ACCESS_TOKEN");
-            if (envToken != null && !envToken.isEmpty()) {
-                System.out.println("Usando token de acesso do ambiente.");
-                return envToken;
-            }
-
-            throw new RuntimeException("Credenciais do Google ausentes. Defina GOOGLE_APPLICATION_CREDENTIALS com o caminho do JSON da service account ou GOOGLE_ACCESS_TOKEN com um token válido.");
+            String env = System.getenv("GOOGLE_ACCESS_TOKEN");
+            if (env != null && !env.isBlank()) return env;
+            throw new RuntimeException("Sem credenciais Google. Defina GOOGLE_APPLICATION_CREDENTIALS ou GOOGLE_ACCESS_TOKEN.");
         } catch (IOException e) {
-            System.err.println("Erro ao obter o token de acesso: " + e.getMessage());
-            String envToken = System.getenv("GOOGLE_ACCESS_TOKEN");
-            if (envToken != null && !envToken.isEmpty()) {
-                System.out.println("Usando token de acesso do ambiente.");
-                return envToken;
-            } else {
-                throw new RuntimeException("Falha ao obter o token de acesso e GOOGLE_ACCESS_TOKEN não está definido.", e);
-            }
+            String env = System.getenv("GOOGLE_ACCESS_TOKEN");
+            if (env != null && !env.isBlank()) return env;
+            throw new RuntimeException("Falha ao obter token Google: " + e.getMessage(), e);
         }
     }
 }

@@ -1,4 +1,7 @@
 package com.safeway.tech.dto.rotas;
 
-public record Localizacao(Double lat, Double lng) {
+public record Localizacao(
+        double lat,
+        double lng
+) {
 }

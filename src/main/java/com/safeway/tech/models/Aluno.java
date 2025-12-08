@@ -25,11 +25,16 @@ public class Aluno extends Auditable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long idAluno;
 
+    // Dono do registro (escopo de usuário)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "fk_usuario", nullable = false)
+    private Usuario usuario;
+
     @ManyToMany(mappedBy = "alunos")
     private List<Responsavel> responsaveis = new ArrayList<>();
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "fkEscola", nullable = false)
+    @JoinColumn(name = "fk_escola", nullable = false)
     private Escola escola;
 
     @Column(nullable = false, length = 45)
@@ -47,7 +52,7 @@ public class Aluno extends Auditable {
 
     // Campos para controle financeiro
     @Column(nullable = false)
-    private BigDecimal valorMensalidade;
+    private Double valorMensalidade;
 
     @Column(nullable = false)
     private Integer diaVencimento; // 1-31
@@ -60,6 +65,13 @@ public class Aluno extends Auditable {
 
     // Relacionamento opcional com Transporte (corresponde ao mappedBy = "transporte" em Transporte)
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "fkTransporte", nullable = true)
+    @JoinColumn(name = "fk_transporte", nullable = true)
     private Transporte transporte;
+
+    @OneToMany(mappedBy = "aluno", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ItinerarioAluno> itinerarios = new ArrayList<>();
+
+//    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+//    @JoinColumn(name = "fk_aluno")
+//    private List<Endereco> enderecos = new ArrayList<>();
 }

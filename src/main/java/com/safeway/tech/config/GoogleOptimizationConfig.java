@@ -1,6 +1,6 @@
 package com.safeway.tech.config;
 
-import com.google.api.client.util.Value;
+import org.springframework.beans.factory.annotation.Value;
 import com.safeway.tech.client.GoogleOptimizationClient;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -8,7 +8,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 
 @Configuration
 public class GoogleOptimizationConfig {
-    @Value("${google.projectId}")
+    @Value("${google.projectId:}")
     private String projectId;
 
     @Bean

@@ -1,0 +1,64 @@
+package com.safeway.tech.controllers;
+
+import com.safeway.tech.dto.EscolaComAlunosResponse;
+import com.safeway.tech.dto.EscolaRequest;
+import com.safeway.tech.dto.EscolaResponse;
+import com.safeway.tech.dto.EnderecoResponse;
+import com.safeway.tech.services.EscolaService;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+@RestController
+@RequestMapping("/escolas")
+@RequiredArgsConstructor
+public class EscolaController {
+    private final EscolaService escolaService;
+
+    @PostMapping
+    public ResponseEntity<EscolaResponse> cadastrarEscola(
+            @Valid @RequestBody EscolaRequest request) {
+
+        EscolaResponse response = escolaService.cadastrarEscola(request);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
+
+    @GetMapping
+    public ResponseEntity<List<EscolaComAlunosResponse>> listarEscolasComAlunos() {
+        List<EscolaComAlunosResponse> response = escolaService.listarEscolasComAlunos();
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<EscolaResponse> buscarEscolaPorId(@PathVariable Long id) {
+        EscolaResponse response = escolaService.buscarPorId(id);
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/{id}/endereco")
+    public ResponseEntity<EnderecoResponse> buscarEnderecoEscola(@PathVariable Long id) {
+        EnderecoResponse response = escolaService.buscarEnderecoDaEscola(id);
+        return ResponseEntity.ok(response);
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<EscolaResponse> atualizarEscola(
+            @PathVariable Long id,
+            @Valid @RequestBody EscolaRequest request) {
+        EscolaResponse response = escolaService.atualizarEscola(id, request);
+        return ResponseEntity.ok(response);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deletarEscola(@PathVariable Long id) {
+        escolaService.deletarEscola(id);
+        return ResponseEntity.noContent().build();
+    }
+}

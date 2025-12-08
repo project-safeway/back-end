@@ -16,6 +16,7 @@ import org.springframework.security.oauth2.jwt.JwtClaimsSet;
 import org.springframework.security.oauth2.jwt.JwtEncoder;
 import org.springframework.security.oauth2.jwt.JwtEncoderParameters;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.util.Optional;
@@ -37,22 +38,13 @@ public class AuthService {
     @Autowired
     private TransporteRepository transporteRepository;
 
+    @Transactional
     public void register(RegisterRequest request) {
-        // Campos obrigatórios já validados pelo @Valid no controller
         log.info("Tentativa de registro para email: {}", request.email());
 
         if (usuarioRepository.existsByEmail(request.email())) {
             log.warn("Email já cadastrado: {}", request.email());
             throw new RuntimeException("Email já cadastrado");
-        }
-
-        Transporte transporteEncontrado = null;
-        if (request.transporte().placa() != null && !request.transporte().placa().isBlank()) {
-            String placaNormalizada = request.transporte().placa().trim().toUpperCase();
-            transporteEncontrado = transporteRepository.findByPlaca(placaNormalizada).orElse(null);
-            if (transporteEncontrado == null) {
-                log.warn("Placa informada, porém transporte não encontrado: {}", request.transporte().placa());
-            }
         }
 
         Usuario usuario = new Usuario();
@@ -61,22 +53,40 @@ public class AuthService {
         usuario.setPasswordHash(passwordEncoder.encode(request.senha()));
         usuario.setRole(UserRole.COMMON);
         usuario.setTel1(request.telefone());
-        usuario.setTransporte(transporteEncontrado); // pode ser null
 
         usuarioRepository.save(usuario);
+
+        if (request.transporte() != null && request.transporte().placa() != null) {
+            String placaNormalizada = request.transporte().placa().trim().toUpperCase();
+
+            if (transporteRepository.findByPlaca(placaNormalizada).isPresent()) {
+                throw new RuntimeException("Placa já cadastrada");
+            }
+
+            Transporte transporte = new Transporte();
+            transporte.setPlaca(placaNormalizada);
+            transporte.setModelo(request.transporte().modelo());
+            transporte.setCapacidade(request.transporte().capacidade());
+            transporte.setUsuario(usuario);
+
+            transporteRepository.save(transporte);
+            log.info("Transporte {} vinculado ao usuário {}", placaNormalizada, usuario.getEmail());
+        }
         log.info("Usuário registrado com sucesso: {}", request.email());
     }
 
     public AuthResponse autenticar(String email, String senha) {
         log.info("Tentativa de login para email: {}", email);
-        Optional<Usuario> usuario = usuarioRepository.findByEmail(email);
+        Optional<Usuario> usuarioDatabase = usuarioRepository.findByEmail(email);
 
-        if (usuario.isEmpty()) {
+        if (usuarioDatabase.isEmpty()) {
             log.warn("Usuário não encontrado: {}", email);
             throw new BadCredentialsException("Email ou senha inválidos");
         }
 
-        if (!usuario.get().isLoginCorrect(senha, passwordEncoder)) {
+        Usuario usuario = usuarioDatabase.get();
+
+        if (!usuario.isLoginCorrect(senha, passwordEncoder)) {
             log.warn("Senha incorreta para: {}", email);
             throw new BadCredentialsException("Email ou senha inválidos");
         }
@@ -88,14 +98,20 @@ public class AuthService {
 
         JwtClaimsSet claims = JwtClaimsSet.builder()
                 .issuer("safeway-tech")
-                .subject(usuario.get().getIdUsuario().toString())
+                .subject(usuario.getIdUsuario().toString())
                 .issuedAt(now)
                 .expiresAt(now.plusSeconds(expiresIn))
-                .claim("role", usuario.get().getRole().toString())
+                .claim("role", usuario.getRole().toString())
+                .claim("transporte", usuario.getTransporte().getIdTransporte())
                 .build();
 
         String jwtValue = jwtEncoder.encode(JwtEncoderParameters.from(claims)).getTokenValue();
 
-        return new AuthResponse(jwtValue, expiresIn);
+        Long idTransporte = null;
+        if (usuario.getTransporte() != null) {
+            idTransporte = usuario.getTransporte().getIdTransporte();
+        }
+
+        return new AuthResponse(jwtValue, expiresIn, usuario.getNome(), idTransporte);
     }
 }
