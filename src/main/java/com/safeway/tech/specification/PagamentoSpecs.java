@@ -7,9 +7,9 @@ import java.time.LocalDate;
 
 public class PagamentoSpecs {
 
-    public static Specification<Pagamento> comFuncionario(Long funcionarioId) {
+    public static Specification<Pagamento> comDescricao(String descricao) {
         return (root, query, cb) ->
-                funcionarioId == null ? null : cb.equal(root.get("funcionario").get("idFuncionario"), funcionarioId);
+                descricao == null ? null : cb.like(cb.lower(root.get("descricao")), "%" + descricao.toLowerCase() + "%");
     }
 
     public static Specification<Pagamento> comPeriodo(LocalDate dataInicio, LocalDate dataFim) {
@@ -39,20 +39,20 @@ public class PagamentoSpecs {
             }
 
             if (valorMinimo != null && valorMaximo != null) {
-                return cb.between(root.get("valor"), valorMinimo, valorMaximo);
+                return cb.between(root.get("valorPagamento"), valorMinimo, valorMaximo);
             }
 
             if (valorMinimo != null) {
-                return cb.greaterThanOrEqualTo(root.get("valor"), valorMinimo);
+                return cb.greaterThanOrEqualTo(root.get("valorPagamento"), valorMinimo);
             }
 
-            return cb.lessThanOrEqualTo(root.get("valor"), valorMaximo);
+            return cb.lessThanOrEqualTo(root.get("valorPagamento"), valorMaximo);
         };
     }
 
     public static Specification<Pagamento> comUsuario(Long usuarioId) {
         return (root, query, cb) ->
-                usuarioId == null ? null : cb.equal(root.get("aluno").get("usuario").get("idUsuario"), usuarioId);
+                usuarioId == null ? null : cb.equal(root.get("usuario").get("idUsuario"), usuarioId);
     }
 
 }

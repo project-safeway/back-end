@@ -41,6 +41,9 @@ public class Usuario extends Auditable {
     @Column(length = 15)
     private String tel2;
 
+    @OneToMany(mappedBy = "usuario")
+    private List<Pagamento> pagamentos;
+
     public boolean isLoginCorrect(String senha, PasswordEncoder passwordEncoder) {
         return passwordEncoder.matches(senha, this.passwordHash);
     }

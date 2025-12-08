@@ -68,4 +68,10 @@ public class MensalidadeController {
         mensalidadeService.marcarComoPago(id);
         return ResponseEntity.noContent().build();
     }
+
+    @PatchMapping("/pendente/{id}")
+    public ResponseEntity<Void> marcarComoPendente(@PathVariable Long id) {
+        mensalidadeService.marcarComoPendente(id);
+        return ResponseEntity.noContent().build();
+    }
 }
