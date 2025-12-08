@@ -9,6 +9,7 @@ import com.safeway.tech.services.ChamadaService;
 import jakarta.websocket.server.PathParam;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
@@ -52,7 +53,22 @@ public class ChamadaController {
     public ResponseEntity<Page<ChamadaResponse>> historicoChamada(
             @PathVariable Long id,
             @RequestParam(required = false) List<StatusChamadaEnum> status,
-            @PageableDefault(page = 0, size = 10, sort = "dtInsert", direction = Sort.Direction.DESC) Pageable pageable) {
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "id,desc") String[] sort) {
+
+        Sort.Direction direction = Sort.Direction.DESC;
+        String property = "id";
+
+        if (sort.length > 0) {
+            property = sort[0];
+            if (sort.length > 1) {
+                direction = Sort.Direction.fromString(sort[1]);
+            }
+        }
+
+        Pageable pageable = PageRequest.of(page, size, Sort.by(direction, property));
+
         Page<Chamada> chamadas = chamadaService.buscarHistoricoChamadas(id, status, pageable);
         return ResponseEntity.ok(chamadas.map(ChamadaResponse::fromEntity));
     }
