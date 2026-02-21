@@ -54,4 +54,21 @@ public class MensalidadeService {
 
         mensalidadeRepository.save(mensalidade);
     }
+
+    @Transactional
+    public void marcarComoPendente(Long mensalidadeId) {
+        MensalidadeAluno mensalidade = mensalidadeRepository.findById(mensalidadeId)
+                .orElseThrow(() -> new RuntimeException("Mensalidade não encontrada"));
+
+        Long userId = currentUserService.getCurrentUserId();
+        if (!mensalidade.getAluno().getUsuario().getIdUsuario().equals(userId)) {
+            throw new RuntimeException("Sem permissão para alterar esta mensalidade");
+        }
+
+        mensalidade.setStatus(StatusPagamento.PENDENTE);
+        mensalidade.setDataPagamento(null);
+        mensalidade.setValorPago(null);
+
+        mensalidadeRepository.save(mensalidade);
+    }
 }

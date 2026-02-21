@@ -33,7 +33,7 @@ build/
 .vscode/
 
 ### Credentials ###
-/src/resources/application.properties
+/src/main/resources/application.properties
 /.idea/
 /src/main/resources/keys/pri.key
 /src/main/resources/keys/pub.key
