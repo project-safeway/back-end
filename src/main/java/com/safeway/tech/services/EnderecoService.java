@@ -13,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.UUID;
 
 @Service
 public class EnderecoService {
@@ -58,7 +59,7 @@ public class EnderecoService {
         return EnderecoResponse.fromEntity(endereco);
     }
 
-    public List<EnderecoResponse> listarPorResponsavel(Long responsavelId) {
+    public List<EnderecoResponse> listarPorResponsavel(UUID responsavelId) {
         Responsavel responsavel = responsavelRepository.findById(responsavelId)
                 .orElseThrow(() -> new RuntimeException("Responsável não encontrado"));
 
@@ -66,7 +67,7 @@ public class EnderecoService {
     }
 
     @Transactional
-    public List<EnderecoResponse> listarEnderecosDisponiveis(Long alunoId, Long usuarioId) {
+    public List<EnderecoResponse> listarEnderecosDisponiveis(UUID alunoId, UUID usuarioId) {
         // Busca endereços de todos os responsáveis vinculados ao aluno
         List<Responsavel> responsaveis = responsavelRepository.findByAlunosIdAlunoAndUsuarioIdUsuario(alunoId, usuarioId);
 
@@ -75,20 +76,20 @@ public class EnderecoService {
                     Endereco e = r.getEndereco();
                     if (e == null) return null;
                     // Acessar um campo para garantir inicialização dentro da transação
-                    e.getIdEndereco();
+                    e.getId();
                     return EnderecoResponse.fromEntity(e);
                 })
                 .filter(Objects::nonNull)
                 .toList();
     }
 
-    public EnderecoResponse buscarPorId(Long id) {
+    public EnderecoResponse buscarPorId(UUID id) {
         Endereco endereco = buscarEntidade(id);
         return EnderecoResponse.fromEntity(endereco);
     }
 
     @Transactional
-    public EnderecoResponse atualizar(Long id, EnderecoRequest request) {
+    public EnderecoResponse atualizar(UUID id, EnderecoRequest request) {
         Endereco endereco = buscarEntidade(id);
 
         endereco.setLogradouro(request.logradouro());
@@ -108,13 +109,13 @@ public class EnderecoService {
     }
 
     @Transactional
-    public void desativar(Long id) {
+    public void desativar(UUID id) {
         Endereco endereco = buscarEntidade(id);
         endereco.setAtivo(false);
         enderecoRepository.save(endereco);
     }
 
-    public Endereco buscarEntidade(Long id) {
+    public Endereco buscarEntidade(UUID id) {
         return enderecoRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Endereço não encontrado"));
     }

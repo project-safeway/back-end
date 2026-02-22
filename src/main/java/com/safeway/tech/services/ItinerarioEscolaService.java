@@ -13,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -25,7 +26,7 @@ public class ItinerarioEscolaService {
     private final EnderecoService enderecoService;
 
     @Transactional
-    public void adicionarEscola(Long itinerarioId, ItinerarioEscolaRequest request) {
+    public void adicionarEscola(UUID itinerarioId, ItinerarioEscolaRequest request) {
         Itinerario itinerario = itinerarioRepository.findById(itinerarioId)
                 .orElseThrow(() -> new RuntimeException("Itinerário não encontrado"));
 
@@ -47,7 +48,7 @@ public class ItinerarioEscolaService {
             throw new RuntimeException("Coordenadas do endereço da escola inválidas: " + lat + ", " + lng);
         }
 
-        itinerarioEscolaRepository.findByItinerarioIdAndEscolaIdEscola(itinerarioId, escola.getIdEscola())
+        itinerarioEscolaRepository.findByItinerarioIdAndEscolaIdEscola(itinerarioId, escola.getId())
                 .ifPresent(e -> { throw new RuntimeException("Escola já está vinculada a este itinerário"); });
 
         ItinerarioEscola entity = new ItinerarioEscola();
@@ -60,7 +61,7 @@ public class ItinerarioEscolaService {
     }
 
     @Transactional
-    public void removerEscola(Long itinerarioId, Long escolaId) {
+    public void removerEscola(UUID itinerarioId, UUID escolaId) {
         ItinerarioEscola entity = itinerarioEscolaRepository
                 .findByItinerarioIdAndEscolaIdEscola(itinerarioId, escolaId)
                 .orElseThrow(() -> new RuntimeException("Escola não encontrada no itinerário"));
@@ -69,14 +70,14 @@ public class ItinerarioEscolaService {
     }
 
     @Transactional
-    public void reordenar(Long itinerarioId, List<Long> novaOrdemEscolaIds) {
+    public void reordenar(UUID itinerarioId, List<UUID> novaOrdemEscolaIds) {
         List<ItinerarioEscola> atuais = itinerarioEscolaRepository.findByItinerarioId(itinerarioId);
 
-        Map<Long, ItinerarioEscola> map = atuais.stream()
-                .collect(Collectors.toMap(e -> e.getEscola().getIdEscola(), e -> e));
+        Map<UUID, ItinerarioEscola> map = atuais.stream()
+                .collect(Collectors.toMap(e -> e.getEscola().getId(), e -> e));
 
         int ordem = 1;
-        for (Long id : novaOrdemEscolaIds) {
+        for (UUID id : novaOrdemEscolaIds) {
             ItinerarioEscola ie = map.get(id);
             if (ie != null) {
                 ie.setOrdemParada(ordem++);

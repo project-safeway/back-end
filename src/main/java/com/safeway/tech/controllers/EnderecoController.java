@@ -1,6 +1,5 @@
 package com.safeway.tech.controllers;
 
-import com.google.maps.model.LatLng;
 import com.safeway.tech.dto.EnderecoRequest;
 import com.safeway.tech.dto.EnderecoResponse;
 import com.safeway.tech.services.EnderecoService;
@@ -8,11 +7,16 @@ import com.safeway.tech.services.GeocodingService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/enderecos")
@@ -30,20 +34,20 @@ public class EnderecoController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<EnderecoResponse> buscar(@PathVariable Long id) {
+    public ResponseEntity<EnderecoResponse> buscar(@PathVariable UUID id) {
         return ResponseEntity.ok(enderecoService.buscarPorId(id));
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<EnderecoResponse> atualizar(
-            @PathVariable Long id,
+            @PathVariable UUID id,
             @Valid @RequestBody EnderecoRequest request
     ) {
         return ResponseEntity.ok(enderecoService.atualizar(id, request));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> desativar(@PathVariable Long id) {
+    public ResponseEntity<Void> desativar(@PathVariable UUID id) {
         enderecoService.desativar(id);
         return ResponseEntity.noContent().build();
     }

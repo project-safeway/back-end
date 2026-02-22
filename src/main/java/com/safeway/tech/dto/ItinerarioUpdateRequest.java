@@ -7,6 +7,7 @@ import jakarta.validation.constraints.NotNull;
 
 import java.sql.Time;
 import java.util.List;
+import java.util.UUID;
 
 public record ItinerarioUpdateRequest(
         @NotBlank String nome,
@@ -19,7 +20,7 @@ public record ItinerarioUpdateRequest(
         ) {
     public record ItinerarioParadaUpdate(
             String tipo,      // "ALUNO" ou "ESCOLA"
-            Long id,          // alunoId ou escolaId
+            UUID id,          // alunoId ou escolaId
             Integer ordemGlobal,
             Integer ordemEspecifica // ordemEmbarque ou ordemVisita
     ) {}

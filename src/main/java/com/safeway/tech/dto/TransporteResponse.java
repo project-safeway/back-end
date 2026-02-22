@@ -3,9 +3,10 @@ package com.safeway.tech.dto;
 import com.safeway.tech.models.Transporte;
 
 import java.util.List;
+import java.util.UUID;
 
 public record TransporteResponse(
-        Long idTransporte,
+        UUID idTransporte,
         String placa,
         String modelo,
         Integer capacidade,
@@ -21,7 +22,7 @@ public record TransporteResponse(
         }
 
         return new TransporteResponse(
-                transporte.getIdTransporte(),
+                transporte.getId(),
                 transporte.getPlaca(),
                 transporte.getModelo(),
                 transporte.getCapacidade(),

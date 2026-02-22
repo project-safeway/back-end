@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -23,24 +24,24 @@ public class ResponsavelService {
     private final EnderecoRepository enderecoRepository;
     private final CurrentUserService currentUserService;
 
-    private Responsavel getOwnedOrThrow(Long id){
-        Long userId = currentUserService.getCurrentUserId();
+    private Responsavel getOwnedOrThrow(UUID id){
+        UUID userId = currentUserService.getCurrentUserId();
         return repository.findByIdResponsavelAndUsuario_IdUsuario(id, userId)
                 .orElseThrow(RuntimeException::new);
     }
 
-    public Responsavel getById(Long id){
+    public Responsavel getById(UUID id){
         return getOwnedOrThrow(id);
     }
 
     public Responsavel salvarResponsavel(Responsavel responsavel){
-        Long userId = currentUserService.getCurrentUserId();
+        UUID userId = currentUserService.getCurrentUserId();
         Usuario usuario = usuarioRepository.getReferenceById(userId);
         responsavel.setUsuario(usuario);
 
         // Endereco sem cascade precisa ser salvo explícito
         Endereco end = responsavel.getEndereco();
-        if (end != null && end.getIdEndereco() == null) {
+        if (end != null && end.getId() == null) {
             end = enderecoRepository.save(end);
             responsavel.setEndereco(end);
         }
@@ -48,8 +49,8 @@ public class ResponsavelService {
         // Re-hidrata a lista de alunos garantindo que pertencem ao usuário
         if (responsavel.getAlunos() != null && !responsavel.getAlunos().isEmpty()) {
             List<Aluno> validados = responsavel.getAlunos().stream()
-                    .map(a -> alunoRepository.findByIdAlunoAndUsuario_IdUsuario(a.getIdAluno(), userId)
-                            .orElseThrow(() -> new RuntimeException("Aluno não encontrado para este usuário: " + a.getIdAluno())))
+                    .map(a -> alunoRepository.findByIdAlunoAndUsuario_IdUsuario(a.getId(), userId)
+                            .orElseThrow(() -> new RuntimeException("Aluno não encontrado para este usuário: " + a.getId())))
                     .toList();
             responsavel.setAlunos(validados);
         }
@@ -58,20 +59,20 @@ public class ResponsavelService {
     }
 
     public List<Responsavel> listarResponsaveis() {
-        Long userId = currentUserService.getCurrentUserId();
+        UUID userId = currentUserService.getCurrentUserId();
         return repository.findAllByUsuario_IdUsuario(userId);
     }
 
-    public Responsavel retornarUm(Long idResponsavel){
+    public Responsavel retornarUm(UUID idResponsavel){
         return getOwnedOrThrow(idResponsavel);
     }
 
-    public void excluir(Long id){
+    public void excluir(UUID id){
         repository.delete(getOwnedOrThrow(id));
     }
 
-    public Responsavel alterarResponsavel(Responsavel responsavel,Long idResponsavel){
-        Long userId = currentUserService.getCurrentUserId();
+    public Responsavel alterarResponsavel(Responsavel responsavel,UUID idResponsavel){
+        UUID userId = currentUserService.getCurrentUserId();
         Responsavel atual = getOwnedOrThrow(idResponsavel);
         atual.setNome(responsavel.getNome());
 
@@ -79,7 +80,7 @@ public class ResponsavelService {
         Endereco novoEnd = responsavel.getEndereco();
         if (novoEnd != null) {
             Endereco destino = atual.getEndereco();
-            if (destino == null || destino.getIdEndereco() == null) {
+            if (destino == null || destino.getId() == null) {
                 destino = new Endereco();
             }
             destino.setLogradouro(novoEnd.getLogradouro());
@@ -93,8 +94,8 @@ public class ResponsavelService {
         if (responsavel.getAlunos() != null) {
             List<Aluno> validados = responsavel.getAlunos().stream()
                     .filter(Objects::nonNull)
-                    .map(a -> alunoRepository.findByIdAlunoAndUsuario_IdUsuario(a.getIdAluno(), userId)
-                            .orElseThrow(() -> new RuntimeException("Aluno não encontrado para este usuário: " + a.getIdAluno())))
+                    .map(a -> alunoRepository.findByIdAlunoAndUsuario_IdUsuario(a.getId(), userId)
+                            .orElseThrow(() -> new RuntimeException("Aluno não encontrado para este usuário: " + a.getId())))
                     .toList();
             atual.setAlunos(validados);
         }

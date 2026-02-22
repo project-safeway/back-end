@@ -1,22 +1,19 @@
 package com.safeway.tech.models;
 
-import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Table;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
 @Table(name = "enderecos")
-@Data
-@EqualsAndHashCode(callSuper = true)
-@NoArgsConstructor @AllArgsConstructor
-public class Endereco extends Auditable {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long idEndereco;
+@Getter @Setter
+@NoArgsConstructor
+public class Endereco extends BaseEntity {
 
-    @Column(nullable = false, length = 255)
+    @Column(nullable = false)
     private String logradouro;
 
     @Column(nullable = false, length = 10)

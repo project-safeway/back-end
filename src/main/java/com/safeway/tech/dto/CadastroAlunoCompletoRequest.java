@@ -5,6 +5,7 @@ import jakarta.validation.constraints.*;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.UUID;
 
 public record CadastroAlunoCompletoRequest(
         @NotBlank @Size(max = 45) String nome,
@@ -12,10 +13,10 @@ public record CadastroAlunoCompletoRequest(
         @Past LocalDate dtNascimento,
         @Min(1) Integer serie,
         @Size(max = 5) String sala,
-        @NotNull @DecimalMin(value = "0.0", inclusive = true) Double valorMensalidade,
+        @NotNull @DecimalMin(value = "0.0") Double valorMensalidade,
         @NotNull @Min(1) @Max(31) Integer diaVencimento,
-        @NotNull Long fkEscola,
-        @Positive(message = "fkTransporte deve ser positivo") Long fkTransporte,
+        @NotNull UUID fkEscola,
+        @Positive(message = "fkTransporte deve ser positivo") UUID fkTransporte,
         @Valid List<ResponsavelComEnderecoData> responsaveis
 ) {
     public record ResponsavelComEnderecoData(

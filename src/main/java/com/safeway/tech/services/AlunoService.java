@@ -20,6 +20,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -35,8 +36,8 @@ public class AlunoService {
     private final EnderecoService enderecoService;
 
     @Transactional
-    public Long cadastrarAlunoCompleto(CadastroAlunoCompletoRequest request) {
-        Long userId = currentUserService.getCurrentUserId();
+    public UUID cadastrarAlunoCompleto(CadastroAlunoCompletoRequest request) {
+        UUID userId = currentUserService.getCurrentUserId();
         Usuario usuario = usuarioRepository.getReferenceById(userId);
 
         // 1. Criar o aluno
@@ -64,7 +65,7 @@ public class AlunoService {
         }
 
         aluno = alunoRepository.save(aluno);
-        final Long alunoId = aluno.getIdAluno(); // usado nas lambdas
+        final UUID alunoId = aluno.getId(); // usado nas lambdas
 
         // 4. Processar responsáveis e endereços (reutilizando por CPF)
         var responsaveis = request.responsaveis();
@@ -138,13 +139,13 @@ public class AlunoService {
                 }
 
                 // 4.3 Vincular aluno <-> responsável e persistir a associação
-                if (responsavel.getAlunos().stream().noneMatch(a -> a.getIdAluno().equals(alunoId))) {
+                if (responsavel.getAlunos().stream().noneMatch(a -> a.getId().equals(alunoId))) {
                     responsavel.getAlunos().add(aluno);
                 }
                 responsavel = responsavelRepository.save(responsavel); // persistir join table
 
-                final Long respId = responsavel.getIdResponsavel();
-                if (aluno.getResponsaveis().stream().noneMatch(r -> r.getIdResponsavel().equals(respId))) {
+                final UUID respId = responsavel.getId();
+                if (aluno.getResponsaveis().stream().noneMatch(r -> r.getId().equals(respId))) {
                     aluno.getResponsaveis().add(responsavel);
                 }
             }
@@ -152,26 +153,26 @@ public class AlunoService {
             alunoRepository.save(aluno);
         }
 
-        return aluno.getIdAluno();
+        return aluno.getId();
     }
 
-    public Aluno buscarAlunoPorId(Long id) {
+    public Aluno buscarAlunoPorId(UUID id) {
         return alunoRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Aluno não encontrado"));
     }
 
     @Transactional
-    public AlunoResponse obterDadosAluno(Long alunoId) {
+    public AlunoResponse obterDadosAluno(UUID alunoId) {
         // Validação de escopo: garante que o aluno pertence ao usuário logado
-        Long userId = currentUserService.getCurrentUserId();
+        UUID userId = currentUserService.getCurrentUserId();
         Aluno aluno = alunoRepository.findByIdAlunoAndUsuario_IdUsuario(alunoId, userId)
                 .orElseThrow(() -> new RuntimeException("Aluno não encontrado para este usuário"));
         return AlunoResponse.fromEntity(aluno);
     }
 
     @Transactional
-    public AlunoResponse atualizarAluno(Long alunoId, AlunoUpdateRequest request) {
-        Long userId = currentUserService.getCurrentUserId();
+    public AlunoResponse atualizarAluno(UUID alunoId, AlunoUpdateRequest request) {
+        UUID userId = currentUserService.getCurrentUserId();
 
         Aluno aluno = alunoRepository.findByIdAlunoAndUsuario_IdUsuario(alunoId, userId)
                 .orElseThrow(() -> new RuntimeException("Aluno não encontrado para este usuário"));
@@ -217,8 +218,8 @@ public class AlunoService {
 
                     if (dto.deletar()) {
                         // Remover vinculo aluno<->responsavel
-                        final Long idAlunoParam = alunoId;
-                        responsavel.getAlunos().removeIf(a -> a.getIdAluno().equals(idAlunoParam));
+                        final UUID idAlunoParam = alunoId;
+                        responsavel.getAlunos().removeIf(a -> a.getId().equals(idAlunoParam));
                         // Se não tiver mais alunos vinculados, pode deletar o responsavel inteiro
                         if (responsavel.getAlunos().isEmpty()) {
                             responsavelRepository.delete(responsavel);
@@ -260,7 +261,7 @@ public class AlunoService {
                 endereco.setLongitude(endDto.longitude());
                 endereco.setTipo(endDto.tipo() != null ? endDto.tipo() : "RESIDENCIAL");
                 endereco.setAtivo(true);
-                if (endereco.getIdEndereco() == null) {
+                if (endereco.getId() == null) {
                     endereco.setPrincipal(true);
                 }
                 endereco = enderecoService.calcularCoordenadas(endereco);
@@ -268,8 +269,8 @@ public class AlunoService {
                 responsavel.setEndereco(endereco);
 
                 // Garante vinculo aluno<->responsavel nas duas pontas
-                final Long idAlunoParam = alunoId;
-                if (responsavel.getAlunos().stream().noneMatch(a -> a.getIdAluno().equals(idAlunoParam))) {
+                final UUID idAlunoParam = alunoId;
+                if (responsavel.getAlunos().stream().noneMatch(a -> a.getId().equals(idAlunoParam))) {
                     responsavel.getAlunos().add(aluno);
                 }
 
@@ -286,8 +287,8 @@ public class AlunoService {
     }
 
     @Transactional
-    public void deletarAluno(Long alunoId) {
-        Long userId = currentUserService.getCurrentUserId();
+    public void deletarAluno(UUID alunoId) {
+        UUID userId = currentUserService.getCurrentUserId();
         Aluno aluno = alunoRepository.findByIdAlunoAndUsuario_IdUsuario(alunoId, userId)
                 .orElseThrow(() -> new RuntimeException("Aluno não encontrado para este usuário"));
 
@@ -295,7 +296,7 @@ public class AlunoService {
         if (aluno.getResponsaveis() != null && !aluno.getResponsaveis().isEmpty()) {
             for (Responsavel responsavel : aluno.getResponsaveis()) {
                 // remove este aluno da lista de alunos do responsável
-                responsavel.getAlunos().removeIf(a -> a.getIdAluno().equals(alunoId));
+                responsavel.getAlunos().removeIf(a -> a.getId().equals(alunoId));
 
                 if (responsavel.getAlunos().isEmpty()) {
                     // se não tiver mais alunos vinculados, apaga o responsável

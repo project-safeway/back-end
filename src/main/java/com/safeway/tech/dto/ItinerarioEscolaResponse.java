@@ -2,21 +2,23 @@ package com.safeway.tech.dto;
 
 import com.safeway.tech.models.ItinerarioEscola;
 
+import java.util.UUID;
+
 public record ItinerarioEscolaResponse(
-        Long escolaId,
+        UUID escolaId,
         String nome,
         String cidade,
         Integer ordemVisita,
-        Long enderecoId,
+        UUID enderecoId,
         Integer ordemGlobal
 ) {
     public static ItinerarioEscolaResponse fromEntity(ItinerarioEscola entity) {
         return new ItinerarioEscolaResponse(
-                entity.getEscola().getIdEscola(),
+                entity.getEscola().getId(),
                 entity.getEscola().getNome(),
                 entity.getEndereco().getCidade(),
                 entity.getOrdemParada(),
-                entity.getEndereco().getIdEndereco(),
+                entity.getEndereco().getId(),
                 entity.getOrdemGlobal()
         );
     }

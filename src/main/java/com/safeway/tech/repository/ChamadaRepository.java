@@ -10,16 +10,14 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.Optional;
+import java.util.UUID;
 
 
-public interface ChamadaRepository extends JpaRepository<Chamada, Long>, JpaSpecificationExecutor<Chamada> {
+public interface ChamadaRepository extends JpaRepository<Chamada, UUID>, JpaSpecificationExecutor<Chamada> {
 
     @Query("SELECT c FROM Chamada c WHERE c.itinerario.id = :idItinerario AND c.status = :status")
     Optional<Chamada> findByItinerarioIdAndStatus(
-            @Param("idItinerario") Long idItinerario,
+            @Param("idItinerario") UUID idItinerario,
             @Param("status") StatusChamadaEnum status
     );
-
-    @Query("SELECT c FROM Chamada c WHERE c.itinerario.id = :idItinerario")
-    Page<Chamada> findAllByItinerarioId(Long idItinerario, Pageable pageable);
 }

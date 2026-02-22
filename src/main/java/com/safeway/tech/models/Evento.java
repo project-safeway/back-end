@@ -1,31 +1,29 @@
 package com.safeway.tech.models;
 
-import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.time.LocalDate;
 
 @Entity
 @Table(name = "eventos")
-@Data
-@EqualsAndHashCode(callSuper = true)
+@Getter @Setter
 @NoArgsConstructor
-@AllArgsConstructor
-public class Evento extends Auditable {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id; // "id" conforme resposta da API
+public class Evento extends BaseEntity {
 
     // Dono do evento
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "fk_usuario", nullable = false)
     private Usuario usuario;
 
-    @Column(name = "title", nullable = false, length = 255)
+    @Column(name = "title", nullable = false)
     private String title;
 
     @Column(name = "description", length = 1000, columnDefinition = "TEXT")

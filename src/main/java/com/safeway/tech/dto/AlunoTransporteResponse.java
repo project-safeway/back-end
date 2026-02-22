@@ -2,8 +2,10 @@ package com.safeway.tech.dto;
 
 import com.safeway.tech.models.Aluno;
 
+import java.util.UUID;
+
 public record AlunoTransporteResponse(
-        Long idAluno,
+        UUID idAluno,
         String nome,
         String escola,
         String nomeResponsavel
@@ -14,12 +16,12 @@ public record AlunoTransporteResponse(
 
         String nomeResp = null;
         if (a.getResponsaveis() != null && !a.getResponsaveis().isEmpty()) {
-            com.safeway.tech.models.Responsavel r = a.getResponsaveis().get(0);
+            com.safeway.tech.models.Responsavel r = a.getResponsaveis().getFirst();
             if (r != null) nomeResp = r.getNome();
         }
 
         return new AlunoTransporteResponse(
-                a.getIdAluno(),
+                a.getId(),
                 a.getNome(),
                 nomeEscola,
                 nomeResp

@@ -4,6 +4,7 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.*;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.UUID;
 
 public record AlunoUpdateRequest(
         @NotBlank @Size(max = 45) String nome,
@@ -11,14 +12,14 @@ public record AlunoUpdateRequest(
         @Past LocalDate dtNascimento,
         @Min(1) Integer serie,
         @Size(max = 5) String sala,
-        @NotNull @DecimalMin(value = "0.0", inclusive = true) Double valorMensalidade,
+        @NotNull @DecimalMin(value = "0.0") Double valorMensalidade,
         @NotNull @Min(1) @Max(31) Integer diaVencimento,
-        @NotNull Long fkEscola,
-        @Positive(message = "fkTransporte deve ser positivo") Long fkTransporte,
+        @NotNull UUID fkEscola,
+        @Positive(message = "fkTransporte deve ser positivo") UUID fkTransporte,
         @Valid List<ResponsavelUpdateData> responsaveis
 ) {
     public record ResponsavelUpdateData(
-            Long idResponsavel, // null = novo, preenchido = atualizar
+            UUID idResponsavel, // null = novo, preenchido = atualizar
             boolean deletar,    // true = remover esse responsavel do aluno (e opcionalmente deletar)
 
             @NotBlank @Size(max = 45) String nome,
@@ -30,7 +31,7 @@ public record AlunoUpdateRequest(
     ) {}
 
     public record EnderecoUpdateData(
-            Long idEndereco, // para futuros usos, se houver mais de um endereco
+            UUID idEndereco, // para futuros usos, se houver mais de um endereco
             @NotBlank String logradouro,
             @NotBlank String numero,
             String complemento,

@@ -5,10 +5,12 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Component;
 
+import java.util.UUID;
+
 @Component
 public class CurrentUserService {
 
-    public Long getCurrentUserId() {
+    public UUID getCurrentUserId() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth == null) {
             throw new IllegalStateException("Usuário não autenticado");
@@ -16,14 +18,14 @@ public class CurrentUserService {
         Object principal = auth.getPrincipal();
         if (principal instanceof Jwt jwt) {
             String sub = jwt.getSubject();
-            return Long.valueOf(sub);
+            return UUID.fromString(sub);
         }
         // Fallback: em alguns providers, getName() é o subject
         String name = auth.getName();
-        return Long.valueOf(name);
+        return UUID.fromString(name);
     }
 
-    public Long getCurrentTransporteId() {
+    public UUID getCurrentTransporteId() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth == null) {
             throw new IllegalStateException("Usuário não autenticado");
@@ -38,7 +40,7 @@ public class CurrentUserService {
                 throw new IllegalStateException("Claim 'transporte' não encontrada no token");
             }
 
-            return Long.valueOf(transporteClaim.toString());
+            return UUID.fromString(transporteClaim.toString());
         }
 
         throw new IllegalStateException("Token JWT não encontrado no authentication principal");

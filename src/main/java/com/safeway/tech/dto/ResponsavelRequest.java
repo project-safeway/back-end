@@ -6,6 +6,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
 import java.util.List;
+import java.util.UUID;
 
 public record ResponsavelRequest(
         @NotBlank @Size(max = 45) String nome,
@@ -14,6 +15,6 @@ public record ResponsavelRequest(
         String tel2,
         @Email String email,
         @Valid EnderecoRequest endereco,
-        List<Long> alunosIds
+        List<UUID> alunosIds
 ) {}
 

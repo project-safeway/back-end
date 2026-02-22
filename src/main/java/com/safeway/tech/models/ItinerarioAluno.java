@@ -1,18 +1,20 @@
 package com.safeway.tech.models;
 
-import jakarta.persistence.*;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
 @Table(name = "itinerario_aluno")
-@Data
-@EqualsAndHashCode
-public class ItinerarioAluno {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+@Getter @Setter
+@NoArgsConstructor
+public class ItinerarioAluno extends BaseEntity {
 
     @ManyToOne
     @JoinColumn(name = "fk_itinerario", nullable = false)

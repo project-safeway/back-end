@@ -1,7 +1,9 @@
 package com.safeway.tech.dto;
 
+import java.util.UUID;
+
 public record ResponsavelResponse(
-        Long id, // novo campo
+        UUID id, // novo campo
         String nome,
         String cpf,
         String tel1,
@@ -12,7 +14,7 @@ public record ResponsavelResponse(
 
     public static ResponsavelResponse fromEntity(com.safeway.tech.models.Responsavel responsavel) {
         return new ResponsavelResponse(
-                responsavel.getIdResponsavel(),
+                responsavel.getId(),
                 responsavel.getNome(),
                 responsavel.getCpf(),
                 responsavel.getTel1(),
