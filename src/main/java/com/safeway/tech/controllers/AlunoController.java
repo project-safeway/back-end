@@ -1,9 +1,11 @@
 package com.safeway.tech.controllers;
 
+import com.safeway.tech.dto.AlunoFeignResponse;
 import com.safeway.tech.dto.AlunoResponse;
 import com.safeway.tech.dto.AlunoUpdateRequest;
 import com.safeway.tech.dto.CadastroAlunoCompletoRequest;
 import com.safeway.tech.dto.EnderecoResponse;
+import com.safeway.tech.models.Aluno;
 import com.safeway.tech.services.AlunoService;
 import com.safeway.tech.services.CurrentUserService;
 import com.safeway.tech.services.EnderecoService;
@@ -78,5 +80,27 @@ public class AlunoController {
     public ResponseEntity<Void> deletarAluno(@PathVariable UUID alunoId) {
         alunoService.deletarAluno(alunoId);
         return ResponseEntity.noContent().build();
+    }
+
+    /*
+
+        MÉTODOS USADOS NO FEIGN CLIENT
+
+     */
+
+    @GetMapping("/feign/{alunoId}")
+    public ResponseEntity<AlunoFeignResponse> buscarAlunoPorId(@PathVariable UUID alunoId) {
+        Aluno aluno = alunoService.buscarAlunoPorId(alunoId);
+        return ResponseEntity.ok(AlunoFeignResponse.fromEntity(aluno));
+    }
+
+    @GetMapping("/ativos")
+    public ResponseEntity<List<AlunoFeignResponse>> buscarTodosAtivos() {
+        return ResponseEntity.ok(alunoService.buscarTodosAtivos());
+    }
+
+    @PostMapping("/lote")
+    public ResponseEntity<List<AlunoFeignResponse>> buscarPorIdEmLote(@RequestBody List<UUID> ids) {
+        return ResponseEntity.ok(alunoService.buscarPorIdEmLote(ids));
     }
 }

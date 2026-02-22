@@ -1,5 +1,6 @@
 package com.safeway.tech.services;
 
+import com.safeway.tech.dto.AlunoFeignResponse;
 import com.safeway.tech.dto.AlunoResponse;
 import com.safeway.tech.dto.AlunoUpdateRequest;
 import com.safeway.tech.dto.CadastroAlunoCompletoRequest;
@@ -19,6 +20,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -310,5 +312,18 @@ public class AlunoService {
 
         // agora é seguro deletar o aluno (não há mais registros na tabela de junção)
         alunoRepository.delete(aluno);
+    }
+
+    public List<AlunoFeignResponse> buscarPorIdEmLote(List<UUID> ids) {
+
+        UUID userId = currentUserService.getCurrentUserId();
+        List<Aluno> alunos = alunoRepository.findByIdInAndUsuario_IdUsuario(ids, userId);
+        return alunos.stream().map(AlunoFeignResponse::fromEntity).toList();
+    }
+
+    public List<AlunoFeignResponse> buscarTodosAtivos() {
+        UUID userId = currentUserService.getCurrentUserId();
+        List<Aluno> alunos = alunoRepository.findByAtivoTrueAndUsuario_IdUsuario(userId);
+        return alunos.stream().map(AlunoFeignResponse::fromEntity).toList();
     }
 }

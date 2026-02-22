@@ -1,5 +1,6 @@
 package com.safeway.tech.controllers;
 
+import com.safeway.tech.dto.UsuarioFeignResponse;
 import com.safeway.tech.dto.UsuarioResponse;
 import com.safeway.tech.models.Usuario;
 import com.safeway.tech.services.UsuarioService;
@@ -55,5 +56,17 @@ public class UsuarioController {
     public UsuarioResponse alterarUsuario(@RequestBody Usuario novoUsuario,@PathVariable UUID idUsuario){
         Usuario atualizado = usuarioService.alterarUsuario(novoUsuario, idUsuario);
         return toResponse(atualizado);
+    }
+
+    /*
+
+        MÉTODOS USADOS NO FEIGN CLIENT
+
+     */
+
+    @GetMapping("/feign/{idUsuario}")
+    public UsuarioFeignResponse buscarUsuario(@PathVariable UUID idUsuario) {
+        Usuario usuario = usuarioService.retornarUm(idUsuario);
+        return UsuarioFeignResponse.fromEntity(usuario);
     }
 }

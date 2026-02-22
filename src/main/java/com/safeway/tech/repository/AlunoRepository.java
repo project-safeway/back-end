@@ -18,4 +18,10 @@ public interface AlunoRepository extends JpaRepository<Aluno, UUID> {
 
     @Query("SELECT CASE WHEN COUNT(a) > 0 THEN true ELSE false END FROM Aluno a WHERE a.escola.id = :idEscola AND a.usuario.id = :idUsuario")
     boolean existsByEscola_IdEscolaAndUsuario_IdUsuario(@Param("idEscola") UUID idEscola, @Param("idUsuario") UUID idUsuario);
+
+    @Query("SELECT a FROM Aluno a WHERE a.id IN :ids AND a.usuario.id = :userId")
+    List<Aluno> findByIdInAndUsuario_IdUsuario(@Param("ids") List<UUID> ids, @Param("userId") UUID userId);
+
+    @Query("SELECT a FROM Aluno a WHERE a.ativo = true AND a.usuario.id = :userId")
+    List<Aluno> findByAtivoTrueAndUsuario_IdUsuario(@Param("userId") UUID userId);
 }
