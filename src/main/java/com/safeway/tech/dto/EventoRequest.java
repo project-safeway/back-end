@@ -2,16 +2,16 @@ package com.safeway.tech.dto;
 
 import java.time.Instant;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
+import java.util.UUID;
 
 public record EventoRequest(
-        Long id,
+        UUID id,
         String title,
         String description,
         LocalDate date,
         String type,
         String priority,
-        Long usuarioId,
+        UUID usuarioId,
         String usuarioNome,
         Instant createdAt,
         Instant updatedAt

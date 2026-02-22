@@ -4,8 +4,10 @@ import com.safeway.tech.models.Funcionario;
 import com.safeway.tech.models.Transporte;
 import io.swagger.v3.oas.annotations.media.Schema;
 
+import java.util.UUID;
+
 public record FuncionarioResponse(
-        Long idFuncionario,
+        UUID idFuncionario,
         String nome,
         String cpf,
         TransporteResponse transporte,
@@ -14,7 +16,7 @@ public record FuncionarioResponse(
 
     public static FuncionarioResponse fromEntity(Funcionario funcionario) {
         return new FuncionarioResponse(
-                funcionario.getIdFuncionario(),
+                funcionario.getId(),
                 funcionario.getNome(),
                 funcionario.getCpf(),
                 TransporteResponse.fromEntity(funcionario.getTransporte()),

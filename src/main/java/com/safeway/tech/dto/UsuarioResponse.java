@@ -1,7 +1,9 @@
 package com.safeway.tech.dto;
 
+import java.util.UUID;
+
 public record UsuarioResponse(
-        Long id,
+        UUID id,
         String nome,
         String email,
         String tel1,
@@ -11,7 +13,7 @@ public record UsuarioResponse(
 ) {
     public static UsuarioResponse fromEntity(com.safeway.tech.models.Usuario u) {
         return new UsuarioResponse(
-                u.getIdUsuario(),
+                u.getId(),
                 u.getNome(),
                 u.getEmail(),
                 u.getTel1(),

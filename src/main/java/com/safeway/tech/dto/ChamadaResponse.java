@@ -5,9 +5,10 @@ import com.safeway.tech.models.Chamada;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 public record ChamadaResponse(
-        Long id,
+        UUID id,
         ItinerarioResponse itinerario,
         StatusChamadaEnum status,
         List<ChamadaAlunoResponse> alunos

@@ -12,6 +12,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.UUID;
 
 @Service
 public class ChamadaService {
@@ -25,17 +26,17 @@ public class ChamadaService {
     @Autowired
     private CurrentUserService currentUserService;
 
-    public Chamada buscarChamadaPorId(Long id) {
+    public Chamada buscarChamadaPorId(UUID id) {
         return chamadaRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Chamada não encontrada"));
     }
 
-    public Chamada buscarChamadaAtivaPorItinerario(Long idItinerario) {
+    public Chamada buscarChamadaAtivaPorItinerario(UUID idItinerario) {
         return chamadaRepository.findByItinerarioIdAndStatus(idItinerario, StatusChamadaEnum.EM_ANDAMENTO)
                 .orElse(null);
     }
 
-    public Chamada iniciarChamada(Long idItinerario) {
+    public Chamada iniciarChamada(UUID idItinerario) {
         Chamada chamadaExistente = buscarChamadaAtivaPorItinerario(idItinerario);
         if(chamadaExistente != null) {
             return chamadaExistente;
@@ -52,7 +53,7 @@ public class ChamadaService {
         return chamada;
     }
 
-    public Chamada atualizarChamada(Long idItinerario, StatusChamadaEnum statusChamada) {
+    public Chamada atualizarChamada(UUID idItinerario, StatusChamadaEnum statusChamada) {
         Chamada chamada = buscarChamadaAtivaPorItinerario(idItinerario);
         if (chamada == null) {
             throw new RuntimeException("Nenhuma chamada em andamento encontrada para este itinerário");
@@ -65,9 +66,9 @@ public class ChamadaService {
         return chamada;
     }
 
-    public Page<Chamada> buscarHistoricoChamadas(Long idItinerario, List<StatusChamadaEnum> status, Pageable pageable) {
-        Long transporteId = currentUserService.getCurrentTransporteId();
-        Long userId = currentUserService.getCurrentUserId();
+    public Page<Chamada> buscarHistoricoChamadas(UUID idItinerario, List<StatusChamadaEnum> status, Pageable pageable) {
+        UUID transporteId = currentUserService.getCurrentTransporteId();
+        UUID userId = currentUserService.getCurrentUserId();
 
         Specification<Chamada> specs = Specification.allOf(
                 ChamadaSpecs.comItinerarioId(idItinerario),

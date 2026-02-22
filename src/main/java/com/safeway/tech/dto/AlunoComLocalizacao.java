@@ -2,10 +2,12 @@ package com.safeway.tech.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import java.util.UUID;
+
 public record AlunoComLocalizacao(
-        @JsonProperty("alunoId") Long idAluno,
+        @JsonProperty("alunoId") UUID idAluno,
         @JsonProperty("nomeAluno") String nome,
-        @JsonProperty("enderecoId") Long idEndereco,
+        @JsonProperty("enderecoId") UUID idEndereco,
         String enderecoCompleto,
         Double latitude,
         Double longitude,

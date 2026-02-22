@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.UUID;
 
 @Service
 public class FuncionarioService {
@@ -32,18 +33,18 @@ public class FuncionarioService {
     @Autowired
     private CurrentUserService currentUserService;
 
-    public Funcionario buscarPorId(Long id){
-        Long userId = currentUserService.getCurrentUserId();
+    public Funcionario buscarPorId(UUID id){
+        UUID userId = currentUserService.getCurrentUserId();
         Funcionario f = funcionarioRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Funcionário não encontrado"));
-        if (!f.getUsuario().getIdUsuario().equals(userId)) {
+        if (!f.getUsuario().getId().equals(userId)) {
             throw new RuntimeException("Sem permissão para acessar este funcionário");
         }
         return f;
     }
 
     public Funcionario salvarFuncionario(FuncionarioRequest request){
-        Long userId = currentUserService.getCurrentUserId();
+        UUID userId = currentUserService.getCurrentUserId();
         Usuario usuario = usuarioRepository.getReferenceById(userId);
 
         if (request.cpf() != null && funcionarioRepository.findByCpfAndUsuario_IdUsuario(request.cpf(), userId).isPresent()) {
@@ -71,17 +72,17 @@ public class FuncionarioService {
     }
 
     public List<Funcionario> listarFuncionarios(){
-        Long userId = currentUserService.getCurrentUserId();
+        UUID userId = currentUserService.getCurrentUserId();
         return funcionarioRepository.findAllByUsuario_IdUsuario(userId);
     }
 
-    public void excluir(Long id){
+    public void excluir(UUID id){
         Funcionario funcionario = buscarPorId(id);
         funcionarioRepository.delete(funcionario);
     }
 
-    public Funcionario alterarFuncionario(FuncionarioRequest request, Long id){
-        Long userId = currentUserService.getCurrentUserId();
+    public Funcionario alterarFuncionario(FuncionarioRequest request, UUID id){
+        UUID userId = currentUserService.getCurrentUserId();
         Funcionario funcionario = buscarPorId(id);
 
         funcionario.setNome(request.nome());

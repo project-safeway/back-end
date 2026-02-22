@@ -10,22 +10,24 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
-public interface ItinerarioAlunoRepository extends JpaRepository<ItinerarioAluno, Long> {
+public interface ItinerarioAlunoRepository extends JpaRepository<ItinerarioAluno, UUID> {
 
     @Query("SELECT ia FROM ItinerarioAluno ia WHERE ia.itinerario.id = :itinerarioId")
-    List<ItinerarioAluno> findByItinerarioId(@Param("itinerarioId") Long itinerarioId);
+    List<ItinerarioAluno> findByItinerarioId(@Param("itinerarioId") UUID itinerarioId);
 
-    @Query("SELECT ia FROM ItinerarioAluno ia WHERE ia.itinerario.id = :itinerarioId AND ia.aluno.idAluno = :alunoId")
+    @Query("SELECT ia FROM ItinerarioAluno ia WHERE ia.itinerario.id = :itinerarioId AND ia.aluno.id = :alunoId")
     Optional<ItinerarioAluno> findByItinerarioIdAndAlunoId(
-            @Param("itinerarioId") Long itinerarioId,
-            @Param("alunoId") Long alunoId);
+            @Param("itinerarioId") UUID itinerarioId,
+            @Param("alunoId") UUID alunoId);
 
     @Modifying
     @Transactional
     @Query("DELETE FROM ItinerarioAluno ia WHERE ia.itinerario.id = :itinerarioId")
     void deleteAllByItinerarioId(
-            @Param("itinerarioId") Long itinerarioId);
+            @Param("itinerarioId") UUID itinerarioId);
 
-    List<ItinerarioAluno> findByItinerarioOrderByOrdemEmbarqueAsc(Itinerario itinerario);
+    @Query("SELECT ia FROM ItinerarioAluno ia WHERE ia.itinerario = :itinerario ORDER BY ia.ordemEmbarque ASC")
+    List<ItinerarioAluno> findByItinerarioOrderByOrdemEmbarqueAsc(@Param("itinerario") Itinerario itinerario);
 }

@@ -13,10 +13,10 @@ public class ItinerarioMapper {
     public static ItinerarioResponse toResponse(Itinerario entity) {
         List<ItinerarioAlunoResponse> alunos = entity.getAlunos().stream()
                 .map(a -> new ItinerarioAlunoResponse(
-                        a.getAluno().getIdAluno(),
+                        a.getAluno().getId(),
                         a.getAluno().getNome(),
                         a.getOrdemEmbarque(),
-                        a.getEndereco() != null ? a.getEndereco().getIdEndereco() : null,
+                        a.getEndereco() != null ? a.getEndereco().getId() : null,
                         a.getOrdemGlobal(),
                         a.getAluno().getEscola().getNome(),
                         a.getAluno().getResponsaveis().stream().map(Responsavel::getNome).findFirst().orElse(null),
@@ -26,7 +26,7 @@ public class ItinerarioMapper {
 
         List<ItinerarioEscolaResponse> escolas = entity.getEscolas() != null
                 ? entity.getEscolas().stream()
-                    .map(e -> ItinerarioEscolaResponse.fromEntity(e))
+                    .map(ItinerarioEscolaResponse::fromEntity)
                     .toList()
                 : List.of();
 

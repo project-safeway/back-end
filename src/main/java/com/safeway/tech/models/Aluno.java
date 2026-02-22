@@ -1,29 +1,27 @@
 package com.safeway.tech.models;
 
-import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToMany;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+import lombok.Setter;
 
-import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
 @Entity
 @Table(name = "alunos")
-@Data
-@EqualsAndHashCode(callSuper = true)
+@Getter @Setter
 @NoArgsConstructor
-@AllArgsConstructor
-@EntityListeners(AuditingEntityListener.class)
-public class Aluno extends Auditable {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long idAluno;
+public class Aluno extends BaseEntity {
 
     // Dono do registro (escopo de usuário)
     @ManyToOne(fetch = FetchType.LAZY)
@@ -59,9 +57,6 @@ public class Aluno extends Auditable {
 
     @Column(nullable = false)
     private Boolean ativo = true;
-
-    @OneToMany(mappedBy = "aluno", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<MensalidadeAluno> mensalidades = new ArrayList<>();
 
     // Relacionamento opcional com Transporte (corresponde ao mappedBy = "transporte" em Transporte)
     @ManyToOne(fetch = FetchType.LAZY)

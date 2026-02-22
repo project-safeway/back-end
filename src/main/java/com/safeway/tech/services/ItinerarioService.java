@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.UUID;
 
 @Service
 public class ItinerarioService {
@@ -38,21 +39,20 @@ public class ItinerarioService {
     @Autowired
     private ItinerarioEscolaRepository itinerarioEscolaRepository;
 
-    public List<ItinerarioResponse> listarTodos(Long transporteId) {
+    public List<ItinerarioResponse> listarTodos(UUID transporteId) {
         return itinerarioRepository.findAllByTransporte(transporteId).stream()
                 .map(ItinerarioMapper::toResponse)
                 .filter(ItinerarioResponse::ativo)
                 .toList();
     }
 
-    public Itinerario buscarPorId(Long id) {
-        Itinerario entity = itinerarioRepository.findById(id)
+    public Itinerario buscarPorId(UUID id) {
+        return itinerarioRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Itinerário não encontrado"));
-        return entity;
     }
 
     @Transactional
-    public void desativar(Long id) {
+    public void desativar(UUID id) {
         Itinerario itinerario = itinerarioRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Itinerário não encontrado"));
         itinerario.setAtivo(false);
@@ -60,7 +60,7 @@ public class ItinerarioService {
     }
 
     @Transactional
-    public ItinerarioResponse criar(ItinerarioRequest request, Long transporteUsuario) {
+    public ItinerarioResponse criar(ItinerarioRequest request, UUID transporteUsuario) {
         if (!request.transporteId().equals(transporteUsuario)) {
             throw new RuntimeException("Sem permissão para acessar este transporte");
         }
@@ -76,7 +76,7 @@ public class ItinerarioService {
     }
 
     @Transactional
-    public ItinerarioResponse atualizar(Long id, ItinerarioUpdateRequest request) {
+    public ItinerarioResponse atualizar(UUID id, ItinerarioUpdateRequest request) {
         Itinerario itinerario = itinerarioRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Itinerário não encontrado"));
 
@@ -97,11 +97,11 @@ public class ItinerarioService {
             var alunosAtuais = itinerarioAlunoRepository.findByItinerarioId(itinerario.getId());
             var escolasAtuais = itinerarioEscolaRepository.findByItinerarioId(itinerario.getId());
 
-            java.util.Map<Long, ItinerarioAluno> alunosPorId = alunosAtuais.stream()
-                    .collect(java.util.stream.Collectors.toMap(a -> a.getAluno().getIdAluno(), a -> a));
+            java.util.Map<UUID, ItinerarioAluno> alunosPorId = alunosAtuais.stream()
+                    .collect(java.util.stream.Collectors.toMap(a -> a.getAluno().getId(), a -> a));
 
-            java.util.Map<Long, ItinerarioEscola> escolasPorId = escolasAtuais.stream()
-                    .collect(java.util.stream.Collectors.toMap(e -> e.getEscola().getIdEscola(), e -> e));
+            java.util.Map<UUID, ItinerarioEscola> escolasPorId = escolasAtuais.stream()
+                    .collect(java.util.stream.Collectors.toMap(e -> e.getEscola().getId(), e -> e));
 
             for (ItinerarioParadaUpdate parada : request.paradas()) {
                 if (parada == null || parada.id() == null) continue;

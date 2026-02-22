@@ -1,14 +1,14 @@
 package com.safeway.tech.dto;
 
 import com.safeway.tech.enums.TipoViagemEnum;
-import com.safeway.tech.models.ItinerarioEscola;
 
 import java.sql.Time;
 import java.util.Comparator;
 import java.util.List;
+import java.util.UUID;
 
 public record ItinerarioResponse(
-        Long id,
+        UUID id,
         String nome,
         Time horarioInicio,
         Time horarioFim,
