@@ -2,14 +2,18 @@ package com.safeway.tech.repository;
 
 import com.safeway.tech.models.Funcionario;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
-public interface FuncionarioRepository extends JpaRepository<Funcionario, Long> {
-    Optional<Funcionario> findByCpf(String cpf);
+public interface FuncionarioRepository extends JpaRepository<Funcionario, UUID> {
 
-    Optional<Funcionario> findByCpfAndUsuario_IdUsuario(String cpf, Long userId);
+    @Query("SELECT f FROM Funcionario f WHERE f.cpf = :cpf AND f.usuario.id = :userId")
+    Optional<Funcionario> findByCpfAndUsuario_IdUsuario(@Param("cpf") String cpf, @Param("userId") UUID userId);
 
-    List<Funcionario> findAllByUsuario_IdUsuario(Long userId);
+    @Query("SELECT f FROM Funcionario f WHERE f.usuario.id = :userId")
+    List<Funcionario> findAllByUsuario_IdUsuario(@Param("userId") UUID userId);
 }

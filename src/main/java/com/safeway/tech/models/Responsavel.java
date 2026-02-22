@@ -1,11 +1,17 @@
 package com.safeway.tech.models;
 
-import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+import lombok.Setter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,16 +21,9 @@ import java.util.List;
         uniqueConstraints = {
                 @UniqueConstraint(name = "uk_responsavel_usuario_cpf", columnNames = {"fkUsuario", "cpf"})
         })
-@Data
-@EqualsAndHashCode(callSuper = true)
+@Getter @Setter
 @NoArgsConstructor
-@AllArgsConstructor
-@EntityListeners(AuditingEntityListener.class)
-public class Responsavel extends Auditable {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long idResponsavel;
+public class Responsavel extends BaseEntity {
 
     // Dono do registro (escopo de usuário)
     @ManyToOne(fetch = FetchType.LAZY)

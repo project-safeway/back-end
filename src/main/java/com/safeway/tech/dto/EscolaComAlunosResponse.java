@@ -4,9 +4,10 @@ import com.safeway.tech.enums.NivelEnsinoEnum;
 import com.safeway.tech.models.Aluno;
 import com.safeway.tech.models.Escola;
 import java.util.List;
+import java.util.UUID;
 
 public record EscolaComAlunosResponse(
-        Long id,
+        UUID id,
         String nome,
         NivelEnsinoEnum nivelEnsino,
         EnderecoResponse endereco,
@@ -14,7 +15,7 @@ public record EscolaComAlunosResponse(
 ) {
     public static EscolaComAlunosResponse fromEntity(Escola escola) {
         return new EscolaComAlunosResponse(
-                escola.getIdEscola(),
+                escola.getId(),
                 escola.getNome(),
                 escola.getNivelEnsino(),
                 EnderecoResponse.fromEntity(escola.getEndereco()),
@@ -25,7 +26,7 @@ public record EscolaComAlunosResponse(
     }
 
     public record AlunoResumoResponse(
-            Long id,
+            UUID id,
             String nome,
             Integer serie,
             String sala,
@@ -33,7 +34,7 @@ public record EscolaComAlunosResponse(
     ) {
         public static AlunoResumoResponse fromEntity(Aluno aluno) {
             return new AlunoResumoResponse(
-                    aluno.getIdAluno(),
+                    aluno.getId(),
                     aluno.getNome(),
                     aluno.getSerie(),
                     aluno.getSala(),

@@ -7,15 +7,16 @@ import com.safeway.tech.dto.EscolaResponse;
 import com.safeway.tech.models.Endereco;
 import com.safeway.tech.models.Escola;
 import com.safeway.tech.models.Usuario;
-import com.safeway.tech.repository.EscolaRepository;
-import com.safeway.tech.repository.EnderecoRepository;
-import com.safeway.tech.repository.UsuarioRepository;
 import com.safeway.tech.repository.AlunoRepository;
+import com.safeway.tech.repository.EnderecoRepository;
+import com.safeway.tech.repository.EscolaRepository;
+import com.safeway.tech.repository.UsuarioRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -29,7 +30,7 @@ public class EscolaService {
 
     @Transactional
     public EscolaResponse cadastrarEscola(EscolaRequest request) {
-        Long usuarioId = new CurrentUserService().getCurrentUserId();
+        UUID usuarioId = new CurrentUserService().getCurrentUserId();
 
         Usuario usuario = usuarioRepository.findById(usuarioId)
                 .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
@@ -64,7 +65,7 @@ public class EscolaService {
     }
 
     public List<EscolaComAlunosResponse> listarEscolasComAlunos() {
-        Long usuarioId = new CurrentUserService().getCurrentUserId();
+        UUID usuarioId = new CurrentUserService().getCurrentUserId();
 
         return escolaRepository.findByUsuarioIdUsuario(usuarioId).stream()
                 .map(EscolaComAlunosResponse::fromEntity)
@@ -72,16 +73,16 @@ public class EscolaService {
     }
 
     @Transactional(readOnly = true)
-    public EscolaResponse buscarPorId(Long escolaId) {
-        Long usuarioId = currentUserService.getCurrentUserId();
+    public EscolaResponse buscarPorId(UUID escolaId) {
+        UUID usuarioId = currentUserService.getCurrentUserId();
         Escola escola = escolaRepository.findByIdEscolaAndUsuario_IdUsuario(escolaId, usuarioId)
                 .orElseThrow(() -> new RuntimeException("Escola não encontrada para este usuário"));
         return EscolaResponse.fromEntity(escola);
     }
 
     @Transactional(readOnly = true)
-    public EnderecoResponse buscarEnderecoDaEscola(Long escolaId) {
-        Long usuarioId = currentUserService.getCurrentUserId();
+    public EnderecoResponse buscarEnderecoDaEscola(UUID escolaId) {
+        UUID usuarioId = currentUserService.getCurrentUserId();
         Escola escola = escolaRepository.findByIdEscolaAndUsuario_IdUsuario(escolaId, usuarioId)
                 .orElseThrow(() -> new RuntimeException("Escola não encontrada para este usuário"));
         Endereco endereco = escola.getEndereco();
@@ -89,15 +90,15 @@ public class EscolaService {
     }
 
     @Transactional(readOnly = true)
-    public Escola buscarEntidadePorId(Long itinerarioId, Long escolaId) {
-        Long usuarioId = currentUserService.getCurrentUserId();
+    public Escola buscarEntidadePorId(UUID itinerarioId, UUID escolaId) {
+        UUID usuarioId = currentUserService.getCurrentUserId();
         return escolaRepository.findByIdEscolaAndUsuario_IdUsuario(escolaId, usuarioId)
                 .orElseThrow(() -> new RuntimeException("Escola não encontrada para este usuário"));
     }
 
     @Transactional
-    public EscolaResponse atualizarEscola(Long escolaId, EscolaRequest request) {
-        Long usuarioId = currentUserService.getCurrentUserId();
+    public EscolaResponse atualizarEscola(UUID escolaId, EscolaRequest request) {
+        UUID usuarioId = currentUserService.getCurrentUserId();
         Escola escolaExistente = escolaRepository.findByIdEscolaAndUsuario_IdUsuario(escolaId, usuarioId)
                 .orElseThrow(() -> new RuntimeException("Escola não encontrada para este usuário"));
 
@@ -123,8 +124,8 @@ public class EscolaService {
     }
 
     @Transactional
-    public void deletarEscola(Long escolaId) {
-        Long usuarioId = currentUserService.getCurrentUserId();
+    public void deletarEscola(UUID escolaId) {
+        UUID usuarioId = currentUserService.getCurrentUserId();
         Escola escolaExistente = escolaRepository.findByIdEscolaAndUsuario_IdUsuario(escolaId, usuarioId)
                 .orElseThrow(() -> new RuntimeException("Escola não encontrada para este usuário"));
 

@@ -6,6 +6,7 @@ import com.safeway.tech.models.Aluno;
 import com.safeway.tech.models.Endereco;
 import com.safeway.tech.models.Itinerario;
 import com.safeway.tech.models.ItinerarioAluno;
+import com.safeway.tech.models.Responsavel;
 import com.safeway.tech.repository.ItinerarioAlunoRepository;
 import com.safeway.tech.repository.ItinerarioRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +15,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -35,7 +38,7 @@ public class ItinerarioAlunoService {
      * Adiciona um aluno a um itinerário existente
      */
     @Transactional
-    public void adicionarAluno(Long itinerarioId, ItinerarioAlunoRequest request) {
+    public void adicionarAluno(UUID itinerarioId, ItinerarioAlunoRequest request) {
         Itinerario itinerario = itinerarioRepository.findById(itinerarioId)
                 .orElseThrow(() -> new RuntimeException("Itinerário não encontrado"));
 
@@ -47,8 +50,8 @@ public class ItinerarioAlunoService {
             endereco = enderecoService.buscarEntidade(request.enderecoId());
         } else {
             endereco = aluno.getResponsaveis().stream()
-                    .map(r -> r.getEndereco())
-                    .filter(e -> e != null)
+                    .map(Responsavel::getEndereco)
+                    .filter(Objects::nonNull)
                     .findFirst()
                     .orElseThrow(() -> new RuntimeException("Nenhum endereço disponível para o responsável do aluno"));
         }
@@ -64,14 +67,14 @@ public class ItinerarioAlunoService {
         }
 
         boolean enderecoPerenceAoResponsavel = aluno.getResponsaveis().stream()
-                .anyMatch(r -> r.getEndereco() != null && r.getEndereco().getIdEndereco().equals(endereco.getIdEndereco()));
+                .anyMatch(r -> r.getEndereco() != null && r.getEndereco().getId().equals(endereco.getId()));
 
         if (!enderecoPerenceAoResponsavel) {
             throw new RuntimeException("Endereço não pertence a nenhum responsável do aluno");
         }
 
         // Evita duplicidade
-        itinerarioAlunoRepository.findByItinerarioIdAndAlunoId(itinerarioId, aluno.getIdAluno())
+        itinerarioAlunoRepository.findByItinerarioIdAndAlunoId(itinerarioId, aluno.getId())
                 .ifPresent(a -> {
                     throw new RuntimeException("Aluno já está vinculado a este itinerário");
                 });
@@ -86,7 +89,7 @@ public class ItinerarioAlunoService {
     }
 
     @Transactional
-    public void removerAluno(Long itinerarioId, Long alunoId) {
+    public void removerAluno(UUID itinerarioId, UUID alunoId) {
         ItinerarioAluno entity = itinerarioAlunoRepository
                 .findByItinerarioIdAndAlunoId(itinerarioId, alunoId)
                 .orElseThrow(() -> new RuntimeException("Aluno não encontrado no itinerário"));
@@ -112,24 +115,24 @@ public class ItinerarioAlunoService {
                 endereco = enderecoService.buscarEntidade(dto.enderecoId());
             } else {
                 endereco = aluno.getResponsaveis().stream()
-                        .map(r -> r.getEndereco())
-                        .filter(e -> e != null)
+                        .map(Responsavel::getEndereco)
+                        .filter(Objects::nonNull)
                         .findFirst()
                         .orElseThrow(() -> new RuntimeException("Nenhum endereço disponível para o responsável do aluno"));
             }
 
             // validar lat/lng
             if (endereco.getLatitude() == null || endereco.getLongitude() == null) {
-                throw new RuntimeException("Endereço do aluno (id=" + aluno.getIdAluno() + ") não possui latitude/longitude válidas");
+                throw new RuntimeException("Endereço do aluno (id=" + aluno.getId() + ") não possui latitude/longitude válidas");
             }
             double lat = endereco.getLatitude();
             double lng = endereco.getLongitude();
             if (lat < -90 || lat > 90 || lng < -180 || lng > 180) {
-                throw new RuntimeException("Coordenadas do endereço inválidas para aluno id=" + aluno.getIdAluno() + ": " + lat + ", " + lng);
+                throw new RuntimeException("Coordenadas do endereço inválidas para aluno id=" + aluno.getId() + ": " + lat + ", " + lng);
             }
 
             boolean enderecoPerenceAoResponsavel = aluno.getResponsaveis().stream()
-                    .anyMatch(r -> r.getEndereco() != null && r.getEndereco().getIdEndereco().equals(endereco.getIdEndereco()));
+                    .anyMatch(r -> r.getEndereco() != null && r.getEndereco().getId().equals(endereco.getId()));
 
             if (!enderecoPerenceAoResponsavel) {
                 throw new RuntimeException("Endereço não pertence a nenhum responsável do aluno");
@@ -145,13 +148,13 @@ public class ItinerarioAlunoService {
     }
 
     @Transactional
-    public void reordenar(Long itinerarioId, List<Long> novaOrdemAlunoIds) {
+    public void reordenar(UUID itinerarioId, List<UUID> novaOrdemAlunoIds) {
         // Mantido apenas para compatibilidade, mas ordemGlobal sera tratada em endpoint unificado
         List<ItinerarioAluno> atuais = itinerarioAlunoRepository.findByItinerarioId(itinerarioId);
-        Map<Long, ItinerarioAluno> map = atuais.stream()
-                .collect(Collectors.toMap(a -> a.getAluno().getIdAluno(), a -> a));
+        Map<UUID, ItinerarioAluno> map = atuais.stream()
+                .collect(Collectors.toMap(a -> a.getAluno().getId(), a -> a));
         int ordem = 1;
-        for (Long id : novaOrdemAlunoIds) {
+        for (UUID id : novaOrdemAlunoIds) {
             ItinerarioAluno ia = map.get(id);
             if (ia != null) {
                 ia.setOrdemEmbarque(ordem++);
@@ -161,7 +164,7 @@ public class ItinerarioAlunoService {
     }
 
     @Transactional
-    public List<AlunoComLocalizacao> buscarAlunosComLocalizacao(Long itinerarioId) {
+    public List<AlunoComLocalizacao> buscarAlunosComLocalizacao(UUID itinerarioId) {
         Itinerario itinerario = itinerarioRepository.findById(itinerarioId)
                 .orElseThrow(() -> new RuntimeException("Itinerário não encontrado"));
 
@@ -176,9 +179,9 @@ public class ItinerarioAlunoService {
                     );
 
                     return new AlunoComLocalizacao(
-                            ia.getAluno().getIdAluno(),
+                            ia.getAluno().getId(),
                             ia.getAluno().getNome(),
-                            endereco.getIdEndereco(),
+                            endereco.getId(),
                             enderecoCompleto,
                             endereco.getLatitude(),
                             endereco.getLongitude(),

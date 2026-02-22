@@ -9,10 +9,10 @@ import org.springframework.web.reactive.function.client.WebClient;
 
 @Configuration
 public class GoogleOptimizationConfig {
-    @Value("${google.projectId:}")
+    @Value("${google.projectId:project-id-placeholder}")
     private String projectId;
 
-    @Value("${google.maps.api.key}")
+    @Value("${google.maps.api.key:api-key-placeholder}")
     private String apiKey;
 
     @Bean

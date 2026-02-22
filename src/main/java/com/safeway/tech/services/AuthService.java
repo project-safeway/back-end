@@ -2,9 +2,9 @@ package com.safeway.tech.services;
 
 import com.safeway.tech.dto.AuthResponse;
 import com.safeway.tech.dto.RegisterRequest;
+import com.safeway.tech.enums.UserRole;
 import com.safeway.tech.models.Transporte;
 import com.safeway.tech.models.Usuario;
-import com.safeway.tech.enums.UserRole;
 import com.safeway.tech.repository.TransporteRepository;
 import com.safeway.tech.repository.UsuarioRepository;
 import org.slf4j.Logger;
@@ -20,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 public class AuthService {
@@ -98,18 +99,18 @@ public class AuthService {
 
         JwtClaimsSet claims = JwtClaimsSet.builder()
                 .issuer("safeway-tech")
-                .subject(usuario.getIdUsuario().toString())
+                .subject(usuario.getId().toString())
                 .issuedAt(now)
                 .expiresAt(now.plusSeconds(expiresIn))
                 .claim("role", usuario.getRole().toString())
-                .claim("transporte", usuario.getTransporte().getIdTransporte())
+                .claim("transporte", usuario.getTransporte().getId())
                 .build();
 
         String jwtValue = jwtEncoder.encode(JwtEncoderParameters.from(claims)).getTokenValue();
 
-        Long idTransporte = null;
+        UUID idTransporte = null;
         if (usuario.getTransporte() != null) {
-            idTransporte = usuario.getTransporte().getIdTransporte();
+            idTransporte = usuario.getTransporte().getId();
         }
 
         return new AuthResponse(jwtValue, expiresIn, usuario.getNome(), idTransporte);

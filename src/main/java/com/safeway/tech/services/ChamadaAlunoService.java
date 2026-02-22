@@ -12,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.Map;
+import java.util.UUID;
 
 @Service
 public class ChamadaAlunoService {
@@ -26,15 +27,15 @@ public class ChamadaAlunoService {
     private ChamadaService chamadaService;
 
     @Transactional
-    public void registrarPresenca(Map<Long, StatusPresencaEnum> presencas, Long idChamada) {
+    public void registrarPresenca(Map<UUID, StatusPresencaEnum> presencas, UUID idChamada) {
         Chamada chamada = chamadaService.buscarChamadaPorId(idChamada);
 
         if (!StatusChamadaEnum.EM_ANDAMENTO.equals(chamada.getStatus())) {
             throw new RuntimeException("Chamada não está em andamento");
         }
 
-        for (Map.Entry<Long, StatusPresencaEnum> entry : presencas.entrySet()) {
-            Long idAluno = entry.getKey();
+        for (Map.Entry<UUID, StatusPresencaEnum> entry : presencas.entrySet()) {
+            UUID idAluno = entry.getKey();
             StatusPresencaEnum status = entry.getValue();
 
             Aluno aluno = alunoService.buscarAlunoPorId(idAluno);

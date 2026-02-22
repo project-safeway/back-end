@@ -3,5 +3,7 @@ package com.safeway.tech.repository;
 import com.safeway.tech.models.Endereco;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface EnderecoRepository extends JpaRepository<Endereco, Long> {
+import java.util.UUID;
+
+public interface EnderecoRepository extends JpaRepository<Endereco, UUID> {
 }

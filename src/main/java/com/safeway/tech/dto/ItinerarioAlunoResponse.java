@@ -3,11 +3,13 @@ package com.safeway.tech.dto;
 import com.safeway.tech.models.ItinerarioAluno;
 import com.safeway.tech.models.Responsavel;
 
+import java.util.UUID;
+
 public record ItinerarioAlunoResponse(
-        Long alunoId,
+        UUID alunoId,
         String nomeAluno,
         Integer ordemEmbarque,
-        Long enderecoId,
+        UUID enderecoId,
         Integer ordemGlobal,
         String nomeEscola,
         String nomeResponsavel,
@@ -16,10 +18,10 @@ public record ItinerarioAlunoResponse(
 
     public static ItinerarioAlunoResponse fromEntity(ItinerarioAluno itinerarioAluno) {
         return new ItinerarioAlunoResponse(
-                itinerarioAluno.getAluno().getIdAluno(),
+                itinerarioAluno.getAluno().getId(),
                 itinerarioAluno.getAluno().getNome(),
                 itinerarioAluno.getOrdemEmbarque(),
-                itinerarioAluno.getEndereco() != null ? itinerarioAluno.getEndereco().getIdEndereco() : null,
+                itinerarioAluno.getEndereco() != null ? itinerarioAluno.getEndereco().getId() : null,
                 itinerarioAluno.getOrdemGlobal(),
                 itinerarioAluno.getAluno().getEscola().getNome(),
                 itinerarioAluno.getAluno().getResponsaveis().stream().map(Responsavel::getNome).findFirst().orElse(null),

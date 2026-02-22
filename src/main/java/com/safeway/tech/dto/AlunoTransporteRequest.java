@@ -6,10 +6,11 @@ import jakarta.validation.constraints.PastOrPresent;
 import jakarta.validation.constraints.Positive;
 
 import java.util.Date;
+import java.util.UUID;
 
 public record AlunoTransporteRequest(
-        @NotNull @Positive Long idAluno,
-        @NotNull @Positive Long idTransporte,
+        @NotNull @Positive UUID idAluno,
+        @NotNull @Positive UUID idTransporte,
         @NotNull TipoViagemEnum tipoViagem,
         @NotNull @PastOrPresent Date dataInicio,
         Date dataFim

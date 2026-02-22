@@ -2,8 +2,10 @@ package com.safeway.tech.dto;
 
 import com.safeway.tech.models.Endereco;
 
+import java.util.UUID;
+
 public record EnderecoResponse(
-        Long id,
+        UUID id,
         String logradouro,
         String numero,
         String complemento,
@@ -19,7 +21,7 @@ public record EnderecoResponse(
 ) {
     public static EnderecoResponse fromEntity(Endereco endereco) {
         return new EnderecoResponse(
-                endereco.getIdEndereco(),
+                endereco.getId(),
                 endereco.getLogradouro(),
                 endereco.getNumero(),
                 endereco.getComplemento(),

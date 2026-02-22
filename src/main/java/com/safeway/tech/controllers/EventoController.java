@@ -7,10 +7,19 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/eventos")
@@ -30,7 +39,7 @@ public class EventoController {
     }
 
     @GetMapping("/{id}")
-    public Evento obter(@PathVariable Long id) {
+    public Evento obter(@PathVariable UUID id) {
         return eventoService.retornarUmOwned(id);
     }
 
@@ -41,12 +50,12 @@ public class EventoController {
     }
 
     @PutMapping("/{id}")
-    public Evento atualizar(@PathVariable Long id, @RequestBody Evento evento) {
+    public Evento atualizar(@PathVariable UUID id, @RequestBody Evento evento) {
         return eventoService.atualizarEvento(id, evento);
     }
 
     @DeleteMapping("/{id}")
-    public void excluir(@PathVariable Long id) {
+    public void excluir(@PathVariable UUID id) {
         eventoService.excluir(id);
     }
 }

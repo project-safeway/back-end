@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.UUID;
 
 @Service
 public class EventoService {
@@ -24,7 +25,7 @@ public class EventoService {
     private UsuarioRepository usuarioRepository;
 
     public EventoRequest criarEvento(Evento evento) {
-        Long userId = currentUserService.getCurrentUserId();
+        UUID userId = currentUserService.getCurrentUserId();
         Usuario usuario = usuarioRepository.getReferenceById(userId);
         if (evento.getPriority() == null || evento.getPriority().isBlank()) {
             evento.setPriority("media");
@@ -35,26 +36,26 @@ public class EventoService {
     }
 
     public List<EventoRequest> listarEventosDoUsuarioAtual() {
-        Long userId = currentUserService.getCurrentUserId();
+        UUID userId = currentUserService.getCurrentUserId();
         return repository.findAllByUsuario_IdUsuario(userId)
                 .stream()
                 .map(this::converterParaDTO)
                 .toList();
     }
 
-    public Evento retornarUmOwned(Long idEvento) {
-        Long userId = currentUserService.getCurrentUserId();
+    public Evento retornarUmOwned(UUID idEvento) {
+        UUID userId = currentUserService.getCurrentUserId();
         return repository.findByIdAndUsuario_IdUsuario(idEvento, userId)
                 .orElseThrow(() -> new RuntimeException("Evento não encontrado"));
     }
 
-    public void excluir(Long idEvento) {
+    public void excluir(UUID idEvento) {
         // valida propriedade
         Evento evt = retornarUmOwned(idEvento);
         repository.deleteById(evt.getId());
     }
 
-    public Evento atualizarEvento(Long idEvento, Evento novo) {
+    public Evento atualizarEvento(UUID idEvento, Evento novo) {
         Evento atual = retornarUmOwned(idEvento);
         atual.setTitle(novo.getTitle());
         atual.setDescription(novo.getDescription());
@@ -65,7 +66,7 @@ public class EventoService {
     }
 
     public List<EventoRequest> listarFiltrado(LocalDate start, LocalDate end, String type, String priority) {
-        Long userId = currentUserService.getCurrentUserId();
+        UUID userId = currentUserService.getCurrentUserId();
         return repository.findFiltrado(userId, start, end, type, priority)
                 .stream()
                 .map(this::converterParaDTO)
@@ -80,7 +81,7 @@ public class EventoService {
                 evento.getDate(),
                 evento.getType(),
                 evento.getPriority(),
-                evento.getUsuario().getIdUsuario(),
+                evento.getUsuario().getId(),
                 evento.getUsuario().getNome(),
                 evento.getCreatedAt(),
                 evento.getUpdatedAt()

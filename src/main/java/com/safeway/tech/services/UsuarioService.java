@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.UUID;
 
 @Service
 public class UsuarioService {
@@ -16,7 +17,7 @@ public class UsuarioService {
         return repository.findAll();
     }
 
-    public Usuario retornarUm(Long idUsuario){
+    public Usuario retornarUm(UUID idUsuario){
         return repository.findById(idUsuario).orElseThrow(RuntimeException::new);
     }
 
@@ -24,11 +25,11 @@ public class UsuarioService {
         return repository.save(usuario);
     }
 
-    public void excluir(Long idUsuario) {
+    public void excluir(UUID idUsuario) {
         repository.deleteById(idUsuario);
     }
 
-    public Usuario alterarUsuario(Usuario novoUsuario, Long idUsuario){
+    public Usuario alterarUsuario(Usuario novoUsuario, UUID idUsuario){
         Usuario usuario = repository.findById(idUsuario).orElseThrow(RuntimeException::new);
         usuario.setNome(novoUsuario.getNome());
         usuario.setEmail(novoUsuario.getEmail());
