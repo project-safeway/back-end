@@ -4,6 +4,7 @@ import com.safeway.tech.dto.AlunoFeignResponse;
 import com.safeway.tech.dto.AlunoResponse;
 import com.safeway.tech.dto.AlunoUpdateRequest;
 import com.safeway.tech.dto.CadastroAlunoCompletoRequest;
+import com.safeway.tech.messaging.publishers.EventPublisher;
 import com.safeway.tech.models.Aluno;
 import com.safeway.tech.models.Endereco;
 import com.safeway.tech.models.Escola;
@@ -36,6 +37,7 @@ public class AlunoService {
     private final UsuarioRepository usuarioRepository;
     private final CurrentUserService currentUserService;
     private final EnderecoService enderecoService;
+    private final EventPublisher eventPublisher;
 
     @Transactional
     public UUID cadastrarAlunoCompleto(CadastroAlunoCompletoRequest request) {
@@ -153,6 +155,7 @@ public class AlunoService {
             }
             // salvar aluno novamente para garantir que a relação inversa está persistida
             alunoRepository.save(aluno);
+            eventPublisher.publicarAlunoCriado(aluno);
         }
 
         return aluno.getId();
@@ -285,6 +288,7 @@ public class AlunoService {
         }
 
         aluno = alunoRepository.save(aluno);
+        eventPublisher.publicarAlunoAtualizado(aluno);
         return AlunoResponse.fromEntity(aluno);
     }
 
@@ -312,6 +316,7 @@ public class AlunoService {
 
         // agora é seguro deletar o aluno (não há mais registros na tabela de junção)
         alunoRepository.delete(aluno);
+        eventPublisher.publicarAlunoInativado(aluno);
     }
 
     public List<AlunoFeignResponse> buscarPorIdEmLote(List<UUID> ids) {
