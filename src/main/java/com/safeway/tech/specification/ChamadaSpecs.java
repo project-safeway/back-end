@@ -26,6 +26,6 @@ public class ChamadaSpecs {
 
     public static Specification<Chamada> comUsuario(UUID usuarioId) {
         return (root, query, cb) ->
-                usuarioId == null ? null : cb.equal(root.get("itinerario").get("transporte").get("usuario").get("idUsuario"), usuarioId);
+                usuarioId == null ? null : cb.equal(root.get("itinerario").get("transporte").get("usuario").get("id"), usuarioId);
     }
 }

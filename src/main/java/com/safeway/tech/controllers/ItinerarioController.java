@@ -46,14 +46,14 @@ public class ItinerarioController {
             @Valid @RequestBody ItinerarioRequest request,
             @AuthenticationPrincipal Jwt jwt
     ) {
-        UUID transporteUsuario = jwt.getClaim("transporte");
+        UUID transporteUsuario = UUID.fromString(jwt.getClaim("transporte"));
         ItinerarioResponse response = itinerarioService.criar(request, transporteUsuario);
         return ResponseEntity.ok(response);
     }
 
     @GetMapping
     public ResponseEntity<List<ItinerarioResponse>> listarTodos(@AuthenticationPrincipal Jwt jwt) {
-        UUID transporte = jwt.getClaim("transporte");
+        UUID transporte = UUID.fromString(jwt.getClaim("transporte"));
         return ResponseEntity.ok(itinerarioService.listarTodos(transporte));
     }
 

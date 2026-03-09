@@ -16,7 +16,7 @@ public record CadastroAlunoCompletoRequest(
         @NotNull @DecimalMin(value = "0.0") Double valorMensalidade,
         @NotNull @Min(1) @Max(31) Integer diaVencimento,
         @NotNull UUID fkEscola,
-        @Positive(message = "fkTransporte deve ser positivo") UUID fkTransporte,
+        @NotNull UUID fkTransporte,
         @Valid List<ResponsavelComEnderecoData> responsaveis
 ) {
     public record ResponsavelComEnderecoData(
