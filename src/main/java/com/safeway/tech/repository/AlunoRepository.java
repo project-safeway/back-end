@@ -1,6 +1,6 @@
 package com.safeway.tech.repository;
 
-import com.safeway.tech.models.Aluno;
+import com.safeway.tech.domain.models.Aluno;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;

@@ -1,0 +1,144 @@
+package com.safeway.tech.service.services;
+
+import com.google.maps.model.LatLng;
+import com.safeway.tech.api.dto.endereco.EnderecoRequest;
+import com.safeway.tech.api.dto.endereco.EnderecoResponse;
+import com.safeway.tech.domain.models.Endereco;
+import com.safeway.tech.domain.models.Responsavel;
+import com.safeway.tech.repository.EnderecoRepository;
+import com.safeway.tech.repository.ResponsavelRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+import java.util.Objects;
+import java.util.UUID;
+
+@Service
+public class EnderecoService {
+
+    @Autowired
+    private EnderecoRepository enderecoRepository;
+
+    @Autowired
+    private ResponsavelRepository responsavelRepository;
+
+    @Autowired
+    private GeocodingService geocodingService;
+
+    @Transactional
+    public EnderecoResponse criar(EnderecoRequest request) {
+        if (request.responsavelId() == null) {
+            throw new RuntimeException("responsavelId é obrigatório");
+        }
+
+        Responsavel responsavel = responsavelRepository.findById(request.responsavelId())
+                .orElseThrow(() -> new RuntimeException("Responsável não encontrado"));
+
+        Endereco endereco = new Endereco();
+        endereco.setLogradouro(request.logradouro());
+        endereco.setNumero(request.numero());
+        endereco.setComplemento(request.complemento());
+        endereco.setBairro(request.bairro());
+        endereco.setCidade(request.cidade());
+        endereco.setUf(request.uf());
+        endereco.setCep(request.cep());
+        endereco.setLatitude(request.latitude());
+        endereco.setLongitude(request.longitude());
+        endereco.setTipo(request.tipo());
+        endereco.setAtivo(true);
+        endereco.setPrincipal(false); // Principal é gerenciado no Responsavel
+        endereco = this.calcularCoordenadas(endereco);
+        endereco = enderecoRepository.save(endereco);
+
+        // Vincula endereço ao responsável
+        responsavel.setEndereco(endereco);
+        responsavelRepository.save(responsavel);
+
+        return EnderecoResponse.fromEntity(endereco);
+    }
+
+    public List<EnderecoResponse> listarPorResponsavel(UUID responsavelId) {
+        Responsavel responsavel = responsavelRepository.findById(responsavelId)
+                .orElseThrow(() -> new RuntimeException("Responsável não encontrado"));
+
+        return List.of(EnderecoResponse.fromEntity(responsavel.getEndereco()));
+    }
+
+    @Transactional
+    public List<EnderecoResponse> listarEnderecosDisponiveis(UUID alunoId, UUID usuarioId) {
+        // Busca endereços de todos os responsáveis vinculados ao aluno
+        List<Responsavel> responsaveis = responsavelRepository.findByAlunosIdAlunoAndUsuarioIdUsuario(alunoId, usuarioId);
+
+        return responsaveis.stream()
+                .map(r -> {
+                    Endereco e = r.getEndereco();
+                    if (e == null) return null;
+                    // Acessar um campo para garantir inicialização dentro da transação
+                    e.getId();
+                    return EnderecoResponse.fromEntity(e);
+                })
+                .filter(Objects::nonNull)
+                .toList();
+    }
+
+    public EnderecoResponse buscarPorId(UUID id) {
+        Endereco endereco = buscarEntidade(id);
+        return EnderecoResponse.fromEntity(endereco);
+    }
+
+    @Transactional
+    public EnderecoResponse atualizar(UUID id, EnderecoRequest request) {
+        Endereco endereco = buscarEntidade(id);
+
+        endereco.setLogradouro(request.logradouro());
+        endereco.setNumero(request.numero());
+        endereco.setComplemento(request.complemento());
+        endereco.setBairro(request.bairro());
+        endereco.setCidade(request.cidade());
+        endereco.setUf(request.uf());
+        endereco.setCep(request.cep());
+        endereco.setLatitude(request.latitude());
+        endereco.setLongitude(request.longitude());
+        endereco.setTipo(request.tipo());
+        endereco = this.calcularCoordenadas(endereco);
+
+        endereco = enderecoRepository.save(endereco);
+        return EnderecoResponse.fromEntity(endereco);
+    }
+
+    @Transactional
+    public void desativar(UUID id) {
+        Endereco endereco = buscarEntidade(id);
+        endereco.setAtivo(false);
+        enderecoRepository.save(endereco);
+    }
+
+    public Endereco buscarEntidade(UUID id) {
+        return enderecoRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Endereço não encontrado"));
+    }
+
+    public Endereco calcularCoordenadas(Endereco endereco) {
+        try {
+            String enderecoCompleto = String.format("%s, %s, %s, %s, %s, %s",
+                    endereco.getLogradouro(),
+                    endereco.getNumero(),
+                    endereco.getBairro(),
+                    endereco.getCidade(),
+                    endereco.getUf(),
+                    endereco.getCep()
+            );
+
+            LatLng coordenadas = geocodingService.obterCoordenadas(enderecoCompleto);
+            endereco.setLatitude(coordenadas.lat);
+            endereco.setLongitude(coordenadas.lng);
+
+            return endereco;
+        } catch (Exception e) {
+            throw new RuntimeException("Erro ao calcular coordenadas: " + e.getMessage());
+        }
+    }
+
+}
