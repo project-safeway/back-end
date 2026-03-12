@@ -8,7 +8,7 @@ import com.safeway.tech.domain.models.Endereco;
 import com.safeway.tech.domain.models.Responsavel;
 import com.safeway.tech.service.services.ResponsavelService;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -26,9 +26,10 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/responsavel")
+@RequiredArgsConstructor
 public class ResponsavelController {
-    @Autowired
-    private ResponsavelService responsavelService;
+
+    private final ResponsavelService responsavelService;
 
     private Responsavel mapToEntity(ResponsavelRequest request) {
         EnderecoRequest er = request.endereco();

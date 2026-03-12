@@ -6,7 +6,7 @@ import com.safeway.tech.domain.models.Aluno;
 import com.safeway.tech.domain.models.Chamada;
 import com.safeway.tech.domain.models.ChamadaAluno;
 import com.safeway.tech.repository.ChamadaAlunoRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -15,16 +15,12 @@ import java.util.Map;
 import java.util.UUID;
 
 @Service
+@RequiredArgsConstructor
 public class ChamadaAlunoService {
 
-    @Autowired
-    private ChamadaAlunoRepository chamadaAlunoRepository;
-
-    @Autowired
-    private AlunoService alunoService;
-
-    @Autowired
-    private ChamadaService chamadaService;
+    private final ChamadaAlunoRepository chamadaAlunoRepository;
+    private final AlunoService alunoService;
+    private final ChamadaService chamadaService;
 
     @Transactional
     public void registrarPresenca(Map<UUID, StatusPresencaEnum> presencas, UUID idChamada) {

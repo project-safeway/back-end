@@ -18,6 +18,7 @@ import java.util.UUID;
 @Service
 @RequiredArgsConstructor
 public class ResponsavelService {
+
     private final ResponsavelRepository repository;
     private final UsuarioRepository usuarioRepository;
     private final AlunoRepository alunoRepository;

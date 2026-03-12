@@ -18,6 +18,7 @@ import java.util.Map;
 
 @Service("googleOptimization")
 public class GoogleOptimizationAdapter implements RotasService {
+
     private final GoogleOptimizationClient cliente;
 
     public GoogleOptimizationAdapter(GoogleOptimizationClient cliente) { this.cliente = cliente; }

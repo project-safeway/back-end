@@ -11,7 +11,6 @@ import com.safeway.tech.service.services.CurrentUserService;
 import com.safeway.tech.service.services.EnderecoService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -32,14 +31,9 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class AlunoController {
 
-    @Autowired
-    private AlunoService alunoService;
-
-    @Autowired
-    private EnderecoService enderecoService;
-
-    @Autowired
-    private CurrentUserService currentUserService;
+    private final AlunoService alunoService;
+    private final EnderecoService enderecoService;
+    private final CurrentUserService currentUserService;
 
     @PostMapping
     public ResponseEntity<UUID> cadastrarAlunoCompleto(

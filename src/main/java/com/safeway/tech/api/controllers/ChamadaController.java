@@ -7,7 +7,7 @@ import com.safeway.tech.domain.models.Chamada;
 import com.safeway.tech.service.services.ChamadaAlunoService;
 import com.safeway.tech.service.services.ChamadaService;
 import jakarta.websocket.server.PathParam;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -28,13 +28,11 @@ import java.util.UUID;
 
 @RequestMapping("/chamada")
 @RestController
+@RequiredArgsConstructor
 public class ChamadaController {
 
-    @Autowired
-    private ChamadaService chamadaService;
-
-    @Autowired
-    private ChamadaAlunoService chamadaAlunoService;
+    private final ChamadaService chamadaService;
+    private final ChamadaAlunoService chamadaAlunoService;
 
     @PostMapping("/iniciar/{id}")
     public ResponseEntity<ChamadaResponse> iniciarChamada(@PathVariable UUID id) {

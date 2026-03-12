@@ -6,7 +6,7 @@ import com.safeway.tech.api.dto.transporte.TransporteResponse;
 import com.safeway.tech.domain.models.Transporte;
 import com.safeway.tech.service.services.TransporteService;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -22,9 +22,10 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/transporte")
+@RequiredArgsConstructor
 public class TransporteController {
-    @Autowired
-    private TransporteService transporteService;
+
+    private final TransporteService transporteService;
 
     private Transporte mapToEntity(TransporteRequest req){
         Transporte t = new Transporte();

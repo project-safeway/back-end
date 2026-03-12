@@ -7,7 +7,7 @@ import com.safeway.tech.domain.models.Endereco;
 import com.safeway.tech.domain.models.Responsavel;
 import com.safeway.tech.repository.EnderecoRepository;
 import com.safeway.tech.repository.ResponsavelRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,16 +16,12 @@ import java.util.Objects;
 import java.util.UUID;
 
 @Service
+@RequiredArgsConstructor
 public class EnderecoService {
 
-    @Autowired
-    private EnderecoRepository enderecoRepository;
-
-    @Autowired
-    private ResponsavelRepository responsavelRepository;
-
-    @Autowired
-    private GeocodingService geocodingService;
+    private final EnderecoRepository enderecoRepository;
+    private final ResponsavelRepository responsavelRepository;
+    private final GeocodingService geocodingService;
 
     @Transactional
     public EnderecoResponse criar(EnderecoRequest request) {

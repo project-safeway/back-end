@@ -3,9 +3,8 @@ package com.safeway.tech.api.controllers;
 import com.safeway.tech.api.dto.endereco.EnderecoRequest;
 import com.safeway.tech.api.dto.endereco.EnderecoResponse;
 import com.safeway.tech.service.services.EnderecoService;
-import com.safeway.tech.service.services.GeocodingService;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -20,10 +19,10 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/enderecos")
+@RequiredArgsConstructor
 public class EnderecoController {
 
-    @Autowired
-    private EnderecoService enderecoService;
+    private final EnderecoService enderecoService;
 
     @PostMapping
     public ResponseEntity<EnderecoResponse> criar(@Valid @RequestBody EnderecoRequest request) {

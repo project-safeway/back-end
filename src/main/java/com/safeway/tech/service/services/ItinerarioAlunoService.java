@@ -9,7 +9,7 @@ import com.safeway.tech.domain.models.ItinerarioAluno;
 import com.safeway.tech.domain.models.Responsavel;
 import com.safeway.tech.repository.ItinerarioAlunoRepository;
 import com.safeway.tech.repository.ItinerarioRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,19 +20,13 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class ItinerarioAlunoService {
 
-    @Autowired
-    private ItinerarioAlunoRepository itinerarioAlunoRepository;
-
-    @Autowired
-    private ItinerarioRepository itinerarioRepository;
-
-    @Autowired
-    private AlunoService alunoService;
-
-    @Autowired
-    private EnderecoService enderecoService;
+    private final ItinerarioAlunoRepository itinerarioAlunoRepository;
+    private final ItinerarioRepository itinerarioRepository;
+    private final AlunoService alunoService;
+    private final EnderecoService enderecoService;
 
     /**
      * Adiciona um aluno a um itinerário existente
