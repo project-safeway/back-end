@@ -1,6 +1,6 @@
 package com.safeway.tech.repository;
 
-import com.safeway.tech.models.Itinerario;
+import com.safeway.tech.domain.models.Itinerario;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;

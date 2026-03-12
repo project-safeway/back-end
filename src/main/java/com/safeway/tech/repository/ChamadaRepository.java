@@ -1,9 +1,7 @@
 package com.safeway.tech.repository;
 
-import com.safeway.tech.enums.StatusChamadaEnum;
-import com.safeway.tech.models.Chamada;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
+import com.safeway.tech.domain.enums.StatusChamadaEnum;
+import com.safeway.tech.domain.models.Chamada;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
