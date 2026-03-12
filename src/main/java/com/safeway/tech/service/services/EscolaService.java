@@ -76,7 +76,7 @@ public class EscolaService {
     @Transactional(readOnly = true)
     public EscolaResponse buscarPorId(UUID escolaId) {
         UUID usuarioId = currentUserService.getCurrentUserId();
-        Escola escola = escolaRepository.findByIdEscolaAndUsuario_IdUsuario(escolaId, usuarioId)
+        Escola escola = escolaRepository.findByIdEscolaAndIdUsuario(escolaId, usuarioId)
                 .orElseThrow(() -> new RuntimeException("Escola não encontrada para este usuário"));
         return EscolaResponse.fromEntity(escola);
     }
@@ -84,7 +84,7 @@ public class EscolaService {
     @Transactional(readOnly = true)
     public EnderecoResponse buscarEnderecoDaEscola(UUID escolaId) {
         UUID usuarioId = currentUserService.getCurrentUserId();
-        Escola escola = escolaRepository.findByIdEscolaAndUsuario_IdUsuario(escolaId, usuarioId)
+        Escola escola = escolaRepository.findByIdEscolaAndIdUsuario(escolaId, usuarioId)
                 .orElseThrow(() -> new RuntimeException("Escola não encontrada para este usuário"));
         Endereco endereco = escola.getEndereco();
         return EnderecoResponse.fromEntity(endereco);
@@ -93,20 +93,20 @@ public class EscolaService {
     @Transactional(readOnly = true)
     public Escola buscarEntidadePorId(UUID itinerarioId, UUID escolaId) {
         UUID usuarioId = currentUserService.getCurrentUserId();
-        return escolaRepository.findByIdEscolaAndUsuario_IdUsuario(escolaId, usuarioId)
+        return escolaRepository.findByIdEscolaAndIdUsuario(escolaId, usuarioId)
                 .orElseThrow(() -> new RuntimeException("Escola não encontrada para este usuário"));
     }
 
     @Transactional
     public EscolaResponse atualizarEscola(UUID escolaId, EscolaRequest request) {
         UUID usuarioId = currentUserService.getCurrentUserId();
-        Escola escolaExistente = escolaRepository.findByIdEscolaAndUsuario_IdUsuario(escolaId, usuarioId)
+        Escola escolaExistente = escolaRepository.findByIdEscolaAndIdUsuario(escolaId, usuarioId)
                 .orElseThrow(() -> new RuntimeException("Escola não encontrada para este usuário"));
 
         escolaExistente.setNome(request.nome());
         escolaExistente.setNivelEnsino(request.nivelEnsino());
 
-        if(request.endereco() != null) {
+        if (request.endereco() != null) {
             Endereco enderecoExistente = escolaExistente.getEndereco();
             enderecoExistente.setLogradouro(request.endereco().logradouro());
             enderecoExistente.setNumero(request.endereco().numero());
@@ -127,11 +127,11 @@ public class EscolaService {
     @Transactional
     public void deletarEscola(UUID escolaId) {
         UUID usuarioId = currentUserService.getCurrentUserId();
-        Escola escolaExistente = escolaRepository.findByIdEscolaAndUsuario_IdUsuario(escolaId, usuarioId)
+        Escola escolaExistente = escolaRepository.findByIdEscolaAndIdUsuario(escolaId, usuarioId)
                 .orElseThrow(() -> new RuntimeException("Escola não encontrada para este usuário"));
 
         // Verifica se existem alunos vinculados a esta escola para este usuário
-        boolean existeAluno = alunoRepository.existsByEscola_IdEscolaAndUsuario_IdUsuario(escolaId, usuarioId);
+        boolean existeAluno = alunoRepository.existsByIdEscolaAndIdUsuario(escolaId, usuarioId);
         if (existeAluno) {
             throw new RuntimeException("Não é possível excluir a escola, pois existem alunos vinculados a ela.");
         }

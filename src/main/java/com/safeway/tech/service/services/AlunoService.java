@@ -57,13 +57,13 @@ public class AlunoService {
         aluno.setAtivo(true);
 
         // 2. Buscar escola do próprio usuário
-        Escola escola = escolaRepository.findByIdEscolaAndUsuario_IdUsuario(request.fkEscola(), userId)
+        Escola escola = escolaRepository.findByIdEscolaAndIdUsuario(request.fkEscola(), userId)
                 .orElseThrow(() -> new RuntimeException("Escola não encontrada para este usuário"));
         aluno.setEscola(escola);
 
         // 3. Transporte (opcional) do próprio usuário
         if (request.fkTransporte() != null) {
-            Transporte transporte = transporteRepository.findByIdTransporteAndUsuario_IdUsuario(request.fkTransporte(), userId)
+            Transporte transporte = transporteRepository.findByIdTransporteAndIdUsuario(request.fkTransporte(), userId)
                     .orElseThrow(() -> new RuntimeException("Transporte não encontrado para este usuário"));
             aluno.setTransporte(transporte);
         }
@@ -80,7 +80,7 @@ public class AlunoService {
                 Responsavel responsavel;
                 if (cpf != null && !cpf.isBlank()) {
                     Optional<Responsavel> existenteOpt = responsavelRepository
-                            .findByCpfAndUsuario_IdUsuario(cpf, userId);
+                            .findByCpfAndIdUsuario(cpf, userId);
                     if (existenteOpt.isPresent()) {
                         // 4.x Reutiliza responsável já existente (mesmo CPF para o mesmo usuário)
                         responsavel = existenteOpt.get();
@@ -170,7 +170,7 @@ public class AlunoService {
     public AlunoResponse obterDadosAluno(UUID alunoId) {
         // Validação de escopo: garante que o aluno pertence ao usuário logado
         UUID userId = currentUserService.getCurrentUserId();
-        Aluno aluno = alunoRepository.findByIdAlunoAndUsuario_IdUsuario(alunoId, userId)
+        Aluno aluno = alunoRepository.findByIdAlunoAndIdUsuario(alunoId, userId)
                 .orElseThrow(() -> new RuntimeException("Aluno não encontrado para este usuário"));
         return AlunoResponse.fromEntity(aluno);
     }
@@ -179,7 +179,7 @@ public class AlunoService {
     public AlunoResponse atualizarAluno(UUID alunoId, AlunoUpdateRequest request) {
         UUID userId = currentUserService.getCurrentUserId();
 
-        Aluno aluno = alunoRepository.findByIdAlunoAndUsuario_IdUsuario(alunoId, userId)
+        Aluno aluno = alunoRepository.findByIdAlunoAndIdUsuario(alunoId, userId)
                 .orElseThrow(() -> new RuntimeException("Aluno não encontrado para este usuário"));
 
         // Atualiza dados basicos do aluno
@@ -191,12 +191,12 @@ public class AlunoService {
         aluno.setValorMensalidade(request.valorMensalidade());
         aluno.setDiaVencimento(request.diaVencimento());
 
-        Escola escola = escolaRepository.findByIdEscolaAndUsuario_IdUsuario(request.fkEscola(), userId)
+        Escola escola = escolaRepository.findByIdEscolaAndIdUsuario(request.fkEscola(), userId)
                 .orElseThrow(() -> new RuntimeException("Escola não encontrada para este usuário"));
         aluno.setEscola(escola);
 
         if (request.fkTransporte() != null) {
-            Transporte transporte = transporteRepository.findByIdTransporteAndUsuario_IdUsuario(request.fkTransporte(), userId)
+            Transporte transporte = transporteRepository.findByIdTransporteAndIdUsuario(request.fkTransporte(), userId)
                     .orElseThrow(() -> new RuntimeException("Transporte não encontrado para este usuário"));
             aluno.setTransporte(transporte);
         } else {
@@ -218,7 +218,7 @@ public class AlunoService {
                 if (dto.idResponsavel() != null) {
                     // Ja existe: carrega garantindo escopo do usuario
                     responsavel = responsavelRepository
-                            .findByIdResponsavelAndUsuario_IdUsuario(dto.idResponsavel(), userId)
+                            .findByIdResponsavelAndIdUsuario(dto.idResponsavel(), userId)
                             .orElseThrow(() -> new RuntimeException("Responsável não encontrado para este usuário"));
 
                     if (dto.deletar()) {
@@ -295,7 +295,7 @@ public class AlunoService {
     @Transactional
     public void deletarAluno(UUID alunoId) {
         UUID userId = currentUserService.getCurrentUserId();
-        Aluno aluno = alunoRepository.findByIdAlunoAndUsuario_IdUsuario(alunoId, userId)
+        Aluno aluno = alunoRepository.findByIdAlunoAndIdUsuario(alunoId, userId)
                 .orElseThrow(() -> new RuntimeException("Aluno não encontrado para este usuário"));
 
         // Remove vínculos aluno <-> responsáveis e deleta responsáveis órfãos
@@ -322,13 +322,13 @@ public class AlunoService {
     public List<AlunoFeignResponse> buscarPorIdEmLote(List<UUID> ids) {
 
         UUID userId = currentUserService.getCurrentUserId();
-        List<Aluno> alunos = alunoRepository.findByIdInAndUsuario_IdUsuario(ids, userId);
+        List<Aluno> alunos = alunoRepository.findByIdInAndIdUsuario(ids, userId);
         return alunos.stream().map(AlunoFeignResponse::fromEntity).toList();
     }
 
     public List<AlunoFeignResponse> buscarTodosAtivos() {
         UUID userId = currentUserService.getCurrentUserId();
-        List<Aluno> alunos = alunoRepository.findByAtivoTrueAndUsuario_IdUsuario(userId);
+        List<Aluno> alunos = alunoRepository.findByAtivoTrueAndIdUsuario(userId);
         return alunos.stream().map(AlunoFeignResponse::fromEntity).toList();
     }
 }

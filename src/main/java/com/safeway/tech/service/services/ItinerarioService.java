@@ -93,7 +93,9 @@ public class ItinerarioService {
                     .collect(java.util.stream.Collectors.toMap(e -> e.getEscola().getId(), e -> e));
 
             for (ItinerarioParadaUpdate parada : request.paradas()) {
-                if (parada == null || parada.id() == null) continue;
+                if (parada == null || parada.id() == null) {
+                    continue;
+                }
                 if ("ALUNO".equalsIgnoreCase(parada.tipo())) {
                     ItinerarioAluno ia = alunosPorId.get(parada.id());
                     if (ia != null) {

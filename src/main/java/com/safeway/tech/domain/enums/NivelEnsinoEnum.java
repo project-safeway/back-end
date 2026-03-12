@@ -18,8 +18,10 @@ public enum NivelEnsinoEnum {
     }
 
     public static NivelEnsinoEnum converterNivel(String codigo) {
-        for(NivelEnsinoEnum nivel : values()) {
-            if (nivel.nivel.equals(codigo)) return nivel;
+        for (NivelEnsinoEnum nivel : values()) {
+            if (nivel.nivel.equals(codigo)) {
+                return nivel;
+            }
         }
         throw new RuntimeException();
     }

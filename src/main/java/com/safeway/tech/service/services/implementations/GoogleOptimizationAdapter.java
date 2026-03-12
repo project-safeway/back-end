@@ -21,9 +21,12 @@ public class GoogleOptimizationAdapter implements RotasService {
 
     private final GoogleOptimizationClient cliente;
 
-    public GoogleOptimizationAdapter(GoogleOptimizationClient cliente) { this.cliente = cliente; }
+    public GoogleOptimizationAdapter(GoogleOptimizationClient cliente) {
+        this.cliente = cliente;
+    }
 
     @Override
+    @SuppressWarnings("MethodLength")
     public RotasResponse otimizarRota(RotasRequest request) {
         try {
             JsonNode response = cliente.otimizarRotas(request);
@@ -59,6 +62,7 @@ public class GoogleOptimizationAdapter implements RotasService {
         }
     }
 
+    @SuppressWarnings("MethodLength")
     private RotasResponse parseResposta(JsonNode response, RotasRequest request) {
         List<ParadaOtimizada> paradas = new ArrayList<>();
         List<MetricasRota> metricas = new ArrayList<>();
@@ -131,12 +135,20 @@ public class GoogleOptimizationAdapter implements RotasService {
     }
 
     private long parseDuracao(String dur) {
-        if (dur == null || dur.isEmpty()) return 0L;
+        if (dur == null || dur.isEmpty()) {
+            return 0L;
+        }
         if (dur.endsWith("s")) {
-            try { return Long.parseLong(dur.substring(0, dur.length() - 1)); } catch (NumberFormatException ignore) {}
+            try {
+                return Long.parseLong(dur.substring(0, dur.length() - 1));
+            } catch (NumberFormatException ignore) {
+            }
         }
         return 0L;
     }
 
-    @Override public String nomeProvedor() { return "Google"; }
+    @Override
+    public String nomeProvedor() {
+        return "Google";
+    }
 }

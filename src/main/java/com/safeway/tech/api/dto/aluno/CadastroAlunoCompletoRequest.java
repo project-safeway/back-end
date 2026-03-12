@@ -1,7 +1,14 @@
 package com.safeway.tech.api.dto.aluno;
 
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.*;
+import jakarta.validation.constraints.DecimalMin;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Past;
+import jakarta.validation.constraints.Size;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -26,7 +33,8 @@ public record CadastroAlunoCompletoRequest(
             String tel2,
             @Email String email,
             @NotNull @Valid EnderecoData endereco
-    ) {}
+    ) {
+    }
 
     public record EnderecoData(
             @NotBlank String logradouro,
@@ -39,5 +47,6 @@ public record CadastroAlunoCompletoRequest(
             Double latitude,
             Double longitude,
             String tipo
-    ) {}
+    ) {
+    }
 }

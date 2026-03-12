@@ -65,7 +65,7 @@ public class ResponsavelController {
     }
 
     @PostMapping
-    public ResponseEntity<ResponsavelResponse> salvarResponsavel(@RequestBody @Valid ResponsavelRequest request){
+    public ResponseEntity<ResponsavelResponse> salvarResponsavel(@RequestBody @Valid ResponsavelRequest request) {
         Responsavel salvo = responsavelService.salvarResponsavel(mapToEntity(request));
         return ResponseEntity.status(HttpStatus.CREATED).body(toResponse(salvo));
     }
@@ -79,7 +79,7 @@ public class ResponsavelController {
     }
 
     @GetMapping("/{idResponsavel}")
-    public ResponsavelResponse retornarUm(@PathVariable UUID idResponsavel){
+    public ResponsavelResponse retornarUm(@PathVariable UUID idResponsavel) {
         return toResponse(responsavelService.retornarUm(idResponsavel));
     }
 
@@ -89,7 +89,7 @@ public class ResponsavelController {
     }
 
     @PutMapping("/{idResponsavel}")
-    public ResponsavelResponse alterarResponsavel(@RequestBody @Valid ResponsavelRequest novoResponsavel,@PathVariable UUID idResponsavel){
+    public ResponsavelResponse alterarResponsavel(@RequestBody @Valid ResponsavelRequest novoResponsavel, @PathVariable UUID idResponsavel) {
         Responsavel atualizado = responsavelService.alterarResponsavel(mapToEntity(novoResponsavel), idResponsavel);
         return toResponse(atualizado);
     }

@@ -33,7 +33,7 @@ public class EventoService {
 
     public List<EventoRequest> listarEventosDoUsuarioAtual() {
         UUID userId = currentUserService.getCurrentUserId();
-        return repository.findAllByUsuario_IdUsuario(userId)
+        return repository.findAllByIdUsuario(userId)
                 .stream()
                 .map(this::converterParaDTO)
                 .toList();
@@ -41,7 +41,7 @@ public class EventoService {
 
     public Evento retornarUmOwned(UUID idEvento) {
         UUID userId = currentUserService.getCurrentUserId();
-        return repository.findByIdAndUsuario_IdUsuario(idEvento, userId)
+        return repository.findByIdAndIdUsuario(idEvento, userId)
                 .orElseThrow(() -> new RuntimeException("Evento não encontrado"));
     }
 

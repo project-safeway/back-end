@@ -30,7 +30,7 @@ public class UsuarioController {
     }
 
     @PostMapping
-    public UsuarioResponse salvarUsuario(@RequestBody Usuario usuario){
+    public UsuarioResponse salvarUsuario(@RequestBody Usuario usuario) {
         Usuario salvo = usuarioService.salvarUsuario(usuario);
         return toResponse(salvo);
     }
@@ -44,7 +44,7 @@ public class UsuarioController {
     }
 
     @GetMapping("/{idUsuario}")
-    public UsuarioResponse retornarUm(@PathVariable UUID idUsuario){
+    public UsuarioResponse retornarUm(@PathVariable UUID idUsuario) {
         return toResponse(usuarioService.retornarUm(idUsuario));
     }
 
@@ -54,7 +54,7 @@ public class UsuarioController {
     }
 
     @PutMapping("/{idUsuario}")
-    public UsuarioResponse alterarUsuario(@RequestBody Usuario novoUsuario,@PathVariable UUID idUsuario){
+    public UsuarioResponse alterarUsuario(@RequestBody Usuario novoUsuario, @PathVariable UUID idUsuario) {
         Usuario atualizado = usuarioService.alterarUsuario(novoUsuario, idUsuario);
         return toResponse(atualizado);
     }

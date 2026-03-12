@@ -17,11 +17,12 @@ public record ItinerarioUpdateRequest(
         @NotNull Boolean ativo,
         List<@Valid ItinerarioAlunoRequest> alunos,
         List<ItinerarioParadaUpdate> paradas
-        ) {
+) {
     public record ItinerarioParadaUpdate(
             String tipo,      // "ALUNO" ou "ESCOLA"
             UUID id,          // alunoId ou escolaId
             Integer ordemGlobal,
             Integer ordemEspecifica // ordemEmbarque ou ordemVisita
-    ) {}
+    ) {
+    }
 }

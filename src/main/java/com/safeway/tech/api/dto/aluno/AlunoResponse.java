@@ -17,7 +17,7 @@ public record AlunoResponse(
         List<ResponsavelResponse> responsaveis,
         Double valorPadraoMensalidade,
         Integer diaVencimento
-        ) {
+) {
 
     public static AlunoResponse fromEntity(Aluno aluno) {
         List<ResponsavelResponse> responsaveis = aluno.getResponsaveis().stream()

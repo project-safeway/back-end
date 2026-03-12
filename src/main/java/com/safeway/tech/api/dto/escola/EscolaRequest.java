@@ -21,5 +21,6 @@ public record EscolaRequest(
             @NotBlank @Size(max = 9) String cep,
             Double latitude,
             Double longitude
-    ) {}
+    ) {
+    }
 }

@@ -18,7 +18,7 @@ public class UsuarioService {
         return repository.findAll();
     }
 
-    public Usuario retornarUm(UUID idUsuario){
+    public Usuario retornarUm(UUID idUsuario) {
         return repository.findById(idUsuario).orElseThrow(RuntimeException::new);
     }
 
@@ -30,7 +30,7 @@ public class UsuarioService {
         repository.deleteById(idUsuario);
     }
 
-    public Usuario alterarUsuario(Usuario novoUsuario, UUID idUsuario){
+    public Usuario alterarUsuario(Usuario novoUsuario, UUID idUsuario) {
         Usuario usuario = repository.findById(idUsuario).orElseThrow(RuntimeException::new);
         usuario.setNome(novoUsuario.getNome());
         usuario.setEmail(novoUsuario.getEmail());

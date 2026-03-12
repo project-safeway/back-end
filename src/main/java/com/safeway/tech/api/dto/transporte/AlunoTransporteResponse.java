@@ -13,12 +13,16 @@ public record AlunoTransporteResponse(
 ) {
     public static AlunoTransporteResponse fromEntity(Aluno a) {
         String nomeEscola = null;
-        if (a.getEscola() != null) nomeEscola = a.getEscola().getNome();
+        if (a.getEscola() != null) {
+            nomeEscola = a.getEscola().getNome();
+        }
 
         String nomeResp = null;
         if (a.getResponsaveis() != null && !a.getResponsaveis().isEmpty()) {
             Responsavel r = a.getResponsaveis().getFirst();
-            if (r != null) nomeResp = r.getNome();
+            if (r != null) {
+                nomeResp = r.getNome();
+            }
         }
 
         return new AlunoTransporteResponse(

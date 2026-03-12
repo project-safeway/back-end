@@ -19,7 +19,7 @@ public class TransporteService {
     private final UsuarioRepository usuarioRepository;
     private final CurrentUserService currentUserService;
 
-    private Transporte getOwnedOrThrow(UUID idTransporte){
+    private Transporte getOwnedOrThrow(UUID idTransporte) {
         UUID userId = currentUserService.getCurrentUserId();
         // Como o proprietário está no lado do Usuario (OneToOne), validamos via join
         Transporte t = repository.findById(idTransporte)
@@ -30,7 +30,7 @@ public class TransporteService {
         return t;
     }
 
-    public Transporte getById(UUID idTransporte){
+    public Transporte getById(UUID idTransporte) {
         Transporte t = getOwnedOrThrow(idTransporte);
         // inicializa coleção lazy de alunos e seus relacionamentos usados pelos DTOs
         if (t.getAlunosTransportes() != null) {
@@ -52,7 +52,7 @@ public class TransporteService {
         return t;
     }
 
-    public Transporte salvarTransporte(Transporte transporte){
+    public Transporte salvarTransporte(Transporte transporte) {
         UUID userId = currentUserService.getCurrentUserId();
         Usuario usuario = usuarioRepository.getReferenceById(userId);
 
@@ -63,17 +63,17 @@ public class TransporteService {
         return salvo;
     }
 
-    public List<Transporte> listarTransportes(){
+    public List<Transporte> listarTransportes() {
         UUID userId = currentUserService.getCurrentUserId();
-        return repository.findAllByUsuario_IdUsuario(userId);
+        return repository.findAllByIdUsuario(userId);
     }
 
-    public void excluirTransporte(UUID idTransporte){
+    public void excluirTransporte(UUID idTransporte) {
         Transporte transporte = getOwnedOrThrow(idTransporte);
         repository.delete(transporte);
     }
 
-    public Transporte alterarTransporte(Transporte transporte, UUID idTransporte){
+    public Transporte alterarTransporte(Transporte transporte, UUID idTransporte) {
         Transporte existente = getOwnedOrThrow(idTransporte);
         existente.setPlaca(transporte.getPlaca());
         existente.setModelo(transporte.getModelo());
