@@ -4,14 +4,14 @@ import com.safeway.tech.api.dto.itinerario.ItinerarioRequest;
 import com.safeway.tech.api.dto.itinerario.ItinerarioResponse;
 import com.safeway.tech.api.dto.itinerario.ItinerarioUpdateRequest;
 import com.safeway.tech.api.dto.itinerario.ItinerarioUpdateRequest.ItinerarioParadaUpdate;
-import com.safeway.tech.service.mappers.ItinerarioMapper;
 import com.safeway.tech.domain.models.Itinerario;
 import com.safeway.tech.domain.models.ItinerarioAluno;
 import com.safeway.tech.domain.models.ItinerarioEscola;
 import com.safeway.tech.repository.ItinerarioAlunoRepository;
 import com.safeway.tech.repository.ItinerarioEscolaRepository;
 import com.safeway.tech.repository.ItinerarioRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.safeway.tech.service.mappers.ItinerarioMapper;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,25 +19,14 @@ import java.util.List;
 import java.util.UUID;
 
 @Service
+@RequiredArgsConstructor
 public class ItinerarioService {
 
-    @Autowired
-    private ItinerarioRepository itinerarioRepository;
-
-    @Autowired
-    private TransporteService transporteService;
-
-    @Autowired
-    private ItinerarioAlunoService itinerarioAlunoService;
-
-    @Autowired
-    private ItinerarioEscolaService itinerarioEscolaService;
-
-    @Autowired
-    private ItinerarioAlunoRepository itinerarioAlunoRepository;
-
-    @Autowired
-    private ItinerarioEscolaRepository itinerarioEscolaRepository;
+    private final ItinerarioRepository itinerarioRepository;
+    private final TransporteService transporteService;
+    private final ItinerarioAlunoService itinerarioAlunoService;
+    private final ItinerarioAlunoRepository itinerarioAlunoRepository;
+    private final ItinerarioEscolaRepository itinerarioEscolaRepository;
 
     public List<ItinerarioResponse> listarTodos(UUID transporteId) {
         return itinerarioRepository.findAllByTransporte(transporteId).stream()

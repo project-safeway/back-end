@@ -5,7 +5,7 @@ import com.safeway.tech.domain.models.Chamada;
 import com.safeway.tech.domain.models.Itinerario;
 import com.safeway.tech.repository.ChamadaRepository;
 import com.safeway.tech.repository.specification.ChamadaSpecs;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -15,16 +15,12 @@ import java.util.List;
 import java.util.UUID;
 
 @Service
+@RequiredArgsConstructor
 public class ChamadaService {
 
-    @Autowired
-    private ChamadaRepository chamadaRepository;
-
-    @Autowired
-    private ItinerarioService itinerarioService;
-
-    @Autowired
-    private CurrentUserService currentUserService;
+    private final ChamadaRepository chamadaRepository;
+    private final ItinerarioService itinerarioService;
+    private final CurrentUserService currentUserService;
 
     public Chamada buscarChamadaPorId(UUID id) {
         return chamadaRepository.findById(id)

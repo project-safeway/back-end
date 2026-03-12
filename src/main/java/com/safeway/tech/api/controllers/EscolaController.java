@@ -25,6 +25,7 @@ import java.util.UUID;
 @RequestMapping("/escolas")
 @RequiredArgsConstructor
 public class EscolaController {
+
     private final EscolaService escolaService;
 
     @PostMapping

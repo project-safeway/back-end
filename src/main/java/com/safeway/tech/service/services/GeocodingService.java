@@ -4,18 +4,14 @@ import com.google.maps.GeoApiContext;
 import com.google.maps.GeocodingApi;
 import com.google.maps.model.GeocodingResult;
 import com.google.maps.model.LatLng;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 @Service
+@RequiredArgsConstructor
 public class GeocodingService {
 
     private final GeoApiContext context;
-
-    @Autowired
-    public GeocodingService(GeoApiContext context) {
-        this.context = context;
-    }
 
     public LatLng obterCoordenadas(String endereco) {
         try {

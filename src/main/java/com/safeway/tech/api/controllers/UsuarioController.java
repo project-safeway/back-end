@@ -4,7 +4,7 @@ import com.safeway.tech.api.dto.usuario.UsuarioFeignResponse;
 import com.safeway.tech.api.dto.usuario.UsuarioResponse;
 import com.safeway.tech.domain.models.Usuario;
 import com.safeway.tech.service.services.UsuarioService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -20,9 +20,10 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/usuarios")
+@RequiredArgsConstructor
 public class UsuarioController {
-    @Autowired
-    private UsuarioService usuarioService;
+
+    private final UsuarioService usuarioService;
 
     private UsuarioResponse toResponse(Usuario u) {
         return UsuarioResponse.fromEntity(u);

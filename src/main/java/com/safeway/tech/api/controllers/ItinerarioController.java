@@ -11,7 +11,7 @@ import com.safeway.tech.service.services.ItinerarioAlunoService;
 import com.safeway.tech.service.services.ItinerarioEscolaService;
 import com.safeway.tech.service.services.ItinerarioService;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
@@ -30,16 +30,12 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/itinerarios")
+@RequiredArgsConstructor
 public class ItinerarioController {
 
-    @Autowired
-    private ItinerarioService itinerarioService;
-
-    @Autowired
-    private ItinerarioAlunoService itinerarioAlunoService;
-
-    @Autowired
-    private ItinerarioEscolaService itinerarioEscolaService;
+    private final ItinerarioService itinerarioService;
+    private final ItinerarioAlunoService itinerarioAlunoService;
+    private final ItinerarioEscolaService itinerarioEscolaService;
 
     @PostMapping
     public ResponseEntity<ItinerarioResponse> criar(

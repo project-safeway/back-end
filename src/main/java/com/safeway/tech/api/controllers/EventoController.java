@@ -3,7 +3,7 @@ package com.safeway.tech.api.controllers;
 import com.safeway.tech.api.dto.evento.EventoRequest;
 import com.safeway.tech.domain.models.Evento;
 import com.safeway.tech.service.services.EventoService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -23,10 +23,10 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/eventos")
+@RequiredArgsConstructor
 public class EventoController {
 
-    @Autowired
-    private EventoService eventoService;
+    private final EventoService eventoService;
 
     @GetMapping
     public ResponseEntity<List<EventoRequest>> listarFiltrado(

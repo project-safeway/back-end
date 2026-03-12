@@ -5,7 +5,7 @@ import com.safeway.tech.domain.models.Evento;
 import com.safeway.tech.domain.models.Usuario;
 import com.safeway.tech.repository.EventoRepository;
 import com.safeway.tech.repository.UsuarioRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -13,16 +13,12 @@ import java.util.List;
 import java.util.UUID;
 
 @Service
+@RequiredArgsConstructor
 public class EventoService {
 
-    @Autowired
-    private EventoRepository repository;
-
-    @Autowired
-    private CurrentUserService currentUserService;
-
-    @Autowired
-    private UsuarioRepository usuarioRepository;
+    private final EventoRepository repository;
+    private final CurrentUserService currentUserService;
+    private final UsuarioRepository usuarioRepository;
 
     public EventoRequest criarEvento(Evento evento) {
         UUID userId = currentUserService.getCurrentUserId();

@@ -2,16 +2,17 @@ package com.safeway.tech.service.services;
 
 import com.safeway.tech.domain.models.Usuario;
 import com.safeway.tech.repository.UsuarioRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.UUID;
 
 @Service
+@RequiredArgsConstructor
 public class UsuarioService {
-    @Autowired
-    private UsuarioRepository repository;
+
+    private final UsuarioRepository repository;
 
     public List<Usuario> listarUsuarios() {
         return repository.findAll();

@@ -5,22 +5,19 @@ import com.safeway.tech.domain.models.Transporte;
 import com.safeway.tech.domain.models.Usuario;
 import com.safeway.tech.repository.TransporteRepository;
 import com.safeway.tech.repository.UsuarioRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.UUID;
 
 @Service
+@RequiredArgsConstructor
 public class TransporteService {
-    @Autowired
-    private TransporteRepository repository;
 
-    @Autowired
-    private UsuarioRepository usuarioRepository;
-
-    @Autowired
-    private CurrentUserService currentUserService;
+    private final TransporteRepository repository;
+    private final UsuarioRepository usuarioRepository;
+    private final CurrentUserService currentUserService;
 
     private Transporte getOwnedOrThrow(UUID idTransporte){
         UUID userId = currentUserService.getCurrentUserId();
