@@ -9,6 +9,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -51,7 +53,8 @@ public class SecurityConfig {
                 return new KeyPair(pub, pri);
             }
         } catch (Exception e) {
-            System.err.println("Aviso: falha ao carregar chaves RSA de '" + publicKeyLocation + "'/'" + privateKeyLocation + "'. Gerando chaves em memória. Detalhe: " + e.getMessage());
+            System.err.println("Aviso: falha ao carregar chaves RSA de '" + publicKeyLocation + "'/'" + privateKeyLocation
+                    + "'. Gerando chaves em memória. Detalhe: " + e.getMessage());
         }
         try {
             KeyPairGenerator kpg = KeyPairGenerator.getInstance("RSA");
@@ -79,8 +82,8 @@ public class SecurityConfig {
                         .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/v3/api-docs.yaml").permitAll()
                     .anyRequest().authenticated()
                 )
-                .csrf(csrf -> csrf.disable())
-                .headers(headers -> headers.frameOptions(frame -> frame.sameOrigin()))
+                .csrf(AbstractHttpConfigurer::disable)
+                .headers(headers -> headers.frameOptions(HeadersConfigurer.FrameOptionsConfig::sameOrigin))
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .oauth2ResourceServer(oauth2 -> oauth2.jwt(Customizer.withDefaults()))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));

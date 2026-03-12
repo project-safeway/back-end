@@ -25,17 +25,17 @@ public class ResponsavelService {
     private final EnderecoRepository enderecoRepository;
     private final CurrentUserService currentUserService;
 
-    private Responsavel getOwnedOrThrow(UUID id){
+    private Responsavel getOwnedOrThrow(UUID id) {
         UUID userId = currentUserService.getCurrentUserId();
-        return repository.findByIdResponsavelAndUsuario_IdUsuario(id, userId)
+        return repository.findByIdResponsavelAndIdUsuario(id, userId)
                 .orElseThrow(RuntimeException::new);
     }
 
-    public Responsavel getById(UUID id){
+    public Responsavel getById(UUID id) {
         return getOwnedOrThrow(id);
     }
 
-    public Responsavel salvarResponsavel(Responsavel responsavel){
+    public Responsavel salvarResponsavel(Responsavel responsavel) {
         UUID userId = currentUserService.getCurrentUserId();
         Usuario usuario = usuarioRepository.getReferenceById(userId);
         responsavel.setUsuario(usuario);
@@ -50,7 +50,7 @@ public class ResponsavelService {
         // Re-hidrata a lista de alunos garantindo que pertencem ao usuário
         if (responsavel.getAlunos() != null && !responsavel.getAlunos().isEmpty()) {
             List<Aluno> validados = responsavel.getAlunos().stream()
-                    .map(a -> alunoRepository.findByIdAlunoAndUsuario_IdUsuario(a.getId(), userId)
+                    .map(a -> alunoRepository.findByIdAlunoAndIdUsuario(a.getId(), userId)
                             .orElseThrow(() -> new RuntimeException("Aluno não encontrado para este usuário: " + a.getId())))
                     .toList();
             responsavel.setAlunos(validados);
@@ -61,18 +61,18 @@ public class ResponsavelService {
 
     public List<Responsavel> listarResponsaveis() {
         UUID userId = currentUserService.getCurrentUserId();
-        return repository.findAllByUsuario_IdUsuario(userId);
+        return repository.findAllByIdUsuario(userId);
     }
 
-    public Responsavel retornarUm(UUID idResponsavel){
+    public Responsavel retornarUm(UUID idResponsavel) {
         return getOwnedOrThrow(idResponsavel);
     }
 
-    public void excluir(UUID id){
+    public void excluir(UUID id) {
         repository.delete(getOwnedOrThrow(id));
     }
 
-    public Responsavel alterarResponsavel(Responsavel responsavel,UUID idResponsavel){
+    public Responsavel alterarResponsavel(Responsavel responsavel, UUID idResponsavel) {
         UUID userId = currentUserService.getCurrentUserId();
         Responsavel atual = getOwnedOrThrow(idResponsavel);
         atual.setNome(responsavel.getNome());
@@ -95,7 +95,7 @@ public class ResponsavelService {
         if (responsavel.getAlunos() != null) {
             List<Aluno> validados = responsavel.getAlunos().stream()
                     .filter(Objects::nonNull)
-                    .map(a -> alunoRepository.findByIdAlunoAndUsuario_IdUsuario(a.getId(), userId)
+                    .map(a -> alunoRepository.findByIdAlunoAndIdUsuario(a.getId(), userId)
                             .orElseThrow(() -> new RuntimeException("Aluno não encontrado para este usuário: " + a.getId())))
                     .toList();
             atual.setAlunos(validados);

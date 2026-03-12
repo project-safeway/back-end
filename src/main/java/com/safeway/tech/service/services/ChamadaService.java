@@ -34,7 +34,7 @@ public class ChamadaService {
 
     public Chamada iniciarChamada(UUID idItinerario) {
         Chamada chamadaExistente = buscarChamadaAtivaPorItinerario(idItinerario);
-        if(chamadaExistente != null) {
+        if (chamadaExistente != null) {
             return chamadaExistente;
         }
 

@@ -49,7 +49,9 @@ public class ItinerarioEscolaService {
         }
 
         itinerarioEscolaRepository.findByItinerarioIdAndEscolaIdEscola(itinerarioId, escola.getId())
-                .ifPresent(e -> { throw new RuntimeException("Escola já está vinculada a este itinerário"); });
+                .ifPresent(e -> {
+                    throw new RuntimeException("Escola já está vinculada a este itinerário");
+                });
 
         ItinerarioEscola entity = new ItinerarioEscola();
         entity.setItinerario(itinerario);

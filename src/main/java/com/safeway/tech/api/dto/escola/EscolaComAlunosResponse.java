@@ -4,6 +4,7 @@ import com.safeway.tech.api.dto.endereco.EnderecoResponse;
 import com.safeway.tech.domain.enums.NivelEnsinoEnum;
 import com.safeway.tech.domain.models.Aluno;
 import com.safeway.tech.domain.models.Escola;
+
 import java.util.List;
 import java.util.UUID;
 

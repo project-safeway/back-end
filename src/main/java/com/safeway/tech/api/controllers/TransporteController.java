@@ -27,7 +27,7 @@ public class TransporteController {
 
     private final TransporteService transporteService;
 
-    private Transporte mapToEntity(TransporteRequest req){
+    private Transporte mapToEntity(TransporteRequest req) {
         Transporte t = new Transporte();
         t.setPlaca(req.placa());
         t.setModelo(req.modelo());
@@ -35,18 +35,18 @@ public class TransporteController {
         return t;
     }
 
-    private TransporteResponse mapToResponse(Transporte t){
+    private TransporteResponse mapToResponse(Transporte t) {
         return TransporteResponse.fromEntity(t);
     }
 
     @PostMapping
-    public TransporteResponse salvarTransporte(@RequestBody @Valid TransporteRequest request){
+    public TransporteResponse salvarTransporte(@RequestBody @Valid TransporteRequest request) {
         Transporte salvo = transporteService.salvarTransporte(mapToEntity(request));
         return mapToResponse(salvo);
     }
 
     @GetMapping
-    public List<TransporteResponse> listarTransportes(){
+    public List<TransporteResponse> listarTransportes() {
         return transporteService.listarTransportes()
                 .stream()
                 .map(this::mapToResponse)
@@ -54,7 +54,7 @@ public class TransporteController {
     }
 
     @GetMapping("/{idTransporte}")
-    public TransporteResponse retornarUm(@PathVariable UUID idTransporte){
+    public TransporteResponse retornarUm(@PathVariable UUID idTransporte) {
         return mapToResponse(transporteService.getById(idTransporte));
     }
 
@@ -67,13 +67,13 @@ public class TransporteController {
     }
 
     @DeleteMapping("/{idTransporte}")
-    public void excluir(@PathVariable UUID idTransporte){
+    public void excluir(@PathVariable UUID idTransporte) {
         transporteService.excluirTransporte(idTransporte);
     }
 
     @PutMapping("/{idTransporte}")
-    public TransporteResponse alterarTransporte(@RequestBody @Valid TransporteRequest novoTransporte1,@PathVariable UUID idTransporte){
-        Transporte atualizado = transporteService.alterarTransporte(mapToEntity(novoTransporte1),idTransporte);
+    public TransporteResponse alterarTransporte(@RequestBody @Valid TransporteRequest novoTransporte1, @PathVariable UUID idTransporte) {
+        Transporte atualizado = transporteService.alterarTransporte(mapToEntity(novoTransporte1), idTransporte);
         return mapToResponse(atualizado);
     }
 }

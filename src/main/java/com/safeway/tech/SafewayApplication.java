@@ -10,8 +10,8 @@ import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 @EnableFeignClients
 public class SafewayApplication {
 
-	public static void main(String[] args) {
-		SpringApplication.run(SafewayApplication.class, args);
-	}
+    public static void main(String[] args) {
+        SpringApplication.run(SafewayApplication.class, args);
+    }
 
 }

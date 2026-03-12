@@ -70,7 +70,9 @@ public class EnderecoService {
         return responsaveis.stream()
                 .map(r -> {
                     Endereco e = r.getEndereco();
-                    if (e == null) return null;
+                    if (e == null) {
+                        return null;
+                    }
                     // Acessar um campo para garantir inicialização dentro da transação
                     e.getId();
                     return EnderecoResponse.fromEntity(e);
