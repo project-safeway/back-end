@@ -30,11 +30,11 @@ public class ItinerarioEscolaService {
         Itinerario itinerario = itinerarioRepository.findById(itinerarioId)
                 .orElseThrow(() -> new RuntimeException("Itinerário não encontrado"));
 
-        Escola escola = escolaService.buscarEntidadePorId(itinerarioId, request.escolaId());
+        Escola escola = escolaService.buscarPorId(request.escolaId());
 
         Endereco endereco;
         if (request.enderecoId() != null) {
-            endereco = enderecoService.buscarEntidade(request.enderecoId());
+            endereco = enderecoService.buscarPorId(request.enderecoId());
         } else {
             endereco = escola.getEndereco();
         }

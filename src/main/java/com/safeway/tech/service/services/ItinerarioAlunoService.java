@@ -41,7 +41,7 @@ public class ItinerarioAlunoService {
         // Determinar endereço: usar request.enderecoId() se presente, caso contrário tentar fallback
         Endereco endereco;
         if (request.enderecoId() != null) {
-            endereco = enderecoService.buscarEntidade(request.enderecoId());
+            endereco = enderecoService.buscarPorId(request.enderecoId());
         } else {
             endereco = aluno.getResponsaveis().stream()
                     .map(Responsavel::getEndereco)
@@ -106,7 +106,7 @@ public class ItinerarioAlunoService {
             // Determinar endereco: prefer dto.enderecoId(), senão fallback para primeiro endereco de responsavel
             Endereco endereco;
             if (dto.enderecoId() != null) {
-                endereco = enderecoService.buscarEntidade(dto.enderecoId());
+                endereco = enderecoService.buscarPorId(dto.enderecoId());
             } else {
                 endereco = aluno.getResponsaveis().stream()
                         .map(Responsavel::getEndereco)

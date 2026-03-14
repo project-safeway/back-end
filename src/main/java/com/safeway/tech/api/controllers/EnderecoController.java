@@ -2,9 +2,12 @@ package com.safeway.tech.api.controllers;
 
 import com.safeway.tech.api.dto.endereco.EnderecoRequest;
 import com.safeway.tech.api.dto.endereco.EnderecoResponse;
+import com.safeway.tech.domain.models.Endereco;
+import com.safeway.tech.service.mappers.EnderecoMapper;
 import com.safeway.tech.service.services.EnderecoService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -26,12 +29,16 @@ public class EnderecoController {
 
     @PostMapping
     public ResponseEntity<EnderecoResponse> criar(@Valid @RequestBody EnderecoRequest request) {
-        return ResponseEntity.ok(enderecoService.criar(request));
+        Endereco endereco = enderecoService.criar(request);
+        EnderecoResponse response = EnderecoMapper.toResponse(endereco);
+        return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<EnderecoResponse> buscar(@PathVariable UUID id) {
-        return ResponseEntity.ok(enderecoService.buscarPorId(id));
+        Endereco endereco = enderecoService.buscarPorId(id);
+        EnderecoResponse response = EnderecoMapper.toResponse(endereco);
+        return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
     @PutMapping("/{id}")
@@ -39,13 +46,15 @@ public class EnderecoController {
             @PathVariable UUID id,
             @Valid @RequestBody EnderecoRequest request
     ) {
-        return ResponseEntity.ok(enderecoService.atualizar(id, request));
+        Endereco endereco = enderecoService.atualizar(id, request);
+        EnderecoResponse response = EnderecoMapper.toResponse(endereco);
+        return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> desativar(@PathVariable UUID id) {
         enderecoService.desativar(id);
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
     // Endpoints para testar o GeocodingService diretamente

@@ -1,5 +1,7 @@
 package com.safeway.tech.domain.models;
 
+import com.safeway.tech.domain.enums.EventoTypeEnum;
+import com.safeway.tech.domain.enums.PriorityEnum;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -33,8 +35,8 @@ public class Evento extends BaseEntity {
     private LocalDate date; // ISO-8601 (YYYY-MM-DD)
 
     @Column(name = "type", nullable = false, length = 20)
-    private String type; // manutencao, reuniao, vencimento, treinamento
+    private EventoTypeEnum type;
 
     @Column(name = "priority", nullable = false, length = 20)
-    private String priority; // baixa, media, alta
+    private PriorityEnum priority = PriorityEnum.MEDIA;
 }

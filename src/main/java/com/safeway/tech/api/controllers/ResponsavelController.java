@@ -1,11 +1,9 @@
 package com.safeway.tech.api.controllers;
 
-import com.safeway.tech.api.dto.endereco.EnderecoRequest;
 import com.safeway.tech.api.dto.responsavel.ResponsavelRequest;
 import com.safeway.tech.api.dto.responsavel.ResponsavelResponse;
-import com.safeway.tech.domain.models.Aluno;
-import com.safeway.tech.domain.models.Endereco;
 import com.safeway.tech.domain.models.Responsavel;
+import com.safeway.tech.service.mappers.ResponsavelMapper;
 import com.safeway.tech.service.services.ResponsavelService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -22,7 +20,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/responsavel")
@@ -31,66 +28,37 @@ public class ResponsavelController {
 
     private final ResponsavelService responsavelService;
 
-    private Responsavel mapToEntity(ResponsavelRequest request) {
-        EnderecoRequest er = request.endereco();
-        Endereco endereco = null;
-        if (er != null) {
-            endereco = new Endereco();
-            endereco.setLogradouro(er.logradouro());
-            endereco.setNumero(er.numero());
-            endereco.setCidade(er.cidade());
-            endereco.setCep(er.cep());
-        }
-        Responsavel r = new Responsavel();
-        r.setNome(request.nome());
-        r.setCpf(request.cpf());
-        r.setTel1(request.tel1());
-        r.setTel2(request.tel2());
-        r.setEmail(request.email());
-        r.setEndereco(endereco);
-        if (request.alunosIds() != null) {
-            r.setAlunos(request.alunosIds().stream()
-                    .map(id -> {
-                        Aluno a = new Aluno();
-                        a.setId(id);
-                        return a;
-                    })
-                    .collect(Collectors.toList()));
-        }
-        return r;
-    }
-
-    private ResponsavelResponse toResponse(Responsavel r) {
-        return ResponsavelResponse.fromEntity(r);
-    }
-
     @PostMapping
     public ResponseEntity<ResponsavelResponse> salvarResponsavel(@RequestBody @Valid ResponsavelRequest request) {
-        Responsavel salvo = responsavelService.salvarResponsavel(mapToEntity(request));
-        return ResponseEntity.status(HttpStatus.CREATED).body(toResponse(salvo));
+        Responsavel responsavel = responsavelService.salvarResponsavel(request);
+        ResponsavelResponse response = ResponsavelMapper.toResponse(responsavel);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @GetMapping
-    public List<ResponsavelResponse> listarResponsaveis() {
-        return responsavelService.listarResponsaveis()
-                .stream()
-                .map(this::toResponse)
-                .collect(Collectors.toList());
+    public ResponseEntity<List<ResponsavelResponse>> listarResponsaveis() {
+        List<Responsavel> responsaveis = responsavelService.listarResponsaveis();
+        List<ResponsavelResponse> response = responsaveis.stream().map(ResponsavelMapper::toResponse).toList();
+        return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
-    @GetMapping("/{idResponsavel}")
-    public ResponsavelResponse retornarUm(@PathVariable UUID idResponsavel) {
-        return toResponse(responsavelService.retornarUm(idResponsavel));
+    @GetMapping("/{id}")
+    public ResponseEntity<ResponsavelResponse> retornarUm(@PathVariable UUID id) {
+        Responsavel responsavel = responsavelService.buscarPorId(id);
+        ResponsavelResponse response = ResponsavelMapper.toResponse(responsavel);
+        return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
     @DeleteMapping("/{idResponsavel}")
-    public void excluir(@PathVariable UUID idResponsavel) {
-        responsavelService.excluir(idResponsavel);
+    public ResponseEntity<Void> excluir(@PathVariable UUID idResponsavel) {
+        responsavelService.desativar(idResponsavel);
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
     @PutMapping("/{idResponsavel}")
-    public ResponsavelResponse alterarResponsavel(@RequestBody @Valid ResponsavelRequest novoResponsavel, @PathVariable UUID idResponsavel) {
-        Responsavel atualizado = responsavelService.alterarResponsavel(mapToEntity(novoResponsavel), idResponsavel);
-        return toResponse(atualizado);
+    public ResponseEntity<ResponsavelResponse> alterarResponsavel(@RequestBody @Valid ResponsavelRequest novoResponsavel, @PathVariable UUID idResponsavel) {
+        Responsavel responsavel = responsavelService.alterarResponsavel(novoResponsavel, idResponsavel);
+        ResponsavelResponse response = ResponsavelMapper.toResponse(responsavel);
+        return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 }

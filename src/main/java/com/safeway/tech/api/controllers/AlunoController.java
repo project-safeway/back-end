@@ -6,8 +6,9 @@ import com.safeway.tech.api.dto.aluno.AlunoUpdateRequest;
 import com.safeway.tech.api.dto.aluno.CadastroAlunoCompletoRequest;
 import com.safeway.tech.api.dto.endereco.EnderecoResponse;
 import com.safeway.tech.domain.models.Aluno;
+import com.safeway.tech.domain.models.Endereco;
+import com.safeway.tech.service.mappers.EnderecoMapper;
 import com.safeway.tech.service.services.AlunoService;
-import com.safeway.tech.service.services.CurrentUserService;
 import com.safeway.tech.service.services.EnderecoService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -20,7 +21,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
@@ -33,7 +33,6 @@ public class AlunoController {
 
     private final AlunoService alunoService;
     private final EnderecoService enderecoService;
-    private final CurrentUserService currentUserService;
 
     @PostMapping
     public ResponseEntity<UUID> cadastrarAlunoCompleto(
@@ -45,14 +44,11 @@ public class AlunoController {
 
     @GetMapping("/{alunoId}/enderecos")
     public ResponseEntity<List<EnderecoResponse>> listarEnderecosDoAluno(
-            @PathVariable UUID alunoId,
-            @RequestParam(required = false) UUID usuarioId
+            @PathVariable UUID alunoId
     ) {
-        if (usuarioId == null) {
-            usuarioId = currentUserService.getCurrentUserId();
-        }
-        List<EnderecoResponse> enderecos = enderecoService.listarEnderecosDisponiveis(alunoId, usuarioId);
-        return ResponseEntity.ok(enderecos);
+        List<Endereco> enderecos = enderecoService.listarEnderecosDisponiveis(alunoId);
+        List<EnderecoResponse> response = enderecos.stream().map(EnderecoMapper::toResponse).toList();
+        return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
     @GetMapping("/{alunoId}")

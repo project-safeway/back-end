@@ -1,6 +1,7 @@
 package com.safeway.tech.service.services;
 
 import com.safeway.tech.domain.models.Usuario;
+import com.safeway.tech.infra.exception.UsuarioNotFoundException;
 import com.safeway.tech.repository.UsuarioRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -18,16 +19,12 @@ public class UsuarioService {
         return repository.findAll();
     }
 
-    public Usuario retornarUm(UUID idUsuario) {
+    public Usuario buscarPorId(UUID idUsuario) {
         return repository.findById(idUsuario).orElseThrow(RuntimeException::new);
     }
 
     public Usuario salvarUsuario(Usuario usuario) {
         return repository.save(usuario);
-    }
-
-    public void excluir(UUID idUsuario) {
-        repository.deleteById(idUsuario);
     }
 
     public Usuario alterarUsuario(Usuario novoUsuario, UUID idUsuario) {
@@ -37,5 +34,13 @@ public class UsuarioService {
         usuario.setTel1(novoUsuario.getTel1());
         usuario.setTel2(novoUsuario.getTel2());
         return repository.save(usuario);
+    }
+
+    public void excluir(UUID idUsuario) {
+        if (!repository.existsById(idUsuario)) {
+            throw new UsuarioNotFoundException("Usuário com ID " + idUsuario + " não encontrado.");
+        }
+
+        repository.deleteById(idUsuario);
     }
 }

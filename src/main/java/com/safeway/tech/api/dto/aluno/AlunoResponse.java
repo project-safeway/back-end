@@ -1,8 +1,7 @@
 package com.safeway.tech.api.dto.aluno;
 
-import com.safeway.tech.api.dto.escola.EscolaResponse;
+import com.safeway.tech.api.dto.escola.EscolaResumeResponse;
 import com.safeway.tech.api.dto.responsavel.ResponsavelResponse;
-import com.safeway.tech.domain.models.Aluno;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -13,27 +12,9 @@ public record AlunoResponse(
         LocalDate dtNascimento,
         Integer serie,
         String sala,
-        EscolaResponse escola,
+        EscolaResumeResponse escola,
         List<ResponsavelResponse> responsaveis,
         Double valorPadraoMensalidade,
         Integer diaVencimento
 ) {
-
-    public static AlunoResponse fromEntity(Aluno aluno) {
-        List<ResponsavelResponse> responsaveis = aluno.getResponsaveis().stream()
-                .map(ResponsavelResponse::fromEntity)
-                .toList();
-
-        return new AlunoResponse(
-                aluno.getNome(),
-                aluno.getProfessor(),
-                aluno.getDtNascimento(),
-                aluno.getSerie(),
-                aluno.getSala(),
-                EscolaResponse.fromEntity(aluno.getEscola()),
-                responsaveis,
-                aluno.getValorMensalidade(),
-                aluno.getDiaVencimento()
-        );
-    }
 }
