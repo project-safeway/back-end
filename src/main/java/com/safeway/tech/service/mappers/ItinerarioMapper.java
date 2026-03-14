@@ -10,8 +10,8 @@ import java.util.List;
 
 public class ItinerarioMapper {
 
-    public static ItinerarioResponse toResponse(Itinerario entity) {
-        List<ItinerarioAlunoResponse> alunos = entity.getAlunos().stream()
+    public static ItinerarioResponse toResponse(Itinerario itinerario) {
+        List<ItinerarioAlunoResponse> alunos = itinerario.getAlunos().stream()
                 .map(a -> new ItinerarioAlunoResponse(
                         a.getAluno().getId(),
                         a.getAluno().getNome(),
@@ -24,19 +24,19 @@ public class ItinerarioMapper {
                 ))
                 .toList();
 
-        List<ItinerarioEscolaResponse> escolas = entity.getEscolas() != null
-                ? entity.getEscolas().stream()
+        List<ItinerarioEscolaResponse> escolas = itinerario.getEscolas() != null
+                ? itinerario.getEscolas().stream()
                     .map(ItinerarioEscolaResponse::fromEntity)
                     .toList()
                 : List.of();
 
         return new ItinerarioResponse(
-                entity.getId(),
-                entity.getNome(),
-                entity.getHorarioInicio(),
-                entity.getHorarioFim(),
-                entity.getTipoViagem(),
-                entity.getAtivo(),
+                itinerario.getId(),
+                itinerario.getNome(),
+                itinerario.getHorarioInicio(),
+                itinerario.getHorarioFim(),
+                itinerario.getTipoViagem(),
+                itinerario.getAtivo(),
                 alunos,
                 escolas
         );

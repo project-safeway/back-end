@@ -13,34 +13,34 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class UsuarioService {
 
-    private final UsuarioRepository repository;
+    private final UsuarioRepository usuarioRepository;
 
     public List<Usuario> listarUsuarios() {
-        return repository.findAll();
+        return usuarioRepository.findAll();
     }
 
     public Usuario buscarPorId(UUID idUsuario) {
-        return repository.findById(idUsuario).orElseThrow(RuntimeException::new);
+        return usuarioRepository.getReferenceById(idUsuario);
     }
 
     public Usuario salvarUsuario(Usuario usuario) {
-        return repository.save(usuario);
+        return usuarioRepository.save(usuario);
     }
 
     public Usuario alterarUsuario(Usuario novoUsuario, UUID idUsuario) {
-        Usuario usuario = repository.findById(idUsuario).orElseThrow(RuntimeException::new);
+        Usuario usuario = usuarioRepository.findById(idUsuario).orElseThrow(RuntimeException::new);
         usuario.setNome(novoUsuario.getNome());
         usuario.setEmail(novoUsuario.getEmail());
         usuario.setTel1(novoUsuario.getTel1());
         usuario.setTel2(novoUsuario.getTel2());
-        return repository.save(usuario);
+        return usuarioRepository.save(usuario);
     }
 
     public void excluir(UUID idUsuario) {
-        if (!repository.existsById(idUsuario)) {
+        if (!usuarioRepository.existsById(idUsuario)) {
             throw new UsuarioNotFoundException("Usuário com ID " + idUsuario + " não encontrado.");
         }
 
-        repository.deleteById(idUsuario);
+        usuarioRepository.deleteById(idUsuario);
     }
 }

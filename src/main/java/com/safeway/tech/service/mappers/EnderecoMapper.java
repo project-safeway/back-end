@@ -5,21 +5,21 @@ import com.safeway.tech.domain.models.Endereco;
 
 public class EnderecoMapper {
 
-    public static EnderecoResponse toResponse(Endereco entity) {
+    public static EnderecoResponse toResponse(Endereco escola) {
         return new EnderecoResponse(
-                entity.getId(),
-                entity.getLogradouro(),
-                entity.getNumero(),
-                entity.getComplemento(),
-                entity.getBairro(),
-                entity.getCidade(),
-                entity.getUf(),
-                entity.getCep(),
-                entity.getLatitude(),
-                entity.getLongitude(),
-                entity.getTipo(),
-                entity.getAtivo(),
-                entity.getPrincipal()
+                escola.getId(),
+                escola.getLogradouro(),
+                escola.getNumero(),
+                escola.getComplemento(),
+                escola.getBairro(),
+                escola.getCidade(),
+                escola.getUf(),
+                escola.getCep(),
+                escola.getLatitude(),
+                escola.getLongitude(),
+                escola.getTipo(),
+                escola.getAtivo(),
+                escola.getPrincipal()
         );
     }
 

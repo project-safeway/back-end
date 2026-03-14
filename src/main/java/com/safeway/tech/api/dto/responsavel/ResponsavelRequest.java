@@ -6,16 +6,12 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
-import java.util.List;
-import java.util.UUID;
-
 public record ResponsavelRequest(
         @NotBlank @Size(max = 45) String nome,
-        @Size(max = 14) String cpf,
+        @NotBlank @Size(max = 14) String cpf,
         @NotBlank String tel1,
         String tel2,
         @Email String email,
-        @Valid EnderecoRequest endereco,
-        List<UUID> alunosIds
+        @Valid EnderecoRequest endereco
 ) {}
 

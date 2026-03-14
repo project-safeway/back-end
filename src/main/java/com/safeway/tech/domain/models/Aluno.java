@@ -35,6 +35,10 @@ public class Aluno extends BaseEntity {
     @JoinColumn(name = "fk_escola", nullable = false)
     private Escola escola;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "fk_transporte")
+    private Transporte transporte;
+
     @Column(nullable = false, length = 45)
     private String nome;
 
@@ -48,25 +52,28 @@ public class Aluno extends BaseEntity {
     @Column(length = 5)
     private String sala;
 
-    // Campos para controle financeiro
     @Column(nullable = false)
     private Double valorMensalidade;
 
     @Column(nullable = false)
-    private Integer diaVencimento; // 1-31
+    private Integer diaVencimento;
 
     @Column(nullable = false)
     private Boolean ativo = true;
 
-    // Relacionamento opcional com Transporte (corresponde ao mappedBy = "transporte" em Transporte)
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "fk_transporte")
-    private Transporte transporte;
-
     @OneToMany(mappedBy = "aluno", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ItinerarioAluno> itinerarios = new ArrayList<>();
 
-//    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
-//    @JoinColumn(name = "fk_aluno")
-//    private List<Endereco> enderecos = new ArrayList<>();
+    public void adicionarResponsavel(Responsavel responsavel) {
+        if (!this.responsaveis.contains(responsavel)) {
+            this.responsaveis.add(responsavel);
+            responsavel.getAlunos().add(this);
+        }
+    }
+
+    public void removerResponsavel(Responsavel responsavel) {
+        if (this.responsaveis.remove(responsavel)) {
+            responsavel.getAlunos().remove(this);
+        }
+    }
 }

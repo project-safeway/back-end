@@ -1,5 +1,6 @@
 package com.safeway.tech.service.mappers;
 
+import com.safeway.tech.api.dto.aluno.AlunoFeignResponse;
 import com.safeway.tech.api.dto.aluno.AlunoResponse;
 import com.safeway.tech.api.dto.aluno.AlunoResumeResponse;
 import com.safeway.tech.domain.models.Aluno;
@@ -27,6 +28,17 @@ public class AlunoMapper {
                 aluno.getSerie(),
                 aluno.getSala(),
                 aluno.getAtivo()
+        );
+    }
+
+    public static AlunoFeignResponse toFeignResponse(Aluno aluno) {
+        return new AlunoFeignResponse(
+                aluno.getId(),
+                aluno.getNome(),
+                aluno.getValorMensalidade(),
+                aluno.getDiaVencimento(),
+                aluno.getAtivo(),
+                new AlunoFeignResponse.UsuarioResponse(aluno.getUsuario().getId())
         );
     }
 

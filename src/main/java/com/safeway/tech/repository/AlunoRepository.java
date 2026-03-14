@@ -13,15 +13,12 @@ import java.util.UUID;
 @Repository
 public interface AlunoRepository extends JpaRepository<Aluno, UUID> {
 
-    @Query("SELECT a FROM Aluno a WHERE a.id = :idAluno AND a.usuario.id = :userId")
-    Optional<Aluno> findByIdAlunoAndIdUsuario(@Param("idAluno") UUID idAluno, @Param("userId") UUID userId);
-
-    @Query("SELECT CASE WHEN COUNT(a) > 0 THEN true ELSE false END FROM Aluno a WHERE a.escola.id = :idEscola AND a.usuario.id = :idUsuario")
-    boolean existsByIdEscolaAndIdUsuario(@Param("idEscola") UUID idEscola, @Param("idUsuario") UUID idUsuario);
-
     @Query("SELECT a FROM Aluno a WHERE a.id IN :ids AND a.usuario.id = :userId")
     List<Aluno> findByIdInAndIdUsuario(@Param("ids") List<UUID> ids, @Param("userId") UUID userId);
 
     @Query("SELECT a FROM Aluno a WHERE a.ativo = true AND a.usuario.id = :userId")
     List<Aluno> findByAtivoTrueAndIdUsuario(@Param("userId") UUID userId);
+
+    @Query("SELECT a FROM Aluno a WHERE a.id = :alunoId AND a.usuario.id = :userId")
+    Optional<Aluno> findByIdAndUsuarioId(@Param("alunoId") UUID alunoId, @Param("userId") UUID userId);
 }

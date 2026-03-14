@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -28,6 +29,10 @@ public class ResponsavelService {
                 .orElseThrow(() -> new ResponsavelNotFoundException("O responsável com ID " + id + "não foi encontrado"));
     }
 
+    public Optional<Responsavel> buscarPorCpfAndUsuario(String cpf, UUID userId) {
+        return responsavelRepository.findByCpfAndIdUsuario(cpf, userId);
+    }
+
     public List<Responsavel> listarResponsaveis() {
         UUID userId = currentUserService.getCurrentUserId();
         return responsavelRepository.findAllByIdUsuario(userId);
@@ -39,7 +44,7 @@ public class ResponsavelService {
     }
 
     @Transactional
-    public Responsavel salvarResponsavel(ResponsavelRequest request) {
+    public Responsavel criarResponsavel(ResponsavelRequest request) {
         Responsavel responsavel = new Responsavel();
         aplicaDados(responsavel, request);
 

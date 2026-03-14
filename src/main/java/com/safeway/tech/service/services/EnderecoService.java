@@ -71,8 +71,6 @@ public class EnderecoService {
         endereco.setCidade(request.cidade());
         endereco.setUf(request.uf());
         endereco.setCep(request.cep());
-        endereco.setLatitude(request.latitude());
-        endereco.setLongitude(request.longitude());
         endereco.setTipo(request.tipo());
     }
 

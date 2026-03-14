@@ -1,12 +1,12 @@
 package com.safeway.tech.api.controllers;
 
 import com.safeway.tech.api.dto.aluno.AlunoFeignResponse;
+import com.safeway.tech.api.dto.aluno.AlunoRequest;
 import com.safeway.tech.api.dto.aluno.AlunoResponse;
-import com.safeway.tech.api.dto.aluno.AlunoUpdateRequest;
-import com.safeway.tech.api.dto.aluno.CadastroAlunoCompletoRequest;
 import com.safeway.tech.api.dto.endereco.EnderecoResponse;
 import com.safeway.tech.domain.models.Aluno;
 import com.safeway.tech.domain.models.Endereco;
+import com.safeway.tech.service.mappers.AlunoMapper;
 import com.safeway.tech.service.mappers.EnderecoMapper;
 import com.safeway.tech.service.services.AlunoService;
 import com.safeway.tech.service.services.EnderecoService;
@@ -35,11 +35,12 @@ public class AlunoController {
     private final EnderecoService enderecoService;
 
     @PostMapping
-    public ResponseEntity<UUID> cadastrarAlunoCompleto(
-            @RequestBody @Valid CadastroAlunoCompletoRequest request
+    public ResponseEntity<AlunoResponse> cadastrarAlunoCompleto(
+            @RequestBody @Valid AlunoRequest request
     ) {
-        UUID idAluno = alunoService.cadastrarAlunoCompleto(request);
-        return ResponseEntity.status(HttpStatus.CREATED).body(idAluno);
+        Aluno aluno = alunoService.criarAluno(request);
+        AlunoResponse response = AlunoMapper.toResponse(aluno);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @GetMapping("/{alunoId}/enderecos")
@@ -53,23 +54,25 @@ public class AlunoController {
 
     @GetMapping("/{alunoId}")
     public ResponseEntity<AlunoResponse> listarDadosAluno(@PathVariable UUID alunoId) {
-        AlunoResponse alunoResponse = alunoService.obterDadosAluno(alunoId);
-        return ResponseEntity.ok(alunoResponse);
+        Aluno aluno = alunoService.buscarPorId(alunoId);
+        AlunoResponse response = AlunoMapper.toResponse(aluno);
+        return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
     @PutMapping("/{alunoId}")
     public ResponseEntity<AlunoResponse> atualizarAluno(
             @PathVariable UUID alunoId,
-            @RequestBody @Valid AlunoUpdateRequest request
+            @RequestBody @Valid AlunoRequest request
     ) {
-        AlunoResponse atualizado = alunoService.atualizarAluno(alunoId, request);
-        return ResponseEntity.ok(atualizado);
+        Aluno aluno = alunoService.atualizarAluno(alunoId, request);
+        AlunoResponse response = AlunoMapper.toResponse(aluno);
+        return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
     @DeleteMapping("/{alunoId}")
     public ResponseEntity<Void> deletarAluno(@PathVariable UUID alunoId) {
         alunoService.deletarAluno(alunoId);
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
     /*
@@ -80,17 +83,22 @@ public class AlunoController {
 
     @GetMapping("/feign/{alunoId}")
     public ResponseEntity<AlunoFeignResponse> buscarAlunoPorId(@PathVariable UUID alunoId) {
-        Aluno aluno = alunoService.buscarAlunoPorId(alunoId);
-        return ResponseEntity.ok(AlunoFeignResponse.fromEntity(aluno));
+        Aluno aluno = alunoService.buscarPorId(alunoId);
+        AlunoFeignResponse response = AlunoMapper.toFeignResponse(aluno);
+        return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
     @GetMapping("/ativos")
     public ResponseEntity<List<AlunoFeignResponse>> buscarTodosAtivos() {
-        return ResponseEntity.ok(alunoService.buscarTodosAtivos());
+        List<Aluno> alunos = alunoService.buscarTodosAtivos();
+        List<AlunoFeignResponse> response = alunos.stream().map(AlunoMapper::toFeignResponse).toList();
+        return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
     @PostMapping("/lote")
     public ResponseEntity<List<AlunoFeignResponse>> buscarPorIdEmLote(@RequestBody List<UUID> ids) {
-        return ResponseEntity.ok(alunoService.buscarPorIdEmLote(ids));
+        List<Aluno> alunos = alunoService.buscarPorIdEmLote(ids);
+        List<AlunoFeignResponse> response = alunos.stream().map(AlunoMapper::toFeignResponse).toList();
+        return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 }

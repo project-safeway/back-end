@@ -30,7 +30,7 @@ public class ResponsavelController {
 
     @PostMapping
     public ResponseEntity<ResponsavelResponse> salvarResponsavel(@RequestBody @Valid ResponsavelRequest request) {
-        Responsavel responsavel = responsavelService.salvarResponsavel(request);
+        Responsavel responsavel = responsavelService.criarResponsavel(request);
         ResponsavelResponse response = ResponsavelMapper.toResponse(responsavel);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
