@@ -3,6 +3,7 @@ package com.safeway.tech.service.mappers;
 import com.safeway.tech.api.dto.aluno.AlunoFeignResponse;
 import com.safeway.tech.api.dto.aluno.AlunoResponse;
 import com.safeway.tech.api.dto.aluno.AlunoResumeResponse;
+import com.safeway.tech.api.dto.transporte.AlunoTransporteResponse;
 import com.safeway.tech.domain.models.Aluno;
 
 public class AlunoMapper {
@@ -28,6 +29,15 @@ public class AlunoMapper {
                 aluno.getSerie(),
                 aluno.getSala(),
                 aluno.getAtivo()
+        );
+    }
+
+    public static AlunoTransporteResponse toTransporteResponse(Aluno aluno) {
+        return new AlunoTransporteResponse(
+                aluno.getId(),
+                aluno.getNome(),
+                aluno.getEscola().getNome(),
+                aluno.getResponsaveis().getFirst().getNome()
         );
     }
 

@@ -28,10 +28,10 @@ public class Aluno extends BaseEntity {
     @JoinColumn(name = "fk_usuario", nullable = false)
     private Usuario usuario;
 
-    @ManyToMany(mappedBy = "alunos")
+    @ManyToMany(mappedBy = "alunos", fetch = FetchType.EAGER)
     private List<Responsavel> responsaveis = new ArrayList<>();
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "fk_escola", nullable = false)
     private Escola escola;
 

@@ -59,7 +59,7 @@ public class ItinerarioService {
         itinerario.setHorarioInicio(request.horarioInicio());
         itinerario.setHorarioFim(request.horarioFim());
         itinerario.setTipoViagem(request.tipoViagem());
-        itinerario.setTransporte(transporteService.getById(request.transporteId()));
+        itinerario.setTransporte(transporteService.buscarPorId(request.transporteId()));
         itinerarioRepository.save(itinerario);
         return ItinerarioMapper.toResponse(itinerario);
     }

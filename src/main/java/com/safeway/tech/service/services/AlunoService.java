@@ -47,7 +47,7 @@ public class AlunoService {
         }
 
         UUID transporteId = currentUserService.getCurrentTransporteId();
-        Transporte transporte = transporteService.getById(transporteId);
+        Transporte transporte = transporteService.buscarPorId(transporteId);
 
         Escola escola = escolaService.buscarPorId(request.escolaId());
 
