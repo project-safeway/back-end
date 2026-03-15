@@ -24,7 +24,7 @@ public class ChamadaAlunoService {
 
     @Transactional
     public void registrarPresenca(Map<UUID, StatusPresencaEnum> presencas, UUID idChamada) {
-        Chamada chamada = chamadaService.buscarChamadaPorId(idChamada);
+        Chamada chamada = chamadaService.buscarPorId(idChamada);
 
         if (!StatusChamadaEnum.EM_ANDAMENTO.equals(chamada.getStatus())) {
             throw new RuntimeException("Chamada não está em andamento");
@@ -34,7 +34,7 @@ public class ChamadaAlunoService {
             UUID idAluno = entry.getKey();
             StatusPresencaEnum status = entry.getValue();
 
-            Aluno aluno = alunoService.buscarAlunoPorId(idAluno);
+            Aluno aluno = alunoService.buscarPorId(idAluno);
 
             ChamadaAluno chamadaAluno = chamadaAlunoRepository
                     .findByChamadaAndAluno(chamada, aluno)
@@ -51,6 +51,5 @@ public class ChamadaAlunoService {
             chamadaAlunoRepository.save(chamadaAluno);
         }
     }
-
 
 }

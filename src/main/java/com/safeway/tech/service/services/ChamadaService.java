@@ -22,7 +22,7 @@ public class ChamadaService {
     private final ItinerarioService itinerarioService;
     private final CurrentUserService currentUserService;
 
-    public Chamada buscarChamadaPorId(UUID id) {
+    public Chamada buscarPorId(UUID id) {
         return chamadaRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Chamada não encontrada"));
     }

@@ -4,6 +4,7 @@ import com.safeway.tech.api.dto.chamada.ChamadaResponse;
 import com.safeway.tech.domain.enums.StatusChamadaEnum;
 import com.safeway.tech.domain.enums.StatusPresencaEnum;
 import com.safeway.tech.domain.models.Chamada;
+import com.safeway.tech.service.mappers.ChamadaMapper;
 import com.safeway.tech.service.services.ChamadaAlunoService;
 import com.safeway.tech.service.services.ChamadaService;
 import jakarta.websocket.server.PathParam;
@@ -12,6 +13,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -37,13 +39,15 @@ public class ChamadaController {
     @PostMapping("/iniciar/{id}")
     public ResponseEntity<ChamadaResponse> iniciarChamada(@PathVariable UUID id) {
         Chamada chamada = chamadaService.iniciarChamada(id);
-        return ResponseEntity.ok(ChamadaResponse.fromEntity(chamada));
+        ChamadaResponse response = ChamadaMapper.toResponse(chamada);
+        return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
     @PutMapping("/alterar/{id}")
     public ResponseEntity<ChamadaResponse> alterarChamada(@PathVariable UUID id, @PathParam("status") StatusChamadaEnum status) {
         Chamada chamada = chamadaService.atualizarChamada(id, status);
-        return ResponseEntity.ok(ChamadaResponse.fromEntity(chamada));
+        ChamadaResponse response = ChamadaMapper.toResponse(chamada);
+        return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
     @PutMapping("/{id}/registrar-presenca")
@@ -51,7 +55,7 @@ public class ChamadaController {
             @PathVariable UUID id,
             @RequestBody Map<UUID, StatusPresencaEnum> presencas) {
         chamadaAlunoService.registrarPresenca(presencas, id);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
     @GetMapping("/historico/{id}")
@@ -75,7 +79,8 @@ public class ChamadaController {
         Pageable pageable = PageRequest.of(page, size, Sort.by(direction, property));
 
         Page<Chamada> chamadas = chamadaService.buscarHistoricoChamadas(id, status, pageable);
-        return ResponseEntity.ok(chamadas.map(ChamadaResponse::fromEntity));
+        Page<ChamadaResponse> response = chamadas.map(ChamadaMapper::toResponse);
+        return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
 }
