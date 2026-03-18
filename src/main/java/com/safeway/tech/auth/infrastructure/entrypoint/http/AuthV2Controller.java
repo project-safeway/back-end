@@ -52,7 +52,7 @@ public class AuthV2Controller {
                 result.expiresIn(),
                 result.nomeUsuario(),
                 result.userId(),
-                result.transporteId()
+                result.transportId()
         );
 
         return ResponseEntity.ok(response);
