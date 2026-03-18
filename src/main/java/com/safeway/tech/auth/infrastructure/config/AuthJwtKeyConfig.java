@@ -1,12 +1,19 @@
 package com.safeway.tech.auth.infrastructure.config;
 
+import com.nimbusds.jose.jwk.JWK;
+import com.nimbusds.jose.jwk.JWKSet;
+import com.nimbusds.jose.jwk.RSAKey;
+import com.nimbusds.jose.jwk.source.ImmutableJWKSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.security.converter.RsaKeyConverters;
+import org.springframework.security.oauth2.jwt.JwtEncoder;
+import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -22,10 +29,10 @@ public class AuthJwtKeyConfig {
 
     private static final Logger log = LoggerFactory.getLogger(AuthJwtKeyConfig.class);
 
-    @Value("${auth.v2.jwt.public.key:}")
+    @Value("${jwt.public.key:}")
     private String publicKeyLocation;
 
-    @Value("${auth.v2.jwt.private.key:}")
+    @Value("${jwt.private.key:}")
     private String privateKeyLocation;
 
     @Bean("authV2RsaKeyPair")
@@ -49,6 +56,16 @@ public class AuthJwtKeyConfig {
         } catch (NoSuchAlgorithmException e) {
             throw new IllegalStateException("Falha ao gerar par de chaves RSA do Auth V2", e);
         }
+    }
+
+    @Bean("authV2JwtEncoder")
+    public JwtEncoder authV2JwtEncoder(@Qualifier("authV2RsaKeyPair") KeyPair keyPair) {
+        RSAPublicKey publicKey = (RSAPublicKey) keyPair.getPublic();
+        RSAPrivateKey privateKey = (RSAPrivateKey) keyPair.getPrivate();
+
+        JWK jwk = new RSAKey.Builder(publicKey).privateKey(privateKey).build();
+        var jwks = new ImmutableJWKSet<>(new JWKSet(jwk));
+        return new NimbusJwtEncoder(jwks);
     }
 
     private InputStream loadInputStream(String location) throws IOException {
