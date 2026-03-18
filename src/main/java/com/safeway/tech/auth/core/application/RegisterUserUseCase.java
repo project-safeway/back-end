@@ -42,6 +42,6 @@ public class RegisterUserUseCase {
 
         RegisteredAuthUser registeredAuthUser = registerAuthUserPort.create(data);
 
-        return new RegisterUserResult(registeredAuthUser.userId(), registeredAuthUser.transporteId());
+        return new RegisterUserResult(registeredAuthUser.userId(), registeredAuthUser.idTransporte());
     }
 }

@@ -8,6 +8,6 @@ public record AuthUser(
         String email,
         String passwordHash,
         String role,
-        UUID transporteId
+        UUID idTransporte
 ) {
 }

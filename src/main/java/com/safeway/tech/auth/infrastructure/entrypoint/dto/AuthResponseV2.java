@@ -7,6 +7,6 @@ public record AuthResponseV2(
         Long expiresIn,
         String nomeUsuario,
         UUID userId,
-        UUID transportId
+        UUID idTransporte
 ) {
 }

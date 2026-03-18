@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/auth/v2")
+@RequestMapping({"/auth/v2", "/auth"})
 @RequiredArgsConstructor
 public class AuthV2Controller {
 
@@ -52,7 +52,7 @@ public class AuthV2Controller {
                 result.expiresIn(),
                 result.nomeUsuario(),
                 result.userId(),
-                result.transportId()
+                result.idTransporte()
         );
 
         return ResponseEntity.ok(response);

@@ -38,7 +38,7 @@ public class LoginUseCase {
                 token.expiresIn(),
                 authUser.nome(),
                 authUser.id(),
-                authUser.transporteId()
+                authUser.idTransporte()
         );
     }
 }

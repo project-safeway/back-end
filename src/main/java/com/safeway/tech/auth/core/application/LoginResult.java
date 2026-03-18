@@ -7,7 +7,7 @@ public record LoginResult(
         long expiresIn,
         String nomeUsuario,
         UUID userId,
-        UUID transportId
+        UUID idTransporte
 ) {
 }
 
