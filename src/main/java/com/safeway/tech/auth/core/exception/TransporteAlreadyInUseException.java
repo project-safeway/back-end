@@ -6,4 +6,3 @@ public class TransporteAlreadyInUseException extends RuntimeException {
         super("Placa já cadastrada");
     }
 }
-

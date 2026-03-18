@@ -6,4 +6,3 @@ public class EmailAlreadyInUseException extends RuntimeException {
         super("Email já cadastrado");
     }
 }
-

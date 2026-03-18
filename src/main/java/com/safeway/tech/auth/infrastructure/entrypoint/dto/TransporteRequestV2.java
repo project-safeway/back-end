@@ -14,4 +14,3 @@ public record TransporteRequestV2(
         Integer capacidade
 ) {
 }
-

@@ -7,4 +7,3 @@ public record RegisteredAuthUser(
         UUID transporteId
 ) {
 }
-

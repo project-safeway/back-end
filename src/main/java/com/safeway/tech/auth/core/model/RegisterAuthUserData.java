@@ -10,4 +10,3 @@ public record RegisterAuthUserData(
         Integer transporteCapacidade
 ) {
 }
-
