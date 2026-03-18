@@ -4,6 +4,7 @@ import com.nimbusds.jose.jwk.JWK;
 import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.jwk.RSAKey;
 import com.nimbusds.jose.jwk.source.ImmutableJWKSet;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -106,19 +107,20 @@ public class SecurityConfig {
     }
 
     @Bean
-    public JwtDecoder jwtDecoder(KeyPair keyPair) {
+    public JwtDecoder jwtDecoder(@Qualifier("rsaKeyPair") KeyPair keyPair) {
         RSAPublicKey publicKey = (RSAPublicKey) keyPair.getPublic();
         return NimbusJwtDecoder.withPublicKey(publicKey).build();
     }
 
     @Bean
-    public JwtEncoder jwtEncoder(KeyPair keyPair) {
+    public JwtEncoder jwtEncoder(@Qualifier("rsaKeyPair") KeyPair keyPair) {
         RSAPublicKey publicKey = (RSAPublicKey) keyPair.getPublic();
         RSAPrivateKey privateKey = (RSAPrivateKey) keyPair.getPrivate();
         JWK jwk = new RSAKey.Builder(publicKey).privateKey(privateKey).build();
         var jwks = new ImmutableJWKSet<>(new JWKSet(jwk));
         return new NimbusJwtEncoder(jwks);
     }
+
 
     @Bean
     public PasswordEncoder passwordEncoder() {
