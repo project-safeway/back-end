@@ -1,11 +1,11 @@
-package com.safeway.tech.api.dto.auth;
+package com.safeway.tech.auth.infrastructure.entrypoint.dto;
 
-import com.safeway.tech.api.dto.transporte.TransporteRequest;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
-public record RegisterRequest(
+public record RegisterRequestV2(
         @NotBlank(message = "Nome é obrigatório")
         String nome,
 
@@ -19,7 +19,9 @@ public record RegisterRequest(
         @NotBlank(message = "Telefone é obrigatório")
         String telefone,
 
+        @Valid
         @NotNull(message = "Dados do transporte são obrigatórios")
-        TransporteRequest transporte
+        TransporteRequestV2 transporte
 ) {
 }
+
