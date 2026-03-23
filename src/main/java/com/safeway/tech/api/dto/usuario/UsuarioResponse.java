@@ -2,6 +2,7 @@ package com.safeway.tech.api.dto.usuario;
 
 import com.safeway.tech.api.dto.transporte.TransporteResponse;
 import com.safeway.tech.domain.models.Usuario;
+import com.safeway.tech.service.mappers.TransporteMapper;
 
 import java.util.UUID;
 
@@ -21,7 +22,7 @@ public record UsuarioResponse(
                 u.getEmail(),
                 u.getTel1(),
                 u.getTel2(),
-                u.getTransporte() != null ? TransporteResponse.fromEntity(u.getTransporte()) : null,
+                u.getTransporte() != null ? TransporteMapper.toResponse(u.getTransporte()) : null,
                 u.getRole() != null ? u.getRole().name() : null
         );
     }

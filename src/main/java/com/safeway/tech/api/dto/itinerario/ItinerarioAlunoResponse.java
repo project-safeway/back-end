@@ -1,8 +1,5 @@
 package com.safeway.tech.api.dto.itinerario;
 
-import com.safeway.tech.domain.models.ItinerarioAluno;
-import com.safeway.tech.domain.models.Responsavel;
-
 import java.util.UUID;
 
 public record ItinerarioAlunoResponse(
@@ -15,17 +12,4 @@ public record ItinerarioAlunoResponse(
         String nomeResponsavel,
         String sala
 ) {
-
-    public static ItinerarioAlunoResponse fromEntity(ItinerarioAluno itinerarioAluno) {
-        return new ItinerarioAlunoResponse(
-                itinerarioAluno.getAluno().getId(),
-                itinerarioAluno.getAluno().getNome(),
-                itinerarioAluno.getOrdemEmbarque(),
-                itinerarioAluno.getEndereco() != null ? itinerarioAluno.getEndereco().getId() : null,
-                itinerarioAluno.getOrdemGlobal(),
-                itinerarioAluno.getAluno().getEscola().getNome(),
-                itinerarioAluno.getAluno().getResponsaveis().stream().map(Responsavel::getNome).findFirst().orElse(null),
-                itinerarioAluno.getAluno().getSala()
-        );
-    }
 }

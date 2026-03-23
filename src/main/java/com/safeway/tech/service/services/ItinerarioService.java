@@ -1,22 +1,22 @@
 package com.safeway.tech.service.services;
 
 import com.safeway.tech.api.dto.itinerario.ItinerarioRequest;
-import com.safeway.tech.api.dto.itinerario.ItinerarioResponse;
 import com.safeway.tech.api.dto.itinerario.ItinerarioUpdateRequest;
 import com.safeway.tech.api.dto.itinerario.ItinerarioUpdateRequest.ItinerarioParadaUpdate;
 import com.safeway.tech.domain.models.Itinerario;
 import com.safeway.tech.domain.models.ItinerarioAluno;
 import com.safeway.tech.domain.models.ItinerarioEscola;
-import com.safeway.tech.repository.ItinerarioAlunoRepository;
-import com.safeway.tech.repository.ItinerarioEscolaRepository;
+import com.safeway.tech.domain.models.Transporte;
+import com.safeway.tech.infra.exception.ItinerarioNotFoundException;
 import com.safeway.tech.repository.ItinerarioRepository;
-import com.safeway.tech.service.mappers.ItinerarioMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -25,49 +25,46 @@ public class ItinerarioService {
     private final ItinerarioRepository itinerarioRepository;
     private final TransporteService transporteService;
     private final ItinerarioAlunoService itinerarioAlunoService;
-    private final ItinerarioAlunoRepository itinerarioAlunoRepository;
-    private final ItinerarioEscolaRepository itinerarioEscolaRepository;
+    private final ItinerarioEscolaService itinerarioEscolaService;
+    private final CurrentUserService currentUserService;
 
-    public List<ItinerarioResponse> listarTodos(UUID transporteId) {
-        return itinerarioRepository.findAllByTransporte(transporteId).stream()
-                .map(ItinerarioMapper::toResponse)
-                .filter(ItinerarioResponse::ativo)
-                .toList();
+    public List<Itinerario> listarTodos() {
+        UUID transporteId = currentUserService.getCurrentTransporteId();
+        return itinerarioRepository.findAllByTransporte(transporteId);
     }
 
     public Itinerario buscarPorId(UUID id) {
         return itinerarioRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Itinerário não encontrado"));
+                .orElseThrow(() -> new ItinerarioNotFoundException("Itinerário não encontrado"));
     }
 
     @Transactional
     public void desativar(UUID id) {
-        Itinerario itinerario = itinerarioRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Itinerário não encontrado"));
+        Itinerario itinerario = buscarPorId(id);
         itinerario.setAtivo(false);
         itinerarioRepository.save(itinerario);
     }
 
     @Transactional
-    public ItinerarioResponse criar(ItinerarioRequest request, UUID transporteUsuario) {
-        if (!request.transporteId().equals(transporteUsuario)) {
-            throw new RuntimeException("Sem permissão para acessar este transporte");
-        }
+    public Itinerario criar(ItinerarioRequest request) {
 
         Itinerario itinerario = new Itinerario();
+
         itinerario.setNome(request.nome());
         itinerario.setHorarioInicio(request.horarioInicio());
         itinerario.setHorarioFim(request.horarioFim());
         itinerario.setTipoViagem(request.tipoViagem());
-        itinerario.setTransporte(transporteService.buscarPorId(request.transporteId()));
-        itinerarioRepository.save(itinerario);
-        return ItinerarioMapper.toResponse(itinerario);
+
+        UUID transporteId = currentUserService.getCurrentTransporteId();
+        Transporte transporte = transporteService.buscarPorId(transporteId);
+        itinerario.setTransporte(transporte);
+
+        return itinerarioRepository.save(itinerario);
     }
 
     @Transactional
-    public ItinerarioResponse atualizar(UUID id, ItinerarioUpdateRequest request) {
-        Itinerario itinerario = itinerarioRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Itinerário não encontrado"));
+    public Itinerario atualizar(UUID id, ItinerarioUpdateRequest request) {
+        Itinerario itinerario = buscarPorId(id);
 
         itinerario.setNome(request.nome());
         itinerario.setHorarioInicio(request.horarioInicio());
@@ -75,22 +72,19 @@ public class ItinerarioService {
         itinerario.setTipoViagem(request.tipoViagem());
         itinerario.setAtivo(request.ativo());
 
-        // Sincroniza alunos (criar/remover) se lista for enviada
         if (request.alunos() != null && !request.alunos().isEmpty()) {
             itinerarioAlunoService.sincronizarAlunos(itinerario, request.alunos());
         }
 
-        // Aplica ordemGlobal e ordemEspecifica na lista unificada de paradas, se enviada
         if (request.paradas() != null && !request.paradas().isEmpty()) {
-            // Carrega vínculos atuais
-            var alunosAtuais = itinerarioAlunoRepository.findByItinerarioId(itinerario.getId());
-            var escolasAtuais = itinerarioEscolaRepository.findByItinerarioId(itinerario.getId());
+            List<ItinerarioAluno> alunosAtuais = itinerarioAlunoService.buscarPorItinerarioId(itinerario.getId());
+            List<ItinerarioEscola> escolasAtuais = itinerarioEscolaService.buscarPorItinerarioId(itinerario.getId());
 
-            java.util.Map<UUID, ItinerarioAluno> alunosPorId = alunosAtuais.stream()
-                    .collect(java.util.stream.Collectors.toMap(a -> a.getAluno().getId(), a -> a));
+            Map<UUID, ItinerarioAluno> alunosPorId = alunosAtuais.stream()
+                    .collect(Collectors.toMap(a -> a.getAluno().getId(), a -> a));
 
-            java.util.Map<UUID, ItinerarioEscola> escolasPorId = escolasAtuais.stream()
-                    .collect(java.util.stream.Collectors.toMap(e -> e.getEscola().getId(), e -> e));
+            Map<UUID, ItinerarioEscola> escolasPorId = escolasAtuais.stream()
+                    .collect(Collectors.toMap(e -> e.getEscola().getId(), e -> e));
 
             for (ItinerarioParadaUpdate parada : request.paradas()) {
                 if (parada == null || parada.id() == null) {
@@ -111,12 +105,11 @@ public class ItinerarioService {
                 }
             }
 
-            itinerarioAlunoRepository.saveAll(alunosAtuais);
-            itinerarioEscolaRepository.saveAll(escolasAtuais);
+            itinerarioAlunoService.salvarTodos(alunosAtuais);
+            itinerarioEscolaService.salvarTodos(escolasAtuais);
         }
 
-        itinerarioRepository.save(itinerario);
-        return ItinerarioMapper.toResponse(itinerario);
+        return itinerarioRepository.save(itinerario);
     }
 
 }

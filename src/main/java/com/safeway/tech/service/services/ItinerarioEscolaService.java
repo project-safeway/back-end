@@ -25,6 +25,14 @@ public class ItinerarioEscolaService {
     private final EscolaService escolaService;
     private final EnderecoService enderecoService;
 
+    public List<ItinerarioEscola> buscarPorItinerarioId(UUID itinerarioId) {
+        return itinerarioEscolaRepository.findByItinerarioId(itinerarioId);
+    }
+
+    public void salvarTodos(List<ItinerarioEscola> escolas) {
+        itinerarioEscolaRepository.saveAll(escolas);
+    }
+
     @Transactional
     public void adicionarEscola(UUID itinerarioId, ItinerarioEscolaRequest request) {
         Itinerario itinerario = itinerarioRepository.findById(itinerarioId)

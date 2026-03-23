@@ -28,15 +28,20 @@ public class ItinerarioAlunoService {
     private final AlunoService alunoService;
     private final EnderecoService enderecoService;
 
-    /**
-     * Adiciona um aluno a um itinerário existente
-     */
+    public List<ItinerarioAluno> buscarPorItinerarioId(UUID itinerarioId) {
+        return itinerarioAlunoRepository.findByItinerarioId(itinerarioId);
+    }
+
+    public void salvarTodos(List<ItinerarioAluno> alunos) {
+        itinerarioAlunoRepository.saveAll(alunos);
+    }
+
     @Transactional
     public void adicionarAluno(UUID itinerarioId, ItinerarioAlunoRequest request) {
         Itinerario itinerario = itinerarioRepository.findById(itinerarioId)
                 .orElseThrow(() -> new RuntimeException("Itinerário não encontrado"));
 
-        Aluno aluno = alunoService.buscarAlunoPorId(request.alunoId());
+        Aluno aluno = alunoService.buscarPorId(request.alunoId());
 
         // Determinar endereço: usar request.enderecoId() se presente, caso contrário tentar fallback
         Endereco endereco;
@@ -101,7 +106,7 @@ public class ItinerarioAlunoService {
             ItinerarioAluno ia = new ItinerarioAluno();
             ia.setItinerario(itinerario);
 
-            Aluno aluno = alunoService.buscarAlunoPorId(dto.alunoId());
+            Aluno aluno = alunoService.buscarPorId(dto.alunoId());
 
             // Determinar endereco: prefer dto.enderecoId(), senão fallback para primeiro endereco de responsavel
             Endereco endereco;

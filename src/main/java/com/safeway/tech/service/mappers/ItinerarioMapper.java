@@ -4,32 +4,12 @@ import com.safeway.tech.api.dto.itinerario.ItinerarioAlunoResponse;
 import com.safeway.tech.api.dto.itinerario.ItinerarioEscolaResponse;
 import com.safeway.tech.api.dto.itinerario.ItinerarioResponse;
 import com.safeway.tech.domain.models.Itinerario;
-import com.safeway.tech.domain.models.Responsavel;
-
-import java.util.List;
+import com.safeway.tech.domain.models.ItinerarioAluno;
+import com.safeway.tech.domain.models.ItinerarioEscola;
 
 public class ItinerarioMapper {
 
     public static ItinerarioResponse toResponse(Itinerario itinerario) {
-        List<ItinerarioAlunoResponse> alunos = itinerario.getAlunos().stream()
-                .map(a -> new ItinerarioAlunoResponse(
-                        a.getAluno().getId(),
-                        a.getAluno().getNome(),
-                        a.getOrdemEmbarque(),
-                        a.getEndereco() != null ? a.getEndereco().getId() : null,
-                        a.getOrdemGlobal(),
-                        a.getAluno().getEscola().getNome(),
-                        a.getAluno().getResponsaveis().stream().map(Responsavel::getNome).findFirst().orElse(null),
-                        a.getAluno().getSala()
-                ))
-                .toList();
-
-        List<ItinerarioEscolaResponse> escolas = itinerario.getEscolas() != null
-                ? itinerario.getEscolas().stream()
-                    .map(ItinerarioEscolaResponse::fromEntity)
-                    .toList()
-                : List.of();
-
         return new ItinerarioResponse(
                 itinerario.getId(),
                 itinerario.getNome(),
@@ -37,8 +17,32 @@ public class ItinerarioMapper {
                 itinerario.getHorarioFim(),
                 itinerario.getTipoViagem(),
                 itinerario.getAtivo(),
-                alunos,
-                escolas
+                itinerario.getAlunos().stream().map(ItinerarioMapper::toAlunoResponse).toList(),
+                itinerario.getEscolas().stream().map(ItinerarioMapper::toEscolaResponse).toList()
+        );
+    }
+
+    public static ItinerarioAlunoResponse toAlunoResponse(ItinerarioAluno itinerarioAluno) {
+        return new ItinerarioAlunoResponse(
+                itinerarioAluno.getAluno().getId(),
+                itinerarioAluno.getAluno().getNome(),
+                itinerarioAluno.getOrdemEmbarque(),
+                itinerarioAluno.getEndereco().getId(),
+                itinerarioAluno.getOrdemGlobal(),
+                itinerarioAluno.getAluno().getEscola().getNome(),
+                itinerarioAluno.getAluno().getResponsaveis().getFirst().getNome(),
+                itinerarioAluno.getAluno().getSala()
+        );
+    }
+
+    public static ItinerarioEscolaResponse toEscolaResponse(ItinerarioEscola itinerarioEscola) {
+        return new ItinerarioEscolaResponse(
+                itinerarioEscola.getEscola().getId(),
+                itinerarioEscola.getEscola().getNome(),
+                itinerarioEscola.getEndereco().getCidade(),
+                itinerarioEscola.getOrdemParada(),
+                itinerarioEscola.getEndereco().getId(),
+                itinerarioEscola.getOrdemGlobal()
         );
     }
 }
