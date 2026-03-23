@@ -2,10 +2,9 @@ package com.safeway.tech.client.feign;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.oauth2.jwt.JwtClaimsSet;
-import org.springframework.security.oauth2.jwt.JwtEncoder;
-import org.springframework.security.oauth2.jwt.JwtEncoderParameters;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+import org.springframework.web.reactive.function.client.WebClient;
 
 import java.time.Instant;
 
@@ -14,7 +13,19 @@ import java.time.Instant;
 @RequiredArgsConstructor
 public class ServiceTokenProvider {
 
-    private final JwtEncoder jwtEncoder;
+    private final WebClient.Builder webClientBuilder;
+
+    @Value("${auth.service.base-url:http://localhost:8080}")
+    private String authServiceBaseUrl;
+
+    @Value("${auth.service.token-endpoint:/auth/v2/token/service}")
+    private String authServiceTokenEndpoint;
+
+    @Value("${auth.service.client-id:safeway-core}")
+    private String authServiceClientId;
+
+    @Value("${auth.service.client-secret:change-me}")
+    private String authServiceClientSecret;
 
     private String cachedToken;
     private Instant tokenExpiration;
@@ -26,24 +37,22 @@ public class ServiceTokenProvider {
             return cachedToken;
         }
 
-        log.info("Gerando novo token de serviço para o serviço financeiro");
+        log.info("Solicitando novo token de serviço ao Auth V2");
 
-        Instant now = Instant.now();
+        WebClient client = webClientBuilder.baseUrl(authServiceBaseUrl).build();
+        ServiceTokenResponse response = client.post()
+                .uri(authServiceTokenEndpoint)
+                .bodyValue(new ServiceTokenRequest(authServiceClientId, authServiceClientSecret))
+                .retrieve()
+                .bodyToMono(ServiceTokenResponse.class)
+                .block();
 
-        long expiresIn = 60 * 60 * 23L;
-        Instant expiration = now.plusSeconds(expiresIn);
+        if (response == null || response.accessToken() == null || response.expiresIn() == null) {
+            throw new IllegalStateException("Resposta inválida ao solicitar token de serviço no Auth V2");
+        }
 
-        JwtClaimsSet claims = JwtClaimsSet.builder()
-                .issuer("safeway-tech")
-                .subject("safeway-core")
-                .issuedAt(now)
-                .expiresAt(expiration)
-                .build();
-
-        cachedToken = jwtEncoder
-                .encode(JwtEncoderParameters.from(claims))
-                .getTokenValue();
-        tokenExpiration = expiration.minusSeconds(60);
+        cachedToken = response.accessToken();
+        tokenExpiration = Instant.now().plusSeconds(response.expiresIn()).minusSeconds(60);
 
         log.info("Token de serviço gerado, expira em: {}", tokenExpiration);
         return cachedToken;
@@ -52,6 +61,12 @@ public class ServiceTokenProvider {
     public synchronized void invalidateToken() {
         cachedToken = null;
         tokenExpiration = null;
+    }
+
+    private record ServiceTokenRequest(String clientId, String clientSecret) {
+    }
+
+    private record ServiceTokenResponse(String accessToken, Long expiresIn) {
     }
 
 }

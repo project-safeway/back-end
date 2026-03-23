@@ -177,6 +177,16 @@ O módulo de rotas utiliza as APIs do Google para:
 > Se as credenciais do Google não estiverem configuradas, o restante da aplicação funciona normalmente — apenas os
 > endpoints de rotas/otimização retornarão erro.
 
+## Configurar chaves para JWT
+
+1. Gerar a chave privada
+
+    ```bashopenssl genrsa -out pri.key 2048```
+
+2. Extrair a chave pública
+
+   ```bashopenssl rsa -in pri.key -pubout -out pub.key```
+
 ---
 
 ## 📁 Estrutura do projeto
