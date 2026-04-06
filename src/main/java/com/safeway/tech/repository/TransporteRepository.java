@@ -15,7 +15,7 @@ public interface TransporteRepository extends JpaRepository<Transporte, UUID> {
     Optional<Transporte> findByPlaca(@Param("placa") String placa);
 
     @Query("SELECT t FROM Transporte t WHERE t.id = :idTransporte AND t.usuario.id = :userId")
-    Optional<Transporte> findByIdTransporteAndIdUsuario(UUID idTransporte, @Param("userId") UUID userId);
+    Optional<Transporte> findByIdAndUsuarioId(@Param("idTransporte") UUID idTransporte, @Param("userId") UUID userId);
 
     @Query("SELECT t FROM Transporte t WHERE t.usuario.id = :userId")
     List<Transporte> findAllByIdUsuario(@Param("userId") UUID userId);

@@ -1,16 +1,11 @@
 package com.safeway.tech.service.services;
 
-import com.safeway.tech.api.dto.endereco.EnderecoResponse;
-import com.safeway.tech.api.dto.escola.EscolaComAlunosResponse;
 import com.safeway.tech.api.dto.escola.EscolaRequest;
-import com.safeway.tech.api.dto.escola.EscolaResponse;
 import com.safeway.tech.domain.models.Endereco;
 import com.safeway.tech.domain.models.Escola;
 import com.safeway.tech.domain.models.Usuario;
-import com.safeway.tech.repository.AlunoRepository;
-import com.safeway.tech.repository.EnderecoRepository;
+import com.safeway.tech.infra.exception.EscolaNotFoundException;
 import com.safeway.tech.repository.EscolaRepository;
-import com.safeway.tech.repository.UsuarioRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,119 +18,65 @@ import java.util.UUID;
 public class EscolaService {
 
     private final EscolaRepository escolaRepository;
-    private final EnderecoRepository enderecoRepository;
-    private final UsuarioRepository usuarioRepository;
-    private final AlunoRepository alunoRepository;
-    private final CurrentUserService currentUserService;
     private final EnderecoService enderecoService;
+    private final UsuarioService usuarioService;
+    private final CurrentUserService currentUserService;
 
-    @Transactional
-    public EscolaResponse cadastrarEscola(EscolaRequest request) {
+    public List<Escola> listarEscolasComAlunos() {
         UUID usuarioId = new CurrentUserService().getCurrentUserId();
-
-        Usuario usuario = usuarioRepository.findById(usuarioId)
-                .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
-
-        // Criar endereço
-        Endereco endereco = new Endereco();
-        endereco.setLogradouro(request.endereco().logradouro());
-        endereco.setNumero(request.endereco().numero());
-        endereco.setComplemento(request.endereco().complemento());
-        endereco.setBairro(request.endereco().bairro());
-        endereco.setCidade(request.endereco().cidade());
-        endereco.setUf(request.endereco().uf());
-        endereco.setCep(request.endereco().cep());
-        endereco.setLatitude(request.endereco().latitude());
-        endereco.setLongitude(request.endereco().longitude());
-        endereco.setTipo("ESCOLA");
-        endereco.setAtivo(true);
-        endereco.setPrincipal(true);
-        endereco = enderecoService.calcularCoordenadas(endereco);
-        endereco = enderecoRepository.save(endereco);
-
-        // Criar escola
-        Escola escola = new Escola();
-        escola.setUsuario(usuario);
-        escola.setEndereco(endereco);
-        escola.setNome(request.nome());
-        escola.setNivelEnsino(request.nivelEnsino());
-
-        escola = escolaRepository.save(escola);
-
-        return EscolaResponse.fromEntity(escola);
-    }
-
-    public List<EscolaComAlunosResponse> listarEscolasComAlunos() {
-        UUID usuarioId = new CurrentUserService().getCurrentUserId();
-
-        return escolaRepository.findByUsuarioIdUsuario(usuarioId).stream()
-                .map(EscolaComAlunosResponse::fromEntity)
-                .toList();
+        return escolaRepository.findByUsuarioIdUsuario(usuarioId);
     }
 
     @Transactional(readOnly = true)
-    public EscolaResponse buscarPorId(UUID escolaId) {
-        UUID usuarioId = currentUserService.getCurrentUserId();
-        Escola escola = escolaRepository.findByIdEscolaAndIdUsuario(escolaId, usuarioId)
-                .orElseThrow(() -> new RuntimeException("Escola não encontrada para este usuário"));
-        return EscolaResponse.fromEntity(escola);
-    }
-
-    @Transactional(readOnly = true)
-    public EnderecoResponse buscarEnderecoDaEscola(UUID escolaId) {
-        UUID usuarioId = currentUserService.getCurrentUserId();
-        Escola escola = escolaRepository.findByIdEscolaAndIdUsuario(escolaId, usuarioId)
-                .orElseThrow(() -> new RuntimeException("Escola não encontrada para este usuário"));
-        Endereco endereco = escola.getEndereco();
-        return EnderecoResponse.fromEntity(endereco);
-    }
-
-    @Transactional(readOnly = true)
-    public Escola buscarEntidadePorId(UUID itinerarioId, UUID escolaId) {
+    public Escola buscarPorId(UUID escolaId) {
         UUID usuarioId = currentUserService.getCurrentUserId();
         return escolaRepository.findByIdEscolaAndIdUsuario(escolaId, usuarioId)
-                .orElseThrow(() -> new RuntimeException("Escola não encontrada para este usuário"));
+                .orElseThrow(() -> new EscolaNotFoundException("Escola não encontrada"));
+    }
+
+    @Transactional(readOnly = true)
+    public Endereco buscarEnderecoDaEscola(UUID escolaId) {
+        UUID usuarioId = currentUserService.getCurrentUserId();
+        Escola escola = escolaRepository.findByIdEscolaAndIdUsuario(escolaId, usuarioId)
+                .orElseThrow(() -> new EscolaNotFoundException("Escola não encontrada"));
+        return escola.getEndereco();
     }
 
     @Transactional
-    public EscolaResponse atualizarEscola(UUID escolaId, EscolaRequest request) {
+    public Escola cadastrarEscola(EscolaRequest request) {
+        Escola escola = new Escola();
+        aplicarDados(escola, request);
+
+        Endereco endereco = enderecoService.criar(request.endereco());
+        escola.setEndereco(endereco);
+
         UUID usuarioId = currentUserService.getCurrentUserId();
-        Escola escolaExistente = escolaRepository.findByIdEscolaAndIdUsuario(escolaId, usuarioId)
-                .orElseThrow(() -> new RuntimeException("Escola não encontrada para este usuário"));
+        Usuario usuario = usuarioService.buscarPorId(usuarioId);
+        escola.setUsuario(usuario);
 
-        escolaExistente.setNome(request.nome());
-        escolaExistente.setNivelEnsino(request.nivelEnsino());
-
-        if (request.endereco() != null) {
-            Endereco enderecoExistente = escolaExistente.getEndereco();
-            enderecoExistente.setLogradouro(request.endereco().logradouro());
-            enderecoExistente.setNumero(request.endereco().numero());
-            enderecoExistente.setComplemento(request.endereco().complemento());
-            enderecoExistente.setBairro(request.endereco().bairro());
-            enderecoExistente.setCidade(request.endereco().cidade());
-            enderecoExistente.setUf(request.endereco().uf());
-            enderecoExistente.setCep(request.endereco().cep());
-            enderecoExistente = enderecoService.calcularCoordenadas(enderecoExistente);
-
-            enderecoRepository.save(enderecoExistente);
-        }
-
-        escolaRepository.save(escolaExistente);
-        return EscolaResponse.fromEntity(escolaExistente);
+        return escolaRepository.save(escola);
     }
 
     @Transactional
-    public void deletarEscola(UUID escolaId) {
-        UUID usuarioId = currentUserService.getCurrentUserId();
-        Escola escolaExistente = escolaRepository.findByIdEscolaAndIdUsuario(escolaId, usuarioId)
-                .orElseThrow(() -> new RuntimeException("Escola não encontrada para este usuário"));
+    public Escola atualizarEscola(UUID escolaId, EscolaRequest request) {
+        Escola escola = buscarPorId(escolaId);
 
-        // Verifica se existem alunos vinculados a esta escola para este usuário
-        boolean existeAluno = alunoRepository.existsByIdEscolaAndIdUsuario(escolaId, usuarioId);
-        if (existeAluno) {
-            throw new RuntimeException("Não é possível excluir a escola, pois existem alunos vinculados a ela.");
-        }
+        aplicarDados(escola, request);
+        Endereco endereco = enderecoService.atualizar(escola.getEndereco().getId(), request.endereco());
+        escola.setEndereco(endereco);
 
-        escolaRepository.delete(escolaExistente);
+        return escolaRepository.save(escola);
+    }
+
+    @Transactional
+    public void desativar(UUID escolaId) {
+        Escola escola = buscarPorId(escolaId);
+        escola.setAtivo(false);
+        escolaRepository.save(escola);
+    }
+
+    private void aplicarDados(Escola escola, EscolaRequest request) {
+        escola.setNome(request.nome());
+        escola.setNivelEnsino(request.nivelEnsino());
     }
 }

@@ -38,6 +38,6 @@ public class Escola extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private NivelEnsinoEnum nivelEnsino;
 
-    @OneToMany(mappedBy = "escola")
+    @OneToMany(mappedBy = "escola", fetch = FetchType.EAGER)
     private List<Aluno> alunos;
 }

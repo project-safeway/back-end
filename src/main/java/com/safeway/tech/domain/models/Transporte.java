@@ -25,7 +25,7 @@ public class Transporte extends BaseEntity {
     private String modelo;
     private Integer capacidade;
 
-    @OneToMany(mappedBy = "transporte")
+    @OneToMany(mappedBy = "transporte", fetch = FetchType.EAGER)
     private List<Aluno> alunosTransportes;
 
     @OneToOne(fetch = FetchType.LAZY)

@@ -4,41 +4,45 @@ import com.safeway.tech.api.dto.itinerario.ItinerarioAlunoResponse;
 import com.safeway.tech.api.dto.itinerario.ItinerarioEscolaResponse;
 import com.safeway.tech.api.dto.itinerario.ItinerarioResponse;
 import com.safeway.tech.domain.models.Itinerario;
-import com.safeway.tech.domain.models.Responsavel;
-
-import java.util.List;
+import com.safeway.tech.domain.models.ItinerarioAluno;
+import com.safeway.tech.domain.models.ItinerarioEscola;
 
 public class ItinerarioMapper {
 
-    public static ItinerarioResponse toResponse(Itinerario entity) {
-        List<ItinerarioAlunoResponse> alunos = entity.getAlunos().stream()
-                .map(a -> new ItinerarioAlunoResponse(
-                        a.getAluno().getId(),
-                        a.getAluno().getNome(),
-                        a.getOrdemEmbarque(),
-                        a.getEndereco() != null ? a.getEndereco().getId() : null,
-                        a.getOrdemGlobal(),
-                        a.getAluno().getEscola().getNome(),
-                        a.getAluno().getResponsaveis().stream().map(Responsavel::getNome).findFirst().orElse(null),
-                        a.getAluno().getSala()
-                ))
-                .toList();
-
-        List<ItinerarioEscolaResponse> escolas = entity.getEscolas() != null
-                ? entity.getEscolas().stream()
-                    .map(ItinerarioEscolaResponse::fromEntity)
-                    .toList()
-                : List.of();
-
+    public static ItinerarioResponse toResponse(Itinerario itinerario) {
         return new ItinerarioResponse(
-                entity.getId(),
-                entity.getNome(),
-                entity.getHorarioInicio(),
-                entity.getHorarioFim(),
-                entity.getTipoViagem(),
-                entity.getAtivo(),
-                alunos,
-                escolas
+                itinerario.getId(),
+                itinerario.getNome(),
+                itinerario.getHorarioInicio(),
+                itinerario.getHorarioFim(),
+                itinerario.getTipoViagem(),
+                itinerario.getAtivo(),
+                itinerario.getAlunos().stream().map(ItinerarioMapper::toAlunoResponse).toList(),
+                itinerario.getEscolas().stream().map(ItinerarioMapper::toEscolaResponse).toList()
+        );
+    }
+
+    public static ItinerarioAlunoResponse toAlunoResponse(ItinerarioAluno itinerarioAluno) {
+        return new ItinerarioAlunoResponse(
+                itinerarioAluno.getAluno().getId(),
+                itinerarioAluno.getAluno().getNome(),
+                itinerarioAluno.getOrdemEmbarque(),
+                itinerarioAluno.getEndereco().getId(),
+                itinerarioAluno.getOrdemGlobal(),
+                itinerarioAluno.getAluno().getEscola().getNome(),
+                itinerarioAluno.getAluno().getResponsaveis().getFirst().getNome(),
+                itinerarioAluno.getAluno().getSala()
+        );
+    }
+
+    public static ItinerarioEscolaResponse toEscolaResponse(ItinerarioEscola itinerarioEscola) {
+        return new ItinerarioEscolaResponse(
+                itinerarioEscola.getEscola().getId(),
+                itinerarioEscola.getEscola().getNome(),
+                itinerarioEscola.getEndereco().getCidade(),
+                itinerarioEscola.getOrdemParada(),
+                itinerarioEscola.getEndereco().getId(),
+                itinerarioEscola.getOrdemGlobal()
         );
     }
 }

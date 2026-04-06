@@ -19,7 +19,7 @@ import java.util.List;
 @Entity
 @Table(name = "responsaveis",
         uniqueConstraints = {
-                @UniqueConstraint(name = "uk_responsavel_usuario_cpf", columnNames = {"fkUsuario", "cpf"})
+                @UniqueConstraint(name = "uk_responsavel_usuario_cpf", columnNames = {"fk_usuario", "cpf"})
         })
 @Getter @Setter
 @NoArgsConstructor
