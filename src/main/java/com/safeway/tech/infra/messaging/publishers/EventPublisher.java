@@ -26,6 +26,7 @@ public class EventPublisher {
             AlunoEvent event = new AlunoEvent(
                     UUID.randomUUID(),
                     aluno.getId(),
+                    aluno.getUsuario().getId(),
                     aluno.getNome(),
                     aluno.getValorMensalidade(),
                     aluno.getDiaVencimento(),
@@ -53,6 +54,7 @@ public class EventPublisher {
             AlunoEvent event = new AlunoEvent(
                     UUID.randomUUID(),
                     aluno.getId(),
+                    aluno.getUsuario().getId(),
                     aluno.getNome(),
                     aluno.getValorMensalidade(),
                     aluno.getDiaVencimento(),
@@ -80,6 +82,7 @@ public class EventPublisher {
             AlunoEvent event = new AlunoEvent(
                     UUID.randomUUID(),
                     aluno.getId(),
+                    aluno.getUsuario().getId(),
                     aluno.getNome(),
                     aluno.getValorMensalidade(),
                     aluno.getDiaVencimento(),
