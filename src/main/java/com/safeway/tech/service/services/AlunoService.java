@@ -153,10 +153,11 @@ public class AlunoService {
                     aluno.getResponsaveis().add(responsavel);
                 }
             }
-            // salvar aluno novamente para garantir que a relação inversa está persistida
-            alunoRepository.save(aluno);
-            eventPublisher.publicarAlunoCriado(aluno);
         }
+
+        // garante persistência final e publicação do evento mesmo sem responsáveis
+        alunoRepository.save(aluno);
+        eventPublisher.publicarAlunoCriado(aluno);
 
         return aluno.getId();
     }
