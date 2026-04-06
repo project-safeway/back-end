@@ -1,6 +1,6 @@
 package com.safeway.tech.repository;
 
-import com.safeway.tech.models.Aluno;
+import com.safeway.tech.domain.models.Aluno;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -14,8 +14,14 @@ import java.util.UUID;
 public interface AlunoRepository extends JpaRepository<Aluno, UUID> {
 
     @Query("SELECT a FROM Aluno a WHERE a.id = :idAluno AND a.usuario.id = :userId")
-    Optional<Aluno> findByIdAlunoAndUsuario_IdUsuario(@Param("idAluno") UUID idAluno, @Param("userId") UUID userId);
+    Optional<Aluno> findByIdAlunoAndIdUsuario(@Param("idAluno") UUID idAluno, @Param("userId") UUID userId);
 
     @Query("SELECT CASE WHEN COUNT(a) > 0 THEN true ELSE false END FROM Aluno a WHERE a.escola.id = :idEscola AND a.usuario.id = :idUsuario")
-    boolean existsByEscola_IdEscolaAndUsuario_IdUsuario(@Param("idEscola") UUID idEscola, @Param("idUsuario") UUID idUsuario);
+    boolean existsByIdEscolaAndIdUsuario(@Param("idEscola") UUID idEscola, @Param("idUsuario") UUID idUsuario);
+
+    @Query("SELECT a FROM Aluno a WHERE a.id IN :ids AND a.usuario.id = :userId")
+    List<Aluno> findByIdInAndIdUsuario(@Param("ids") List<UUID> ids, @Param("userId") UUID userId);
+
+    @Query("SELECT a FROM Aluno a WHERE a.ativo = true AND a.usuario.id = :userId")
+    List<Aluno> findByAtivoTrueAndIdUsuario(@Param("userId") UUID userId);
 }

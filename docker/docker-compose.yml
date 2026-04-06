@@ -1,7 +1,7 @@
 services:
-  mysql:
+  mysql1:
     image: mysql
-    container_name: safeway-mysql
+    container_name: safeway_core
     ports:
       - "3306:3306"
     expose:
@@ -9,5 +9,18 @@ services:
     environment:
       - MYSQL_USER=safeway
       - MYSQL_PASSWORD=urubu100
-      - MYSQL_DATABASE=safewaydb
+      - MYSQL_DATABASE=safeway_core
+      - MYSQL_ROOT_PASSWORD=urubu100
+
+  mysql2:
+    image: mysql
+    container_name: safeway_financial
+    ports:
+      - "3307:3306"
+    expose:
+      - "3307"
+    environment:
+      - MYSQL_USER=safeway
+      - MYSQL_PASSWORD=urubu100
+      - MYSQL_DATABASE=safeway_financial
       - MYSQL_ROOT_PASSWORD=urubu100

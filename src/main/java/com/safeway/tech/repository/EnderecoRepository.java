@@ -1,6 +1,6 @@
 package com.safeway.tech.repository;
 
-import com.safeway.tech.models.Endereco;
+import com.safeway.tech.domain.models.Endereco;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.UUID;

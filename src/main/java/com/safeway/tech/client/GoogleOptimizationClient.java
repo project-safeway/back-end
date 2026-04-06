@@ -5,10 +5,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.auth.oauth2.GoogleCredentials;
-import com.safeway.tech.dto.rotas.Localizacao;
-import com.safeway.tech.dto.rotas.PontoParada;
-import com.safeway.tech.dto.rotas.RotasRequest;
-import com.safeway.tech.dto.rotas.Veiculo;
+import com.safeway.tech.api.dto.rotas.Localizacao;
+import com.safeway.tech.api.dto.rotas.PontoParada;
+import com.safeway.tech.api.dto.rotas.RotasRequest;
+import com.safeway.tech.api.dto.rotas.Veiculo;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -126,7 +126,9 @@ public class GoogleOptimizationClient {
     }
 
     private ObjectNode criarLocalizacao(Localizacao loc) {
-        if (loc == null) throw new RuntimeException("Localização ausente");
+        if (loc == null) {
+            throw new RuntimeException("Localização ausente");
+        }
         double lat = loc.lat();
         double lng = loc.lng();
         if (lat < -90 || lat > 90 || lng < -180 || lng > 180) {
@@ -146,11 +148,15 @@ public class GoogleOptimizationClient {
                 return credentials.getAccessToken().getTokenValue();
             }
             String env = System.getenv("GOOGLE_ACCESS_TOKEN");
-            if (env != null && !env.isBlank()) return env;
+            if (env != null && !env.isBlank()) {
+                return env;
+            }
             throw new RuntimeException("Sem credenciais Google. Defina GOOGLE_APPLICATION_CREDENTIALS ou GOOGLE_ACCESS_TOKEN.");
         } catch (IOException e) {
             String env = System.getenv("GOOGLE_ACCESS_TOKEN");
-            if (env != null && !env.isBlank()) return env;
+            if (env != null && !env.isBlank()) {
+                return env;
+            }
             throw new RuntimeException("Falha ao obter token Google: " + e.getMessage(), e);
         }
     }
