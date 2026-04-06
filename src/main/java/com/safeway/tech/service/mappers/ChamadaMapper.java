@@ -2,7 +2,6 @@ package com.safeway.tech.service.mappers;
 
 import com.safeway.tech.api.dto.chamada.ChamadaAlunoResponse;
 import com.safeway.tech.api.dto.chamada.ChamadaResponse;
-import com.safeway.tech.api.dto.itinerario.ItinerarioResponse;
 import com.safeway.tech.domain.models.Chamada;
 import com.safeway.tech.domain.models.ChamadaAluno;
 
@@ -21,7 +20,7 @@ public class ChamadaMapper {
 
         return new ChamadaResponse(
                 chamada.getId(),
-                ItinerarioResponse.fromEntity(chamada.getItinerario()),
+                ItinerarioMapper.toResponse(chamada.getItinerario()),
                 chamada.getStatus(),
                 alunosResponse
         );
