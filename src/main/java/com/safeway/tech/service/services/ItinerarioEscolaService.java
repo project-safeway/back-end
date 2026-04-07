@@ -7,7 +7,9 @@ import com.safeway.tech.domain.models.Itinerario;
 import com.safeway.tech.domain.models.ItinerarioEscola;
 import com.safeway.tech.infra.exception.EnderecoNotFoundException;
 import com.safeway.tech.infra.exception.ItinerarioEscolaNotFound;
+import com.safeway.tech.infra.exception.ItinerarioNotFoundException;
 import com.safeway.tech.repository.ItinerarioEscolaRepository;
+import com.safeway.tech.repository.ItinerarioRepository;
 import lombok.RequiredArgsConstructor;
 import org.apache.coyote.BadRequestException;
 import org.springframework.stereotype.Service;
@@ -23,7 +25,7 @@ import java.util.stream.Collectors;
 public class ItinerarioEscolaService {
 
     private final ItinerarioEscolaRepository itinerarioEscolaRepository;
-    private final ItinerarioService itinerarioService;
+    private final ItinerarioRepository itinerarioRepository;
     private final EscolaService escolaService;
     private final EnderecoService enderecoService;
 
@@ -37,7 +39,7 @@ public class ItinerarioEscolaService {
 
     @Transactional
     public void adicionarEscola(UUID itinerarioId, ItinerarioEscolaRequest request) throws BadRequestException {
-        Itinerario itinerario = itinerarioService.buscarPorId(itinerarioId);
+        Itinerario itinerario = itinerarioRepository.findById(itinerarioId).orElseThrow(() -> new ItinerarioNotFoundException("Itinerário não encontrado"));
 
         Escola escola = escolaService.buscarPorId(request.escolaId());
 

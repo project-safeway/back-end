@@ -6,6 +6,7 @@ import com.safeway.tech.domain.models.Endereco;
 import com.safeway.tech.domain.models.Responsavel;
 import com.safeway.tech.infra.exception.EnderecoNotFoundException;
 import com.safeway.tech.repository.EnderecoRepository;
+import com.safeway.tech.repository.ResponsavelRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,8 +21,9 @@ import java.util.stream.Collectors;
 public class EnderecoService {
 
     private final EnderecoRepository enderecoRepository;
-    private final ResponsavelService responsavelService;
+    private final ResponsavelRepository responsavelRepository;
     private final GeocodingService geocodingService;
+    private final CurrentUserService currentUserService;
 
     public Endereco buscarPorId(UUID id) {
         return enderecoRepository.findById(id)
@@ -30,7 +32,8 @@ public class EnderecoService {
 
     @Transactional(readOnly = true)
     public List<Endereco> listarEnderecosDisponiveis(UUID alunoId) {
-        List<Responsavel> responsaveis = responsavelService.listarResponsaveisPorAluno(alunoId);
+        UUID userId = currentUserService.getCurrentUserId();
+        List<Responsavel> responsaveis = responsavelRepository.findByAlunosIdAndUsuarioIdUsuario(alunoId, userId);
 
         return responsaveis.stream()
                 .map(Responsavel::getEndereco)
