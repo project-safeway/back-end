@@ -1,5 +1,6 @@
 package com.safeway.tech.api.dto.aluno;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.safeway.tech.api.dto.responsavel.ResponsavelRequest;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Max;
@@ -14,6 +15,7 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 public record AlunoRequest(
         @NotBlank String nome,
         @NotBlank String professor,
