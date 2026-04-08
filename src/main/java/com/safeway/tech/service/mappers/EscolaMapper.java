@@ -8,6 +8,7 @@ public class EscolaMapper {
 
     public static EscolaResponse toResponse(Escola escola) {
         return new EscolaResponse(
+                escola.getId(),
                 escola.getNome(),
                 escola.getNivelEnsino(),
                 EnderecoMapper.toResponse(escola.getEndereco()),

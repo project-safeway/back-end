@@ -5,8 +5,10 @@ import com.safeway.tech.api.dto.responsavel.ResponsavelResponse;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.UUID;
 
 public record AlunoResponse(
+        UUID id,
         String nome,
         String professor,
         LocalDate dtNascimento,

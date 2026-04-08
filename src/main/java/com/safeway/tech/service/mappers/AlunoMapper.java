@@ -10,6 +10,7 @@ public class AlunoMapper {
 
     public static AlunoResponse toResponse(Aluno aluno) {
         return new AlunoResponse(
+                aluno.getId(),
                 aluno.getNome(),
                 aluno.getProfessor(),
                 aluno.getDtNascimento(),
