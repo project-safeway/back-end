@@ -35,5 +35,4 @@ build/
 ### Credentials ###
 /src/main/resources/application.properties
 /.idea/
-/src/main/resources/keys/pri.key
-/src/main/resources/keys/pub.key
+/src/main/resources/keys/
