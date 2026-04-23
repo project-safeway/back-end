@@ -57,8 +57,6 @@ public class AlunoService {
         aluno.setUsuario(usuario);
         aluno.setTransporte(transporte);
 
-        aluno = alunoRepository.save(aluno);
-
         for (ResponsavelRequest responsavelRequest : request.responsaveis()) {
             Responsavel responsavel = responsavelService
                     .buscarPorCpfAndUsuario(responsavelRequest.cpf(), userId)
@@ -66,6 +64,8 @@ public class AlunoService {
 
             aluno.adicionarResponsavel(responsavel);
         }
+
+        aluno = alunoRepository.save(aluno);
 
         eventPublisher.publicarAlunoCriado(aluno);
         return aluno;

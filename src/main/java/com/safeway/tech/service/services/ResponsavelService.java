@@ -38,17 +38,10 @@ public class ResponsavelService {
         return responsavelRepository.findAllByIdUsuario(userId);
     }
 
-    public List<Responsavel> listarResponsaveisPorAluno(UUID alunoId) {
-        UUID userId = currentUserService.getCurrentUserId();
-        return responsavelRepository.findByAlunosIdAndUsuarioIdUsuario(alunoId, userId);
-    }
-
     @Transactional
     public Responsavel criarResponsavel(ResponsavelRequest request) {
         Responsavel responsavel = new Responsavel();
         aplicaDados(responsavel, request);
-
-        responsavel = responsavelRepository.save(responsavel);
 
         Endereco endereco = enderecoService.criar(request.endereco());
         responsavel.setEndereco(endereco);
@@ -60,9 +53,19 @@ public class ResponsavelService {
         return responsavelRepository.save(responsavel);
     }
 
+    @Transactional
     public Responsavel alterarResponsavel(ResponsavelRequest request, UUID idResponsavel) {
         Responsavel responsavel = buscarPorId(idResponsavel);
         aplicaDados(responsavel, request);
+
+        if (request.endereco() != null) {
+            Endereco enderecoAtual = responsavel.getEndereco();
+            Endereco endereco = enderecoAtual != null && enderecoAtual.getId() != null
+                    ? enderecoService.atualizar(enderecoAtual.getId(), request.endereco())
+                    : enderecoService.criar(request.endereco());
+            responsavel.setEndereco(endereco);
+        }
+
         return responsavelRepository.save(responsavel);
     }
 

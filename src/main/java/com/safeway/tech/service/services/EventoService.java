@@ -1,6 +1,8 @@
 package com.safeway.tech.service.services;
 
 import com.safeway.tech.api.dto.evento.EventoRequest;
+import com.safeway.tech.domain.enums.EventoTypeEnum;
+import com.safeway.tech.domain.enums.PriorityEnum;
 import com.safeway.tech.domain.models.Evento;
 import com.safeway.tech.domain.models.Usuario;
 import com.safeway.tech.infra.exception.EventoNotFoundException;
@@ -10,6 +12,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Locale;
 import java.util.UUID;
 
 @Service
@@ -28,7 +31,13 @@ public class EventoService {
 
     public List<Evento> listarFiltrado(LocalDate start, LocalDate end, String type, String priority) {
         UUID userId = currentUserService.getCurrentUserId();
-        return eventoRepository.findFiltrado(userId, start, end, type, priority);
+        return eventoRepository.findFiltrado(
+                userId,
+                start,
+                end,
+                parseEventoType(type),
+                parsePriority(priority)
+        );
     }
 
     public Evento criarEvento(EventoRequest request) {
@@ -65,5 +74,19 @@ public class EventoService {
         evento.setDate(request.date());
         evento.setType(request.type());
         evento.setPriority(request.priority());
+    }
+
+    private EventoTypeEnum parseEventoType(String type) {
+        if (type == null || type.isBlank()) {
+            return null;
+        }
+        return EventoTypeEnum.valueOf(type.trim().toUpperCase(Locale.ROOT));
+    }
+
+    private PriorityEnum parsePriority(String priority) {
+        if (priority == null || priority.isBlank()) {
+            return null;
+        }
+        return PriorityEnum.valueOf(priority.trim().toUpperCase(Locale.ROOT));
     }
 }

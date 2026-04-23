@@ -15,6 +15,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -39,5 +40,5 @@ public class Escola extends BaseEntity {
     private NivelEnsinoEnum nivelEnsino;
 
     @OneToMany(mappedBy = "escola", fetch = FetchType.EAGER)
-    private List<Aluno> alunos;
+    private List<Aluno> alunos = new ArrayList<>();
 }

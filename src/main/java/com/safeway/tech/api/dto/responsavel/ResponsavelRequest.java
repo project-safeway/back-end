@@ -5,6 +5,7 @@ import com.safeway.tech.api.dto.endereco.EnderecoRequest;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -14,6 +15,6 @@ public record ResponsavelRequest(
         @NotBlank String tel1,
         String tel2,
         @Email String email,
-        @Valid EnderecoRequest endereco
+        @NotNull @Valid EnderecoRequest endereco
 ) {}
 

@@ -23,7 +23,7 @@ public class EscolaService {
     private final CurrentUserService currentUserService;
 
     public List<Escola> listarEscolasComAlunos() {
-        UUID usuarioId = new CurrentUserService().getCurrentUserId();
+        UUID usuarioId = currentUserService.getCurrentUserId();
         return escolaRepository.findByUsuarioIdUsuario(usuarioId);
     }
 
