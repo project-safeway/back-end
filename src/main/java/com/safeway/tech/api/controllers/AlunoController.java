@@ -6,6 +6,7 @@ import com.safeway.tech.api.dto.aluno.AlunoResponse;
 import com.safeway.tech.api.dto.endereco.EnderecoResponse;
 import com.safeway.tech.domain.models.Aluno;
 import com.safeway.tech.domain.models.Endereco;
+import com.safeway.tech.facade.AlunoFacade;
 import com.safeway.tech.service.mappers.AlunoMapper;
 import com.safeway.tech.service.mappers.EnderecoMapper;
 import com.safeway.tech.service.services.AlunoService;
@@ -32,14 +33,14 @@ import java.util.UUID;
 public class AlunoController {
 
     private final AlunoService alunoService;
+    private final AlunoFacade alunoFacade;
     private final EnderecoService enderecoService;
 
     @PostMapping
     public ResponseEntity<AlunoResponse> cadastrarAlunoCompleto(
             @RequestBody @Valid AlunoRequest request
     ) {
-        Aluno aluno = alunoService.criarAluno(request);
-        AlunoResponse response = AlunoMapper.toResponse(aluno);
+        AlunoResponse response = alunoFacade.criarAluno(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
@@ -54,8 +55,7 @@ public class AlunoController {
 
     @GetMapping("/{alunoId}")
     public ResponseEntity<AlunoResponse> listarDadosAluno(@PathVariable UUID alunoId) {
-        Aluno aluno = alunoService.buscarPorId(alunoId);
-        AlunoResponse response = AlunoMapper.toResponse(aluno);
+        AlunoResponse response = alunoFacade.buscarPorId(alunoId);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
@@ -64,14 +64,13 @@ public class AlunoController {
             @PathVariable UUID alunoId,
             @RequestBody @Valid AlunoRequest request
     ) {
-        Aluno aluno = alunoService.atualizarAluno(alunoId, request);
-        AlunoResponse response = AlunoMapper.toResponse(aluno);
+        AlunoResponse response = alunoFacade.atualizarAluno(alunoId, request);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
     @DeleteMapping("/{alunoId}")
     public ResponseEntity<Void> deletarAluno(@PathVariable UUID alunoId) {
-        alunoService.deletarAluno(alunoId);
+        alunoFacade.deletarAluno(alunoId);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 

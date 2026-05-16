@@ -1,6 +1,8 @@
 package com.safeway.tech.config;
 
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.hibernate6.Hibernate6Module;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.cache.RedisCacheConfiguration;
@@ -19,9 +21,11 @@ public class RedisCacheConfig {
     public RedisCacheManager redisCacheManager(RedisConnectionFactory redisConnectionFactory, ObjectMapper objectMapper) {
 
         ObjectMapper redisObjectMapper = objectMapper.copy();
+        redisObjectMapper.registerModule(new Hibernate6Module());
         redisObjectMapper.activateDefaultTyping(
                 redisObjectMapper.getPolymorphicTypeValidator(),
-                ObjectMapper.DefaultTyping.NON_FINAL
+                ObjectMapper.DefaultTyping.EVERYTHING,
+                JsonTypeInfo.As.PROPERTY
         );
 
         GenericJackson2JsonRedisSerializer json = new GenericJackson2JsonRedisSerializer(redisObjectMapper);
@@ -33,7 +37,8 @@ public class RedisCacheConfig {
                 .entryTtl(Duration.ofMinutes(5));
 
         Map<String, RedisCacheConfiguration> perCache = Map.of(
-                "eventos", defaults.entryTtl(Duration.ofMinutes(10))
+                "eventos", defaults.entryTtl(Duration.ofMinutes(10)),
+                "alunos", defaults.entryTtl(Duration.ofMinutes(10))
         );
 
         return RedisCacheManager.builder(redisConnectionFactory)
