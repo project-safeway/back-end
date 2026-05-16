@@ -8,6 +8,9 @@ import com.safeway.tech.domain.models.Usuario;
 import com.safeway.tech.infra.exception.EventoNotFoundException;
 import com.safeway.tech.repository.EventoRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -23,9 +26,10 @@ public class EventoService {
     private final UsuarioService usuarioService;
     private final CurrentUserService currentUserService;
 
-    public Evento buscarPorId(UUID idEvento) {
+    @Cacheable(cacheNames = "eventos", key = "#id + ':' + @currentUserService.getCurrentUserId()")
+    public Evento buscarPorId(UUID id) {
         UUID userId = currentUserService.getCurrentUserId();
-        return eventoRepository.findByIdAndIdUsuario(idEvento, userId)
+        return eventoRepository.findByIdAndIdUsuario(id, userId)
                 .orElseThrow(() -> new EventoNotFoundException("Evento não encontrado"));
     }
 
@@ -40,6 +44,7 @@ public class EventoService {
         );
     }
 
+    @CachePut(cacheNames = "eventos", key = "#result.id + ':' + @currentUserService.getCurrentUserId()")
     public Evento criarEvento(EventoRequest request) {
         Evento evento = new Evento();
         aplicarDados(evento, request);
@@ -51,16 +56,24 @@ public class EventoService {
         return eventoRepository.save(evento);
     }
 
-    public Evento atualizarEvento(UUID idEvento, EventoRequest request) {
-        Evento evento = buscarPorId(idEvento);
+    @CachePut(cacheNames = "eventos", key = "#id + ':' + @currentUserService.getCurrentUserId()")
+    public Evento atualizarEvento(UUID id, EventoRequest request) {
+        UUID userId = currentUserService.getCurrentUserId();
+
+        Evento evento = eventoRepository.findByIdAndIdUsuario(id, userId)
+                .orElseThrow(() -> new EventoNotFoundException("Evento não encontrado"));
+
         aplicarDados(evento, request);
         return eventoRepository.save(evento);
     }
 
+    @CacheEvict(cacheNames = "eventos", key = "#id + ':' + @currentUserService.getCurrentUserId()")
     public void excluir(UUID id) {
-        Evento evento = buscarPorId(id);
-
         UUID userId = currentUserService.getCurrentUserId();
+
+        Evento evento = eventoRepository.findByIdAndIdUsuario(id, userId)
+                .orElseThrow(() -> new EventoNotFoundException("Evento não encontrado"));
+
         if (!evento.getUsuario().getId().equals(userId)) {
             throw new IllegalArgumentException("Ação não permitida");
         }
