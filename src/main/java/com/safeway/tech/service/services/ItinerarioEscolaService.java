@@ -39,7 +39,8 @@ public class ItinerarioEscolaService {
 
     @Transactional
     public void adicionarEscola(UUID itinerarioId, ItinerarioEscolaRequest request) throws BadRequestException {
-        Itinerario itinerario = itinerarioRepository.findById(itinerarioId).orElseThrow(() -> new ItinerarioNotFoundException("Itinerário não encontrado"));
+        Itinerario itinerario = itinerarioRepository.findById(itinerarioId)
+                .orElseThrow(() -> new ItinerarioNotFoundException("Itinerário não encontrado"));
 
         Escola escola = escolaService.buscarPorId(request.escolaId());
 
