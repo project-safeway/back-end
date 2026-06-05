@@ -56,7 +56,9 @@ public class ResponsavelController {
     }
 
     @PutMapping("/{idResponsavel}")
-    public ResponseEntity<ResponsavelResponse> alterarResponsavel(@RequestBody @Valid ResponsavelRequest novoResponsavel, @PathVariable UUID idResponsavel) {
+    public ResponseEntity<ResponsavelResponse> alterarResponsavel(
+            @RequestBody @Valid ResponsavelRequest novoResponsavel,
+            @PathVariable UUID idResponsavel) {
         Responsavel responsavel = responsavelService.alterarResponsavel(novoResponsavel, idResponsavel);
         ResponsavelResponse response = ResponsavelMapper.toResponse(responsavel);
         return ResponseEntity.status(HttpStatus.OK).body(response);
