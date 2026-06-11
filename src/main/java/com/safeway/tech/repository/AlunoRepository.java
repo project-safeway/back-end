@@ -19,6 +19,6 @@ public interface AlunoRepository extends JpaRepository<Aluno, UUID> {
     @Query("SELECT a FROM Aluno a WHERE a.ativo = true AND a.usuario.id = :userId")
     List<Aluno> findByAtivoTrueAndIdUsuario(@Param("userId") UUID userId);
 
-    @Query("SELECT a FROM Aluno a WHERE a.id = :alunoId AND a.usuario.id = :userId")
+    @Query("SELECT a FROM Aluno a WHERE a.id = :alunoId AND a.usuario.id = :userId AND a.ativo = true")
     Optional<Aluno> findByIdAndUsuarioId(@Param("alunoId") UUID alunoId, @Param("userId") UUID userId);
 }

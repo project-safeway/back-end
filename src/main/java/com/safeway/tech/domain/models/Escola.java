@@ -14,6 +14,7 @@ import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.SQLRestriction;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -40,5 +41,6 @@ public class Escola extends BaseEntity {
     private NivelEnsinoEnum nivelEnsino;
 
     @OneToMany(mappedBy = "escola", fetch = FetchType.EAGER)
+    @SQLRestriction("ativo = true")
     private List<Aluno> alunos = new ArrayList<>();
 }
