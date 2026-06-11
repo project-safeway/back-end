@@ -1,4 +1,4 @@
-package com.safeway.tech.infra.exception;
+package com.safeway.tech.infra.exception.handler;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

@@ -1,6 +1,8 @@
 package com.safeway.tech.repository;
 
 import com.safeway.tech.domain.models.Evento;
+import com.safeway.tech.domain.enums.EventoTypeEnum;
+import com.safeway.tech.domain.enums.PriorityEnum;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -18,17 +20,14 @@ public interface EventoRepository extends JpaRepository<Evento, UUID> {
             "where e.usuario.id = :userId " +
             "and (:start is null or e.date >= :start) " +
             "and (:end is null or e.date <= :end) " +
-            "and (:type is null or lower(e.type) = lower(:type)) " +
-            "and (:priority is null or lower(e.priority) = lower(:priority))")
+            "and (:type is null or e.type = :type) " +
+            "and (:priority is null or e.priority = :priority)")
     List<Evento> findFiltrado(@Param("userId") UUID userId,
                               @Param("start") LocalDate start,
                               @Param("end") LocalDate end,
-                              @Param("type") String type,
-                              @Param("priority") String priority);
+                              @Param("type") EventoTypeEnum type,
+                              @Param("priority") PriorityEnum priority);
 
     @Query("SELECT e FROM Evento e WHERE e.id = :idEvento AND e.usuario.id = :userId")
     Optional<Evento> findByIdAndIdUsuario(@Param("idEvento") UUID idEvento, @Param("userId") UUID userId);
-
-    @Query("SELECT e FROM Evento e WHERE e.usuario.id = :userId")
-    List<Evento> findAllByIdUsuario(@Param("userId") UUID userId);
 }

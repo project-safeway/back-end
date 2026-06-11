@@ -7,14 +7,15 @@ import com.safeway.tech.api.dto.itinerario.ItinerarioRequest;
 import com.safeway.tech.api.dto.itinerario.ItinerarioResponse;
 import com.safeway.tech.api.dto.itinerario.ItinerarioUpdateRequest;
 import com.safeway.tech.domain.models.Itinerario;
+import com.safeway.tech.service.mappers.ItinerarioMapper;
 import com.safeway.tech.service.services.ItinerarioAlunoService;
 import com.safeway.tech.service.services.ItinerarioEscolaService;
 import com.safeway.tech.service.services.ItinerarioService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.apache.coyote.BadRequestException;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -39,30 +40,31 @@ public class ItinerarioController {
 
     @PostMapping
     public ResponseEntity<ItinerarioResponse> criar(
-            @Valid @RequestBody ItinerarioRequest request,
-            @AuthenticationPrincipal Jwt jwt
+            @Valid @RequestBody ItinerarioRequest request
     ) {
-        UUID transporteUsuario = UUID.fromString(jwt.getClaim("transporte"));
-        ItinerarioResponse response = itinerarioService.criar(request, transporteUsuario);
-        return ResponseEntity.ok(response);
+        Itinerario itinerario = itinerarioService.criar(request);
+        ItinerarioResponse response = ItinerarioMapper.toResponse(itinerario);
+        return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
     @GetMapping
-    public ResponseEntity<List<ItinerarioResponse>> listarTodos(@AuthenticationPrincipal Jwt jwt) {
-        UUID transporte = UUID.fromString(jwt.getClaim("transporte"));
-        return ResponseEntity.ok(itinerarioService.listarTodos(transporte));
+    public ResponseEntity<List<ItinerarioResponse>> listarTodos() {
+        List<Itinerario> itinerarios = itinerarioService.listarTodos();
+        List<ItinerarioResponse> response = itinerarios.stream().map(ItinerarioMapper::toResponse).toList();
+        return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<ItinerarioResponse> buscarPorId(@PathVariable UUID id) {
         Itinerario itinerario = itinerarioService.buscarPorId(id);
-        return ResponseEntity.ok(ItinerarioResponse.fromEntity(itinerario));
+        ItinerarioResponse response = ItinerarioMapper.toResponse(itinerario);
+        return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
     @GetMapping("/{id}/alunos")
     public ResponseEntity<List<AlunoComLocalizacao>> buscarAlunosDoItinerario(@PathVariable UUID id) {
         List<AlunoComLocalizacao> alunos = itinerarioAlunoService.buscarAlunosComLocalizacao(id);
-        return ResponseEntity.ok(alunos);
+        return ResponseEntity.status(HttpStatus.OK).body(alunos);
     }
 
     @PutMapping("/{id}")
@@ -70,13 +72,15 @@ public class ItinerarioController {
             @PathVariable UUID id,
             @Valid @RequestBody ItinerarioUpdateRequest request
     ) {
-        return ResponseEntity.ok(itinerarioService.atualizar(id, request));
+        Itinerario itinerario = itinerarioService.atualizar(id, request);
+        ItinerarioResponse response = ItinerarioMapper.toResponse(itinerario);
+        return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> desativar(@PathVariable UUID id) {
         itinerarioService.desativar(id);
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
     @PostMapping("/{id}/alunos")
@@ -85,7 +89,7 @@ public class ItinerarioController {
             @Valid @RequestBody ItinerarioAlunoRequest request
     ) {
         itinerarioAlunoService.adicionarAluno(id, request);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.status(HttpStatus.OK).build();
     }
 
     @DeleteMapping("/{id}/alunos/{alunoId}")
@@ -104,7 +108,7 @@ public class ItinerarioController {
         }
 
         itinerarioAlunoService.removerAluno(id, alunoIdLong);
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
     @PatchMapping("/{id}/alunos/ordem")
@@ -113,16 +117,16 @@ public class ItinerarioController {
             @RequestBody List<UUID> novaOrdemIds
     ) {
         itinerarioAlunoService.reordenar(id, novaOrdemIds);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
     @PostMapping("/{id}/escolas")
     public ResponseEntity<Void> adicionarEscola(
             @PathVariable UUID id,
             @Valid @RequestBody ItinerarioEscolaRequest request
-    ) {
+    ) throws BadRequestException {
         itinerarioEscolaService.adicionarEscola(id, request);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.status(HttpStatus.OK).build();
     }
 
     @DeleteMapping("/{id}/escolas/{escolaId}")
@@ -131,7 +135,7 @@ public class ItinerarioController {
             @PathVariable UUID escolaId
     ) {
         itinerarioEscolaService.removerEscola(id, escolaId);
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
     @PatchMapping("/{id}/escolas/ordem")
@@ -140,6 +144,6 @@ public class ItinerarioController {
             @RequestBody List<UUID> novaOrdemEscolaIds
     ) {
         itinerarioEscolaService.reordenar(id, novaOrdemEscolaIds);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 }

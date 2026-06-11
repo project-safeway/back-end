@@ -1,5 +1,6 @@
 package com.safeway.tech.api.dto.itinerario;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.safeway.tech.domain.enums.TipoViagemEnum;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
@@ -9,6 +10,7 @@ import java.sql.Time;
 import java.util.List;
 import java.util.UUID;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 public record ItinerarioUpdateRequest(
         @NotBlank String nome,
         Time horarioInicio,

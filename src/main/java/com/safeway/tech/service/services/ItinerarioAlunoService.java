@@ -7,6 +7,11 @@ import com.safeway.tech.domain.models.Endereco;
 import com.safeway.tech.domain.models.Itinerario;
 import com.safeway.tech.domain.models.ItinerarioAluno;
 import com.safeway.tech.domain.models.Responsavel;
+import com.safeway.tech.infra.exception.AlunoNotFoundException;
+import com.safeway.tech.infra.exception.CoordinatesNotValidException;
+import com.safeway.tech.infra.exception.EnderecoNotFoundException;
+import com.safeway.tech.infra.exception.ItinerarioNotFoundException;
+import com.safeway.tech.infra.exception.OperationNotAllowedException;
 import com.safeway.tech.repository.ItinerarioAlunoRepository;
 import com.safeway.tech.repository.ItinerarioRepository;
 import lombok.RequiredArgsConstructor;
@@ -16,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -28,50 +34,58 @@ public class ItinerarioAlunoService {
     private final AlunoService alunoService;
     private final EnderecoService enderecoService;
 
-    /**
-     * Adiciona um aluno a um itinerário existente
-     */
+    public List<ItinerarioAluno> buscarPorItinerarioId(UUID itinerarioId) {
+        return itinerarioAlunoRepository.findByItinerarioId(itinerarioId);
+    }
+
+    public void salvarTodos(List<ItinerarioAluno> alunos) {
+        itinerarioAlunoRepository.saveAll(alunos);
+    }
+
     @Transactional
     public void adicionarAluno(UUID itinerarioId, ItinerarioAlunoRequest request) {
         Itinerario itinerario = itinerarioRepository.findById(itinerarioId)
-                .orElseThrow(() -> new RuntimeException("Itinerário não encontrado"));
+                .orElseThrow(() -> new ItinerarioNotFoundException("Itinerário não encontrado"));
 
-        Aluno aluno = alunoService.buscarAlunoPorId(request.alunoId());
+        Aluno aluno = alunoService.buscarPorId(request.alunoId());
 
         // Determinar endereço: usar request.enderecoId() se presente, caso contrário tentar fallback
         Endereco endereco;
         if (request.enderecoId() != null) {
-            endereco = enderecoService.buscarEntidade(request.enderecoId());
+            endereco = enderecoService.buscarPorId(request.enderecoId());
+
+            boolean enderecoPerenceAoResponsavel = aluno.getResponsaveis().stream()
+                    .anyMatch(r -> r.getEndereco() != null && r.getEndereco().getId().equals(endereco.getId()));
+
+            if (!enderecoPerenceAoResponsavel) {
+                throw new OperationNotAllowedException("Endereço não pertence a nenhum responsável do aluno");
+            }
         } else {
             endereco = aluno.getResponsaveis().stream()
                     .map(Responsavel::getEndereco)
                     .filter(Objects::nonNull)
                     .findFirst()
-                    .orElseThrow(() -> new RuntimeException("Nenhum endereço disponível para o responsável do aluno"));
+                    .orElseThrow(() -> new EnderecoNotFoundException("Nenhum endereço disponível para o responsável do aluno"));
         }
 
         // Validar que o endereço tem lat/lng válidos antes de prosseguir
         if (endereco.getLatitude() == null || endereco.getLongitude() == null) {
-            throw new RuntimeException("Endereço selecionado não possui latitude/longitude válidas");
+            throw new CoordinatesNotValidException("Endereço selecionado não possui latitude/longitude válidas");
         }
+
         double lat = endereco.getLatitude();
         double lng = endereco.getLongitude();
+
         if (lat < -90 || lat > 90 || lng < -180 || lng > 180) {
-            throw new RuntimeException("Coordenadas do endereço inválidas: " + lat + ", " + lng);
-        }
-
-        boolean enderecoPerenceAoResponsavel = aluno.getResponsaveis().stream()
-                .anyMatch(r -> r.getEndereco() != null && r.getEndereco().getId().equals(endereco.getId()));
-
-        if (!enderecoPerenceAoResponsavel) {
-            throw new RuntimeException("Endereço não pertence a nenhum responsável do aluno");
+            throw new CoordinatesNotValidException("Coordenadas do endereço inválidas: " + lat + ", " + lng);
         }
 
         // Evita duplicidade
-        itinerarioAlunoRepository.findByItinerarioIdAndAlunoId(itinerarioId, aluno.getId())
-                .ifPresent(a -> {
-                    throw new RuntimeException("Aluno já está vinculado a este itinerário");
-                });
+        Optional<ItinerarioAluno> ia = itinerarioAlunoRepository.findByItinerarioIdAndAlunoId(itinerarioId, aluno.getId());
+
+        if (ia.isPresent()) {
+            return;
+        }
 
         ItinerarioAluno entity = new ItinerarioAluno();
         entity.setItinerario(itinerario);
@@ -86,7 +100,7 @@ public class ItinerarioAlunoService {
     public void removerAluno(UUID itinerarioId, UUID alunoId) {
         ItinerarioAluno entity = itinerarioAlunoRepository
                 .findByItinerarioIdAndAlunoId(itinerarioId, alunoId)
-                .orElseThrow(() -> new RuntimeException("Aluno não encontrado no itinerário"));
+                .orElseThrow(() -> new AlunoNotFoundException("Aluno não encontrado no itinerário"));
 
         itinerarioAlunoRepository.delete(entity);
     }
@@ -101,35 +115,36 @@ public class ItinerarioAlunoService {
             ItinerarioAluno ia = new ItinerarioAluno();
             ia.setItinerario(itinerario);
 
-            Aluno aluno = alunoService.buscarAlunoPorId(dto.alunoId());
+            Aluno aluno = alunoService.buscarPorId(dto.alunoId());
 
             // Determinar endereco: prefer dto.enderecoId(), senão fallback para primeiro endereco de responsavel
             Endereco endereco;
             if (dto.enderecoId() != null) {
-                endereco = enderecoService.buscarEntidade(dto.enderecoId());
+                endereco = enderecoService.buscarPorId(dto.enderecoId());
             } else {
                 endereco = aluno.getResponsaveis().stream()
                         .map(Responsavel::getEndereco)
                         .filter(Objects::nonNull)
                         .findFirst()
-                        .orElseThrow(() -> new RuntimeException("Nenhum endereço disponível para o responsável do aluno"));
+                        .orElseThrow(() -> new EnderecoNotFoundException("Nenhum endereço disponível para o responsável do aluno"));
             }
 
             // validar lat/lng
             if (endereco.getLatitude() == null || endereco.getLongitude() == null) {
-                throw new RuntimeException("Endereço do aluno (id=" + aluno.getId() + ") não possui latitude/longitude válidas");
+                throw new CoordinatesNotValidException("Endereço do aluno (id=" + aluno.getId() + ") não possui latitude/longitude válidas");
             }
             double lat = endereco.getLatitude();
             double lng = endereco.getLongitude();
             if (lat < -90 || lat > 90 || lng < -180 || lng > 180) {
-                throw new RuntimeException("Coordenadas do endereço inválidas para aluno id=" + aluno.getId() + ": " + lat + ", " + lng);
+                throw new CoordinatesNotValidException("Coordenadas do endereço inválidas para aluno id=" + aluno.getId() + ": " + lat + ", " + lng);
             }
 
             boolean enderecoPerenceAoResponsavel = aluno.getResponsaveis().stream()
                     .anyMatch(r -> r.getEndereco() != null && r.getEndereco().getId().equals(endereco.getId()));
 
             if (!enderecoPerenceAoResponsavel) {
-                throw new RuntimeException("Endereço não pertence a nenhum responsável do aluno");
+                // TODO: Alterar para uma exception que faça mais sentido
+                throw new OperationNotAllowedException("Endereço não pertence a nenhum responsável do aluno");
             }
 
             ia.setAluno(aluno);
@@ -160,7 +175,7 @@ public class ItinerarioAlunoService {
     @Transactional
     public List<AlunoComLocalizacao> buscarAlunosComLocalizacao(UUID itinerarioId) {
         Itinerario itinerario = itinerarioRepository.findById(itinerarioId)
-                .orElseThrow(() -> new RuntimeException("Itinerário não encontrado"));
+                .orElseThrow(() -> new ItinerarioNotFoundException("Itinerário não encontrado"));
 
         return itinerarioAlunoRepository.findByItinerarioOrderByOrdemEmbarqueAsc(itinerario).stream()
                 .filter(ia -> ia.getEndereco() != null && ia.getEndereco().getLatitude() != null && ia.getEndereco().getLongitude() != null)

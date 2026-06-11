@@ -1,7 +1,9 @@
 package com.safeway.tech.api.controllers;
 
 import com.safeway.tech.api.dto.evento.EventoRequest;
+import com.safeway.tech.api.dto.evento.EventoResponse;
 import com.safeway.tech.domain.models.Evento;
+import com.safeway.tech.service.mappers.EventoMapper;
 import com.safeway.tech.service.services.EventoService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -29,33 +31,40 @@ public class EventoController {
     private final EventoService eventoService;
 
     @GetMapping
-    public ResponseEntity<List<EventoRequest>> listarFiltrado(
+    public ResponseEntity<List<EventoResponse>> listarFiltrado(
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate start,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate end,
             @RequestParam(required = false) String type,
             @RequestParam(required = false) String priority) {
-        List<EventoRequest> eventos = eventoService.listarFiltrado(start, end, type, priority);
-        return ResponseEntity.ok(eventos);
+        List<Evento> eventos = eventoService.listarFiltrado(start, end, type, priority);
+        List<EventoResponse> responses = eventos.stream().map(EventoMapper::toResponse).toList();
+        return ResponseEntity.status(HttpStatus.OK).body(responses);
     }
 
     @GetMapping("/{id}")
-    public Evento obter(@PathVariable UUID id) {
-        return eventoService.retornarUmOwned(id);
+    public ResponseEntity<EventoResponse> obterPorId(@PathVariable UUID id) {
+        Evento evento = eventoService.buscarPorId(id);
+        EventoResponse response = EventoMapper.toResponse(evento);
+        return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
     @PostMapping
-    public ResponseEntity<EventoRequest> criarEvento(@RequestBody Evento evento) {
-        EventoRequest eventoDTO = eventoService.criarEvento(evento);
-        return ResponseEntity.status(HttpStatus.CREATED).body(eventoDTO);
+    public ResponseEntity<EventoResponse> criarEvento(@RequestBody EventoRequest request) {
+        Evento evento = eventoService.criarEvento(request);
+        EventoResponse response = EventoMapper.toResponse(evento);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @PutMapping("/{id}")
-    public Evento atualizar(@PathVariable UUID id, @RequestBody Evento evento) {
-        return eventoService.atualizarEvento(id, evento);
+    public ResponseEntity<EventoResponse> atualizar(@PathVariable UUID id, @RequestBody EventoRequest request) {
+        Evento evento = eventoService.atualizarEvento(id, request);
+        EventoResponse response = EventoMapper.toResponse(evento);
+        return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
     @DeleteMapping("/{id}")
-    public void excluir(@PathVariable UUID id) {
+    public ResponseEntity<Void> excluir(@PathVariable UUID id) {
         eventoService.excluir(id);
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 }

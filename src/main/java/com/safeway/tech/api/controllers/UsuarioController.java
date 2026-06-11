@@ -45,7 +45,7 @@ public class UsuarioController {
 
     @GetMapping("/{idUsuario}")
     public UsuarioResponse retornarUm(@PathVariable UUID idUsuario) {
-        return toResponse(usuarioService.retornarUm(idUsuario));
+        return toResponse(usuarioService.buscarPorId(idUsuario));
     }
 
     @DeleteMapping("/{idUsuario}")
@@ -67,7 +67,7 @@ public class UsuarioController {
 
     @GetMapping("/feign/{idUsuario}")
     public UsuarioFeignResponse buscarUsuario(@PathVariable UUID idUsuario) {
-        Usuario usuario = usuarioService.retornarUm(idUsuario);
+        Usuario usuario = usuarioService.buscarPorId(idUsuario);
         return UsuarioFeignResponse.fromEntity(usuario);
     }
 }

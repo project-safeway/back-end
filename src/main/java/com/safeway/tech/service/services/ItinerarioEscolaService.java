@@ -5,9 +5,13 @@ import com.safeway.tech.domain.models.Endereco;
 import com.safeway.tech.domain.models.Escola;
 import com.safeway.tech.domain.models.Itinerario;
 import com.safeway.tech.domain.models.ItinerarioEscola;
+import com.safeway.tech.infra.exception.EnderecoNotFoundException;
+import com.safeway.tech.infra.exception.ItinerarioEscolaNotFound;
+import com.safeway.tech.infra.exception.ItinerarioNotFoundException;
 import com.safeway.tech.repository.ItinerarioEscolaRepository;
 import com.safeway.tech.repository.ItinerarioRepository;
 import lombok.RequiredArgsConstructor;
+import org.apache.coyote.BadRequestException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,32 +29,41 @@ public class ItinerarioEscolaService {
     private final EscolaService escolaService;
     private final EnderecoService enderecoService;
 
-    @Transactional
-    public void adicionarEscola(UUID itinerarioId, ItinerarioEscolaRequest request) {
-        Itinerario itinerario = itinerarioRepository.findById(itinerarioId)
-                .orElseThrow(() -> new RuntimeException("Itinerário não encontrado"));
+    public List<ItinerarioEscola> buscarPorItinerarioId(UUID itinerarioId) {
+        return itinerarioEscolaRepository.findByItinerarioId(itinerarioId);
+    }
 
-        Escola escola = escolaService.buscarEntidadePorId(itinerarioId, request.escolaId());
+    public void salvarTodos(List<ItinerarioEscola> escolas) {
+        itinerarioEscolaRepository.saveAll(escolas);
+    }
+
+    @Transactional
+    public void adicionarEscola(UUID itinerarioId, ItinerarioEscolaRequest request) throws BadRequestException {
+        Itinerario itinerario = itinerarioRepository.findById(itinerarioId)
+                .orElseThrow(() -> new ItinerarioNotFoundException("Itinerário não encontrado"));
+
+        Escola escola = escolaService.buscarPorId(request.escolaId());
 
         Endereco endereco;
         if (request.enderecoId() != null) {
-            endereco = enderecoService.buscarEntidade(request.enderecoId());
+            endereco = enderecoService.buscarPorId(request.enderecoId());
         } else {
             endereco = escola.getEndereco();
         }
 
         if (endereco.getLatitude() == null || endereco.getLongitude() == null) {
-            throw new RuntimeException("Endereço da escola não possui latitude/longitude válidas");
+            throw new EnderecoNotFoundException("Endereço da escola não possui latitude/longitude válidas");
         }
         double lat = endereco.getLatitude();
         double lng = endereco.getLongitude();
         if (lat < -90 || lat > 90 || lng < -180 || lng > 180) {
-            throw new RuntimeException("Coordenadas do endereço da escola inválidas: " + lat + ", " + lng);
+            // TODO: Alteração para exception personalizada
+            throw new BadRequestException("Coordenadas do endereço da escola inválidas: " + lat + ", " + lng);
         }
 
         itinerarioEscolaRepository.findByItinerarioIdAndEscolaIdEscola(itinerarioId, escola.getId())
                 .ifPresent(e -> {
-                    throw new RuntimeException("Escola já está vinculada a este itinerário");
+                    throw new ItinerarioEscolaNotFound("Escola já está vinculada a este itinerário");
                 });
 
         ItinerarioEscola entity = new ItinerarioEscola();

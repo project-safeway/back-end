@@ -10,6 +10,6 @@ import java.util.UUID;
 
 public interface ItinerarioRepository extends JpaRepository<Itinerario, UUID> {
 
-    @Query("SELECT i FROM Itinerario i WHERE i.transporte.id = :idTransporte")
+    @Query("SELECT i FROM Itinerario i WHERE i.transporte.id = :idTransporte AND i.ativo = true")
     List<Itinerario> findAllByTransporte(@Param("idTransporte") UUID idTransporte);
 }

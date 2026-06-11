@@ -15,7 +15,7 @@ public interface ResponsavelRepository extends JpaRepository<Responsavel, UUID> 
     List<Responsavel> findAllByIdUsuario(@Param("userId") UUID userId);
 
     @Query("SELECT r FROM Responsavel r JOIN r.alunos a WHERE a.id = :alunoId AND r.usuario.id = :usuarioId")
-    List<Responsavel> findByAlunosIdAlunoAndUsuarioIdUsuario(@Param("alunoId") UUID alunoId, @Param("usuarioId") UUID usuarioId);
+    List<Responsavel> findByAlunosIdAndUsuarioIdUsuario(@Param("alunoId") UUID alunoId, @Param("usuarioId") UUID usuarioId);
 
     @Query("SELECT r FROM Responsavel r WHERE r.id = :idResponsavel AND r.usuario.id = :usuarioId")
     Optional<Responsavel> findByIdResponsavelAndIdUsuario(@Param("idResponsavel") UUID idResponsavel, @Param("usuarioId") UUID usuarioId);
